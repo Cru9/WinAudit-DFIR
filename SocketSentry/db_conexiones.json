@@ -1,0 +1,1466 @@
+{
+    "Version":  "1.2",
+    "UltimaActualizacion":  "2026-10-21",
+    "Descripcion":  "Base de datos de reglas, firmas, heuristica y reputacion para SocketSentry",
+    "RutasSospechosas":  [
+                             {
+                                 "Patron":  "\\\\AppData\\\\Local\\\\Temp",
+                                 "Puntos":  40,
+                                 "Motivo":  "Ejecutable corriendo desde la carpeta temporal de usuario (%TEMP%)"
+                             },
+                             {
+                                 "Patron":  "\\\\Windows\\\\Temp",
+                                 "Puntos":  40,
+                                 "Motivo":  "Ejecutable corriendo desde la carpeta temporal del sistema (C:\\Windows\\Temp)"
+                             },
+                             {
+                                 "Patron":  "\\\\Users\\\\Public",
+                                 "Puntos":  35,
+                                 "Motivo":  "Ejecutable ubicado en C:\\Users\\Public (directorio comun de staging para malware)"
+                             },
+                             {
+                                 "Patron":  "\\\\PerfLogs",
+                                 "Puntos":  40,
+                                 "Motivo":  "Ejecutable en C:\\PerfLogs (tecnica comun de evasion de defensas)"
+                             },
+                             {
+                                 "Patron":  "\\\\AppData\\\\Roaming",
+                                 "Puntos":  25,
+                                 "Motivo":  "Ejecutable en AppData Roaming (frecuente en troyanos, stealers y miners)"
+                             },
+                             {
+                                 "Patron":  "C:\\\\[^\\\\]+\\.exe$",
+                                 "Puntos":  30,
+                                 "Motivo":  "Ejecutable corriendo directamente en la raiz de la unidad C:\\"
+                             }
+                         ],
+    "ArgumentosSospechosos":  [
+                                  {
+                                      "Patron":  "(?i)-(enc|encodedcommand)\\b",
+                                      "Puntos":  35,
+                                      "Motivo":  "Comando codificado en Base64 (-EncodedCommand) en ejecucion"
+                                  },
+                                  {
+                                      "Patron":  "(?i)-(w|windowstyle)\\s+hidden",
+                                      "Puntos":  25,
+                                      "Motivo":  "Ejecucion oculta en segundo plano (-WindowStyle Hidden)"
+                                  },
+                                  {
+                                      "Patron":  "(?i)(downloadstring|downloaddata|downloadfile|iwr\\s|curl\\s|invoke-webrequest)",
+                                      "Puntos":  35,
+                                      "Motivo":  "Cradle de descarga en memoria o descarga remota activa"
+                                  },
+                                  {
+                                      "Patron":  "(?i)-(ep|executionpolicy)\\s+bypass",
+                                      "Puntos":  20,
+                                      "Motivo":  "Evulsion de politica de ejecucion (-ExecutionPolicy Bypass)"
+                                  },
+                                  {
+                                      "Patron":  "(?i)iex\\s*\\(",
+                                      "Puntos":  35,
+                                      "Motivo":  "Invocacion dinamica de expresiones en memoria (IEX)"
+                                  }
+                              ],
+    "PuertosSospechosos":  [
+                               {
+                                   "Puerto":  4444,
+                                   "Puntos":  50,
+                                   "Amenaza":  "Metasploit / Meterpreter Default Payload"
+                               },
+                               {
+                                   "Puerto":  1337,
+                                   "Puntos":  45,
+                                   "Amenaza":  "Puerto clasico de RATs y Backdoors (Elite)"
+                               },
+                               {
+                                   "Puerto":  31337,
+                                   "Puntos":  45,
+                                   "Amenaza":  "BackOrifice / RAT default"
+                               },
+                               {
+                                   "Puerto":  50050,
+                                   "Puntos":  50,
+                                   "Amenaza":  "Cobalt Strike Team Server default port"
+                               },
+                               {
+                                   "Puerto":  8888,
+                                   "Puntos":  20,
+                                   "Amenaza":  "Puerto comun de proxies HTTP alternativos y C2"
+                               },
+                               {
+                                   "Puerto":  6667,
+                                   "Puntos":  35,
+                                   "Amenaza":  "IRC (posible botnet basada en canales IRC)"
+                               },
+                               {
+                                   "Puerto":  5555,
+                                   "Puntos":  30,
+                                   "Amenaza":  "ADB / Troyanos bancarios y miners"
+                               },
+                               {
+                                   "Puerto":  4443,
+                                   "Puntos":  25,
+                                   "Amenaza":  "SSL alternativo comun en C2s como Sliver / Mythic"
+                               },
+                               {
+                                   "Puerto":  8080,
+                                   "Puntos":  10,
+                                   "Amenaza":  "HTTP alternativo (revisar si es proceso no habitual)"
+                               }
+                           ],
+    "FirmantesConfiables":  [
+                                {
+                                    "Nombre":  "Microsoft Corporation",
+                                    "RutasPermitidas":  [
+                                                            "C:\\Windows\\",
+                                                            "C:\\Program Files",
+                                                            "C:\\Program Files (x86)"
+                                                        ]
+                                },
+                                {
+                                    "Nombre":  "Microsoft Windows",
+                                    "RutasPermitidas":  [
+                                                            "C:\\Windows\\"
+                                                        ]
+                                },
+                                {
+                                    "Nombre":  "Google LLC",
+                                    "RutasPermitidas":  [
+                                                            "C:\\Program Files\\Google",
+                                                            "C:\\Program Files (x86)\\Google"
+                                                        ]
+                                },
+                                {
+                                    "Nombre":  "Mozilla Corporation",
+                                    "RutasPermitidas":  [
+                                                            "C:\\Program Files\\Mozilla Firefox"
+                                                        ]
+                                },
+                                {
+                                    "Nombre":  "Brave Software, Inc.",
+                                    "RutasPermitidas":  [
+                                                            "C:\\Program Files\\BraveSoftware"
+                                                        ]
+                                },
+                                {
+                                    "Nombre":  "Valve",
+                                    "RutasPermitidas":  [
+                                                            "Steam"
+                                                        ]
+                                },
+                                {
+                                    "Nombre":  "Discord Inc.",
+                                    "RutasPermitidas":  [
+                                                            "Discord"
+                                                        ]
+                                },
+                                {
+                                    "Nombre":  "Spotify AB",
+                                    "RutasPermitidas":  [
+                                                            "Spotify"
+                                                        ]
+                                }
+                            ],
+    "ListaBlancaProcesos":  [
+                                {
+                                    "Proceso":  "System",
+                                    "RutaEsperada":  "",
+                                    "RequiereFirma":  false
+                                },
+                                {
+                                    "Proceso":  "svchost.exe",
+                                    "RutaEsperada":  "C:\\Windows\\System32\\svchost.exe",
+                                    "RequiereFirma":  true
+                                },
+                                {
+                                    "Proceso":  "spoolsv.exe",
+                                    "RutaEsperada":  "C:\\Windows\\System32\\spoolsv.exe",
+                                    "RequiereFirma":  true
+                                },
+                                {
+                                    "Proceso":  "explorer.exe",
+                                    "RutaEsperada":  "C:\\Windows\\explorer.exe",
+                                    "RequiereFirma":  true
+                                },
+                                {
+                                    "Proceso":  "lsass.exe",
+                                    "RutaEsperada":  "C:\\Windows\\System32\\lsass.exe",
+                                    "RequiereFirma":  true
+                                },
+                                {
+                                    "Proceso":  "services.exe",
+                                    "RutaEsperada":  "C:\\Windows\\System32\\services.exe",
+                                    "RequiereFirma":  true
+                                }
+                            ],
+    "IOC_C2_IPs":  {
+                       "178.62.3.223":  {
+                                            "Malware":  "QakBot",
+                                            "Puerto":  443,
+                                            "ASName":  "DIGITALOCEAN-ASN - DigitalOcean, LLC",
+                                            "Estado":  "offline"
+                                        },
+                       "34.204.119.63":  {
+                                             "Malware":  "QakBot",
+                                             "Puerto":  443,
+                                             "ASName":  "AMAZON-AES",
+                                             "Estado":  "offline"
+                                         },
+                       "27.133.154.218":  {
+                                              "Malware":  "QakBot",
+                                              "Puerto":  443,
+                                              "ASName":  "SAKURA-B SAKURA Internet Inc.",
+                                              "Estado":  "offline"
+                                          },
+                       "162.243.103.246":  {
+                                               "Malware":  "Emotet",
+                                               "Puerto":  8080,
+                                               "ASName":  "DIGITALOCEAN-ASN",
+                                               "Estado":  "offline"
+                                           },
+                       "50.16.16.211":  {
+                                            "Malware":  "QakBot",
+                                            "Puerto":  443,
+                                            "ASName":  "AMAZON-AES",
+                                            "Estado":  "online"
+                                        }
+                   },
+    "LOLBins":  [
+                    {
+                        "Nombre":  "powershell.exe",
+                        "Puntos":  35,
+                        "Motivo":  "PowerShell con conexion de red externa activa (posible Reverse Shell o descarga)"
+                    },
+                    {
+                        "Nombre":  "pwsh.exe",
+                        "Puntos":  30,
+                        "Motivo":  "PowerShell Core con conexion externa activa"
+                    },
+                    {
+                        "Nombre":  "cmd.exe",
+                        "Puntos":  40,
+                        "Motivo":  "Simbolo del sistema con conexion de red directa (posible Reverse Shell interactiva)"
+                    },
+                    {
+                        "Nombre":  "mshta.exe",
+                        "Puntos":  45,
+                        "Motivo":  "MSHTA con conexion saliente (tecnica de ejecucion remota HTA / C2)"
+                    },
+                    {
+                        "Nombre":  "certutil.exe",
+                        "Puntos":  45,
+                        "Motivo":  "CertUtil conectado a la red (posible descarga o exfiltracion de archivos)"
+                    },
+                    {
+                        "Nombre":  "rundll32.exe",
+                        "Puntos":  35,
+                        "Motivo":  "Rundll32 comunicandose por red externa"
+                    },
+                    {
+                        "Nombre":  "regsvr32.exe",
+                        "Puntos":  40,
+                        "Motivo":  "Regsvr32 comunicandose por red externa (posible ataque Squiblydoo)"
+                    },
+                    {
+                        "Nombre":  "cscript.exe",
+                        "Puntos":  35,
+                        "Motivo":  "Host de scripts de Windows (VBS/JS) con conexion saliente"
+                    },
+                    {
+                        "Nombre":  "wscript.exe",
+                        "Puntos":  35,
+                        "Motivo":  "Host de scripts de Windows con conexion saliente"
+                    },
+                    {
+                        "Nombre":  "bitsadmin.exe",
+                        "Puntos":  30,
+                        "Motivo":  "BITSAdmin con actividad de red saliente"
+                    },
+                    {
+                        "Nombre":  "AddinUtil.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (.NET Tool used for updating cache files for Microsoft Office Add-Ins.)"
+                    },
+                    {
+                        "Nombre":  "AppInstaller.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Tool used for installation of AppX/MSIX applications on Windows 10)"
+                    },
+                    {
+                        "Nombre":  "Applaunch.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft .NET ClickOnce Launch Utility.)"
+                    },
+                    {
+                        "Nombre":  "Aspnet_Compiler.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (ASP.NET Compilation Tool)"
+                    },
+                    {
+                        "Nombre":  "At.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Schedule periodic tasks)"
+                    },
+                    {
+                        "Nombre":  "Atbroker.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Helper binary for Assistive Technology (AT))"
+                    },
+                    {
+                        "Nombre":  "Bash.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (File used by Windows subsystem for Linux)"
+                    },
+                    {
+                        "Nombre":  "CertOC.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used for installing certificates)"
+                    },
+                    {
+                        "Nombre":  "CertReq.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used for requesting and managing certificates)"
+                    },
+                    {
+                        "Nombre":  "Change.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Remote Desktop Services MultiUser Change Utility)"
+                    },
+                    {
+                        "Nombre":  "Cipher.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (File Encryption Utility)"
+                    },
+                    {
+                        "Nombre":  "Cmdkey.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (creates, lists, and deletes stored user names and passwords or credentials.)"
+                    },
+                    {
+                        "Nombre":  "cmdl32.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft Connection Manager Auto-Download)"
+                    },
+                    {
+                        "Nombre":  "Cmstp.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Installs or removes a Connection Manager service profile.)"
+                    },
+                    {
+                        "Nombre":  "Colorcpl.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Binary that handles color management)"
+                    },
+                    {
+                        "Nombre":  "ComputerDefaults.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (ComputerDefaults.exe is a Windows system utility for managing default applications for tasks like web browsing, emailing, and media playback.)"
+                    },
+                    {
+                        "Nombre":  "ConfigSecurityPolicy.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Binary part of Windows Defender. Used to manage settings in Windows Defender. You can configure different pilot collections for each of the co-management workloads. Being able to use different pilot collections allows you to take a more granular approach when shifting workloads.)"
+                    },
+                    {
+                        "Nombre":  "Conhost.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Console Window host)"
+                    },
+                    {
+                        "Nombre":  "Control.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Binary used to launch controlpanel items in Windows)"
+                    },
+                    {
+                        "Nombre":  "Csc.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Binary file used by .NET Framework to compile C# code)"
+                    },
+                    {
+                        "Nombre":  "CustomShellHost.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (A host process that is used by custom shells when using Windows in Kiosk mode.)"
+                    },
+                    {
+                        "Nombre":  "DataSvcUtil.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (DataSvcUtil.exe is a command-line tool provided by WCF Data Services that consumes an Open Data Protocol (OData) feed and generates the client data service classes that are needed to access a data service from a .NET Framework client application.)"
+                    },
+                    {
+                        "Nombre":  "Desktopimgdownldr.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows binary used to configure lockscreen/desktop image)"
+                    },
+                    {
+                        "Nombre":  "DeviceCredentialDeployment.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Device Credential Deployment)"
+                    },
+                    {
+                        "Nombre":  "Dfsvc.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (ClickOnce engine in Windows used by .NET)"
+                    },
+                    {
+                        "Nombre":  "Diantz.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Binary that package existing files into a cabinet (.cab) file)"
+                    },
+                    {
+                        "Nombre":  "Diskshadow.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Diskshadow.exe is a tool that exposes the functionality offered by the volume shadow copy Service (VSS).)"
+                    },
+                    {
+                        "Nombre":  "Dnscmd.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (A command-line interface for managing DNS servers)"
+                    },
+                    {
+                        "Nombre":  "Esentutl.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Binary for working with Microsoft Joint Engine Technology (JET) database)"
+                    },
+                    {
+                        "Nombre":  "Eudcedit.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Private Character Editor Windows Utility)"
+                    },
+                    {
+                        "Nombre":  "Eventvwr.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Displays Windows Event Logs in a GUI window.)"
+                    },
+                    {
+                        "Nombre":  "Expand.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Binary that expands one or more compressed files)"
+                    },
+                    {
+                        "Nombre":  "Explorer.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Binary used for managing files and system components within Windows)"
+                    },
+                    {
+                        "Nombre":  "Extexport.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Load a DLL located in the c:\\test folder with a specific name.)"
+                    },
+                    {
+                        "Nombre":  "Extrac32.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Extract to ADS, copy or overwrite a file with Extrac32.exe)"
+                    },
+                    {
+                        "Nombre":  "Findstr.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Write to ADS, discover, or download files with Findstr.exe)"
+                    },
+                    {
+                        "Nombre":  "Finger.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Displays information about a user or users on a specified remote computer that is running the Finger service or daemon)"
+                    },
+                    {
+                        "Nombre":  "fltMC.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Filter Manager Control Program used by Windows)"
+                    },
+                    {
+                        "Nombre":  "Forfiles.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Selects and executes a command on a file or set of files. This command is useful for batch processing.)"
+                    },
+                    {
+                        "Nombre":  "Fsutil.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (File System Utility)"
+                    },
+                    {
+                        "Nombre":  "Ftp.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (A binary designed for connecting to FTP servers)"
+                    },
+                    {
+                        "Nombre":  "Gpscript.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used by group policy to process scripts)"
+                    },
+                    {
+                        "Nombre":  "Hh.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Binary used for processing chm files in Windows)"
+                    },
+                    {
+                        "Nombre":  "IMEWDBLD.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft IME Open Extended Dictionary Module)"
+                    },
+                    {
+                        "Nombre":  "Ie4uinit.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Executes commands from a specially prepared ie4uinit.inf file.)"
+                    },
+                    {
+                        "Nombre":  "iediagcmd.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Diagnostics Utility for Internet Explorer)"
+                    },
+                    {
+                        "Nombre":  "Ieexec.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (The IEExec.exe application is an undocumented Microsoft .NET Framework application that is included with the .NET Framework. You can use the IEExec.exe application as a host to run other managed applications that you start by using a URL.)"
+                    },
+                    {
+                        "Nombre":  "Ilasm.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (used for compile c# code into dll or exe.)"
+                    },
+                    {
+                        "Nombre":  "Infdefaultinstall.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Binary used to perform installation based on content inside inf files)"
+                    },
+                    {
+                        "Nombre":  "Installutil.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (The Installer tool is a command-line utility that allows you to install and uninstall server resources by executing the installer components in specified assemblies)"
+                    },
+                    {
+                        "Nombre":  "iscsicpl.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft iSCSI Initiator Control Panel tool)"
+                    },
+                    {
+                        "Nombre":  "Jsc.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Binary file used by .NET to compile JavaScript code to .exe or .dll format)"
+                    },
+                    {
+                        "Nombre":  "Ldifde.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Creates, modifies, and deletes LDAP directory objects.)"
+                    },
+                    {
+                        "Nombre":  "Makecab.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Binary to package existing files into a cabinet (.cab) file)"
+                    },
+                    {
+                        "Nombre":  "Mavinject.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used by App-v in Windows)"
+                    },
+                    {
+                        "Nombre":  "Microsoft.Workflow.Compiler.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (A utility included with .NET that is capable of compiling and executing C# or VB.net code.)"
+                    },
+                    {
+                        "Nombre":  "Mmc.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Load snap-ins to locally and remotely manage Windows systems)"
+                    },
+                    {
+                        "Nombre":  "Mofcomp.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Compiler that parses a file containing MOF statements and adds the classes and class instances defined in the file to the WMI repository. Threat actors can leverage this binary to install malicious MOF scripts)"
+                    },
+                    {
+                        "Nombre":  "MpCmdRun.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Binary part of Windows Defender. Used to manage settings in Windows Defender)"
+                    },
+                    {
+                        "Nombre":  "Msbuild.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used to compile and execute code)"
+                    },
+                    {
+                        "Nombre":  "Msconfig.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (MSConfig is a troubleshooting tool which is used to temporarily disable or re-enable software, device drivers or Windows services that run during startup process to help the user determine the cause of a problem with Windows)"
+                    },
+                    {
+                        "Nombre":  "Msdt.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft diagnostics tool)"
+                    },
+                    {
+                        "Nombre":  "Msedge.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft Edge browser)"
+                    },
+                    {
+                        "Nombre":  "Msiexec.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used by Windows to execute msi files)"
+                    },
+                    {
+                        "Nombre":  "msoxmled.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft Office XML Editor, used to handle XML documents in Microsoft Office.)"
+                    },
+                    {
+                        "Nombre":  "Netsh.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Netsh is a Windows tool used to manipulate network interface settings.)"
+                    },
+                    {
+                        "Nombre":  "Ngen.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft Native Image Generator.)"
+                    },
+                    {
+                        "Nombre":  "Odbcconf.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used in Windows for managing ODBC connections)"
+                    },
+                    {
+                        "Nombre":  "OfflineScannerShell.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows Defender Offline Shell)"
+                    },
+                    {
+                        "Nombre":  "OneDriveStandaloneUpdater.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (OneDrive Standalone Updater)"
+                    },
+                    {
+                        "Nombre":  "Pcalua.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Program Compatibility Assistant)"
+                    },
+                    {
+                        "Nombre":  "Pcwrun.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Program Compatibility Wizard)"
+                    },
+                    {
+                        "Nombre":  "Pktmon.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Capture Network Packets on the windows 10 with October 2018 Update or later.)"
+                    },
+                    {
+                        "Nombre":  "Pnputil.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used for installing drivers)"
+                    },
+                    {
+                        "Nombre":  "Presentationhost.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (File is used for executing Browser applications)"
+                    },
+                    {
+                        "Nombre":  "Print.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used by Windows to send files to the printer)"
+                    },
+                    {
+                        "Nombre":  "PrintBrm.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Printer Migration Command-Line Tool)"
+                    },
+                    {
+                        "Nombre":  "Provlaunch.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Launcher process)"
+                    },
+                    {
+                        "Nombre":  "Psr.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows Problem Steps Recorder, used to record screen and clicks.)"
+                    },
+                    {
+                        "Nombre":  "Query.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Remote Desktop Services MultiUser Query Utility)"
+                    },
+                    {
+                        "Nombre":  "Rasautou.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows Remote Access Dialer)"
+                    },
+                    {
+                        "Nombre":  "rdrleakdiag.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft Windows resource leak diagnostic tool)"
+                    },
+                    {
+                        "Nombre":  "Reg.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used to manipulate the registry)"
+                    },
+                    {
+                        "Nombre":  "Regasm.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Part of .NET)"
+                    },
+                    {
+                        "Nombre":  "Regedit.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used by Windows to manipulate registry)"
+                    },
+                    {
+                        "Nombre":  "Regini.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used to manipulate the registry)"
+                    },
+                    {
+                        "Nombre":  "Register-cimprovider.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used to register new wmi providers)"
+                    },
+                    {
+                        "Nombre":  "Regsvcs.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Regsvcs and Regasm are Windows command-line utilities that are used to register .NET Component Object Model (COM) assemblies)"
+                    },
+                    {
+                        "Nombre":  "Replace.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used to replace file with another file)"
+                    },
+                    {
+                        "Nombre":  "Reset.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Remote Desktop Services Reset Utility)"
+                    },
+                    {
+                        "Nombre":  "Rpcping.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used to verify rpc connection)"
+                    },
+                    {
+                        "Nombre":  "Runexehelper.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Launcher process)"
+                    },
+                    {
+                        "Nombre":  "Runonce.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Executes a Run Once Task that has been configured in the registry)"
+                    },
+                    {
+                        "Nombre":  "Runscripthelper.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Execute target PowerShell script)"
+                    },
+                    {
+                        "Nombre":  "Sc.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used by Windows to manage services)"
+                    },
+                    {
+                        "Nombre":  "Schtasks.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Schedule periodic tasks)"
+                    },
+                    {
+                        "Nombre":  "scp.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used for uploading or downloading files over SSH.)"
+                    },
+                    {
+                        "Nombre":  "Scriptrunner.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Execute binary through proxy binary to evade defensive counter measures)"
+                    },
+                    {
+                        "Nombre":  "Setres.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Configures display settings)"
+                    },
+                    {
+                        "Nombre":  "SettingSyncHost.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Host Process for Setting Synchronization)"
+                    },
+                    {
+                        "Nombre":  "Sftp.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (sftp.exe is a Windows command-line utility that uses the Secure File Transfer Protocol (SFTP) to securely transfer files between a local machine and a remote server.)"
+                    },
+                    {
+                        "Nombre":  "Sigverif.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (File Signature Verification utility to verify digital signatures of files)"
+                    },
+                    {
+                        "Nombre":  "ssh.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Ssh.exe is the OpenSSH compatible client can be used to connect to Windows 10 (build 1809 and later) and Windows Server 2019 devices.)"
+                    },
+                    {
+                        "Nombre":  "Stordiag.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Storage diagnostic tool)"
+                    },
+                    {
+                        "Nombre":  "SyncAppvPublishingServer.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used by App-v to get App-v server lists)"
+                    },
+                    {
+                        "Nombre":  "Tar.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used by Windows to extract and create archives.)"
+                    },
+                    {
+                        "Nombre":  "Ttdinject.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used by Windows 1809 and newer to Debug Time Travel (Underlying call of tttracer.exe))"
+                    },
+                    {
+                        "Nombre":  "Tttracer.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used by Windows 1809 and newer to Debug Time Travel)"
+                    },
+                    {
+                        "Nombre":  "Unregmp2.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft Windows Media Player Setup Utility)"
+                    },
+                    {
+                        "Nombre":  "vbc.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Binary file used for compile vbs code)"
+                    },
+                    {
+                        "Nombre":  "Verclsid.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used to verify a COM object before it is instantiated by Windows Explorer)"
+                    },
+                    {
+                        "Nombre":  "Vssadmin.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Volume Shadow Copy Service administrative command-line tool)"
+                    },
+                    {
+                        "Nombre":  "Wab.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows address book manager)"
+                    },
+                    {
+                        "Nombre":  "wbadmin.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows Backup Administration utility)"
+                    },
+                    {
+                        "Nombre":  "wbemtest.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (WMI/WBEM Test Binary)"
+                    },
+                    {
+                        "Nombre":  "winget.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows Package Manager tool)"
+                    },
+                    {
+                        "Nombre":  "Wlrmdr.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows Logon Reminder executable)"
+                    },
+                    {
+                        "Nombre":  "Wmic.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (The WMI command-line (WMIC) utility provides a command-line interface for WMI)"
+                    },
+                    {
+                        "Nombre":  "WorkFolders.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Work Folders)"
+                    },
+                    {
+                        "Nombre":  "Wsreset.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used to reset Windows Store settings according to its manifest file)"
+                    },
+                    {
+                        "Nombre":  "wuauclt.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows Update Client)"
+                    },
+                    {
+                        "Nombre":  "Xwizard.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Execute custom class that has been added to the registry or download a file with Xwizard.exe)"
+                    },
+                    {
+                        "Nombre":  "msedge_proxy.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft Edge Browser)"
+                    },
+                    {
+                        "Nombre":  "msedgewebview2.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (msedgewebview2.exe is the executable file for Microsoft Edge WebView2, which is a web browser control used by applications to display web content.)"
+                    },
+                    {
+                        "Nombre":  "odbcad32.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (ODBC Data Source Administrator to manage User/System DSNs and ODBC drivers.)"
+                    },
+                    {
+                        "Nombre":  "setupugc.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Setup Unattend Generic Command Processor used during Windows deployment.)"
+                    },
+                    {
+                        "Nombre":  "write.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows Write)"
+                    },
+                    {
+                        "Nombre":  "wt.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows Terminal)"
+                    },
+                    {
+                        "Nombre":  "Advpack.dll",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Utility for installing software and drivers with rundll32.exe)"
+                    },
+                    {
+                        "Nombre":  "Desk.cpl",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Desktop Settings Control Panel)"
+                    },
+                    {
+                        "Nombre":  "Dfshim.dll",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (ClickOnce engine in Windows used by .NET)"
+                    },
+                    {
+                        "Nombre":  "Ieadvpack.dll",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (INF installer for Internet Explorer. Has much of the same functionality as advpack.dll.)"
+                    },
+                    {
+                        "Nombre":  "Ieframe.dll",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Internet Browser DLL for translating HTML code.)"
+                    },
+                    {
+                        "Nombre":  "Mshtml.dll",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft HTML Viewer)"
+                    },
+                    {
+                        "Nombre":  "Pcwutl.dll",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft HTML Viewer)"
+                    },
+                    {
+                        "Nombre":  "PhotoViewer.dll",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows Photo Viewer)"
+                    },
+                    {
+                        "Nombre":  "Scrobj.dll",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows Script Component Runtime)"
+                    },
+                    {
+                        "Nombre":  "Setupapi.dll",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows Setup Application Programming Interface)"
+                    },
+                    {
+                        "Nombre":  "Shdocvw.dll",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Shell Doc Object and Control Library.)"
+                    },
+                    {
+                        "Nombre":  "Shell32.dll",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows Shell Common Dll)"
+                    },
+                    {
+                        "Nombre":  "Shimgvw.dll",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Photo Gallery Viewer)"
+                    },
+                    {
+                        "Nombre":  "Syssetup.dll",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows NT System Setup)"
+                    },
+                    {
+                        "Nombre":  "Url.dll",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Internet Shortcut Shell Extension DLL.)"
+                    },
+                    {
+                        "Nombre":  "Zipfldr.dll",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Compressed Folder library)"
+                    },
+                    {
+                        "Nombre":  "Comsvcs.dll",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (COM+ Services)"
+                    },
+                    {
+                        "Nombre":  "AccCheckConsole.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Verifies UI accessibility requirements)"
+                    },
+                    {
+                        "Nombre":  "adplus.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Debugging tool included with Windows Debugging Tools)"
+                    },
+                    {
+                        "Nombre":  "AgentExecutor.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Intune Management Extension included on Intune Managed Devices)"
+                    },
+                    {
+                        "Nombre":  "AppLauncher.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (User Experience Virtualization tool that launches applications under monitoring to capture and synchronize user settings.)"
+                    },
+                    {
+                        "Nombre":  "AppCert.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows App Certification Kit command-line tool.)"
+                    },
+                    {
+                        "Nombre":  "Appvlp.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Application Virtualization Utility Included with Microsoft Office 2016)"
+                    },
+                    {
+                        "Nombre":  "Bcp.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft SQL Server Bulk Copy Program utility for importing and exporting data between SQL Server instances and data files.)"
+                    },
+                    {
+                        "Nombre":  "Bginfo.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Background Information Utility included with SysInternals Suite)"
+                    },
+                    {
+                        "Nombre":  "Cdb.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Debugging tool included with Windows Debugging Tools.)"
+                    },
+                    {
+                        "Nombre":  "coregen.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Binary coregen.exe (Microsoft CoreCLR Native Image Generator) loads exported function GetCLRRuntimeHost from coreclr.dll or from .DLL in arbitrary path. Coregen is located within \"C:\\Program Files (x86)\\Microsoft Silverlight\\5.1.50918.0\\\" or another version of Silverlight. Coregen is signed by Microsoft and bundled with Microsoft Silverlight.)"
+                    },
+                    {
+                        "Nombre":  "Createdump.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft .NET Runtime Crash Dump Generator (included in .NET Core))"
+                    },
+                    {
+                        "Nombre":  "csi.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Command line interface included with Visual Studio.)"
+                    },
+                    {
+                        "Nombre":  "DbgSrv.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (A process server included with Debugging Tools for Windows for remote user-mode debugging.)"
+                    },
+                    {
+                        "Nombre":  "DefaultPack.EXE",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (This binary can be downloaded along side multiple software downloads on the Microsoft website. It gets downloaded when the user forgets to uncheck the option to set Bing as the default search provider.)"
+                    },
+                    {
+                        "Nombre":  "Devinit.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Visual Studio 2019 tool)"
+                    },
+                    {
+                        "Nombre":  "Devtoolslauncher.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Binary will execute specified binary. Part of VS/VScode installation.)"
+                    },
+                    {
+                        "Nombre":  "dnx.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (.NET Execution environment file included with .NET.)"
+                    },
+                    {
+                        "Nombre":  "Dotnet.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (dotnet.exe comes with .NET Framework)"
+                    },
+                    {
+                        "Nombre":  "dsdbutil.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Dsdbutil is a command-line tool that is built into Windows Server. It is available if you have the AD LDS server role installed. Can be used as a command line utility to export Active Directory.)"
+                    },
+                    {
+                        "Nombre":  "dtutil.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft command line utility used to manage SQL Server Integration Services packages.)"
+                    },
+                    {
+                        "Nombre":  "Dump64.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Memory dump tool that comes with Microsoft Visual Studio)"
+                    },
+                    {
+                        "Nombre":  "DumpMinitool.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Dump tool part Visual Studio 2022)"
+                    },
+                    {
+                        "Nombre":  "Dxcap.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (DirectX diagnostics/debugger included with Visual Studio.)"
+                    },
+                    {
+                        "Nombre":  "ECMangen.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Command-line tool for managing certificates in Microsoft Exchange Server.)"
+                    },
+                    {
+                        "Nombre":  "Excel.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft Office binary)"
+                    },
+                    {
+                        "Nombre":  "Fsi.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (64-bit FSharp (F#) Interpreter included with Visual Studio and DotNet Core SDK.)"
+                    },
+                    {
+                        "Nombre":  "FsiAnyCpu.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (32/64-bit FSharp (F#) Interpreter included with Visual Studio.)"
+                    },
+                    {
+                        "Nombre":  "IntelliTrace.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Visual Studio command-line tool for collecting and managing diagnostic trace files.)"
+                    },
+                    {
+                        "Nombre":  "Logger.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (A logging configuration tool from the Windows Kits used to start and manage process logging.)"
+                    },
+                    {
+                        "Nombre":  "Mftrace.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Trace log generation tool for Media Foundation Tools.)"
+                    },
+                    {
+                        "Nombre":  "Microsoft.NodejsTools.PressAnyKey.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Part of the NodeJS Visual Studio tools.)"
+                    },
+                    {
+                        "Nombre":  "Mpiexec.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Command-line tool for running Message Passing Interface (MPI) applications.)"
+                    },
+                    {
+                        "Nombre":  "MSAccess.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft Office component)"
+                    },
+                    {
+                        "Nombre":  "Mscopilot.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft Copilot app)"
+                    },
+                    {
+                        "Nombre":  "Mscopilot_proxy.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft Copilot proxy launcher)"
+                    },
+                    {
+                        "Nombre":  "Msdeploy.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft tool used to deploy Web Applications.)"
+                    },
+                    {
+                        "Nombre":  "MsoHtmEd.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft Office component)"
+                    },
+                    {
+                        "Nombre":  "Mspub.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft Publisher)"
+                    },
+                    {
+                        "Nombre":  "msxsl.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Command line utility used to perform XSL transformations.)"
+                    },
+                    {
+                        "Nombre":  "Nmcap.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Command-line packet capture utility from Microsoft Network Monitor 3.x.)"
+                    },
+                    {
+                        "Nombre":  "ntdsutil.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Command line utility used to export Active Directory.)"
+                    },
+                    {
+                        "Nombre":  "Ntsd.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Symbolic Debugger for Windows.)"
+                    },
+                    {
+                        "Nombre":  "OpenConsole.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Console Window host for Windows Terminal)"
+                    },
+                    {
+                        "Nombre":  "Outlook.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft Office component)"
+                    },
+                    {
+                        "Nombre":  "Pixtool.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Command line utility for taking and analyzing PIX GPU captures.)"
+                    },
+                    {
+                        "Nombre":  "Powerpnt.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft Office binary.)"
+                    },
+                    {
+                        "Nombre":  "Procdump.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (SysInternals Memory Dump Tool)"
+                    },
+                    {
+                        "Nombre":  "ProtocolHandler.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft Office binary)"
+                    },
+                    {
+                        "Nombre":  "rcsi.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Non-Interactive command line inerface included with Visual Studio.)"
+                    },
+                    {
+                        "Nombre":  "Remote.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Debugging tool included with Windows Debugging Tools)"
+                    },
+                    {
+                        "Nombre":  "Sqldumper.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Debugging utility included with Microsoft SQL.)"
+                    },
+                    {
+                        "Nombre":  "Sqlps.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Tool included with Microsoft SQL Server that loads SQL Server cmdlets. Microsoft SQL Server\\100 and 110 are Powershell v2. Microsoft SQL Server\\120 and 130 are Powershell version 4. Replaced by SQLToolsPS.exe in SQL Server 2016, but will be included with installation for compatability reasons.)"
+                    },
+                    {
+                        "Nombre":  "SQLToolsPS.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Tool included with Microsoft SQL that loads SQL Server cmdlts. A replacement for sqlps.exe. Successor to sqlps.exe in SQL Server 2016+.)"
+                    },
+                    {
+                        "Nombre":  "Squirrel.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Binary to update the existing installed Nuget/squirrel package. Part of Microsoft Teams installation.)"
+                    },
+                    {
+                        "Nombre":  "te.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Testing tool included with Microsoft Test Authoring and Execution Framework (TAEF).)"
+                    },
+                    {
+                        "Nombre":  "Teams.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Electron runtime binary which runs the Teams application)"
+                    },
+                    {
+                        "Nombre":  "TestWindowRemoteAgent.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (TestWindowRemoteAgent.exe is the command-line tool to establish RPC)"
+                    },
+                    {
+                        "Nombre":  "Tracker.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Tool included with Microsoft .Net Framework.)"
+                    },
+                    {
+                        "Nombre":  "Update.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Binary to update the existing installed Nuget/squirrel package. Part of Microsoft Teams installation.)"
+                    },
+                    {
+                        "Nombre":  "VSDiagnostics.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Command-line tool used for performing diagnostics.)"
+                    },
+                    {
+                        "Nombre":  "VSIISExeLauncher.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Binary will execute specified binary. Part of VS/VScode installation.)"
+                    },
+                    {
+                        "Nombre":  "Visio.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft Visio Executable)"
+                    },
+                    {
+                        "Nombre":  "VisualUiaVerifyNative.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (A Windows SDK binary for manual and automated testing of Microsoft UI Automation implementation and controls.)"
+                    },
+                    {
+                        "Nombre":  "VSLaunchBrowser.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft Visual Studio browser launcher tool for web applications debugging)"
+                    },
+                    {
+                        "Nombre":  "Vshadow.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (VShadow is a command-line tool that can be used to create and manage volume shadow copies.)"
+                    },
+                    {
+                        "Nombre":  "vsjitdebugger.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Just-In-Time (JIT) debugger included with Visual Studio)"
+                    },
+                    {
+                        "Nombre":  "WFMFormat.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Command-line tool used for pretty-print a dump file generated by Message Farm Analyzer tool.)"
+                    },
+                    {
+                        "Nombre":  "Wfc.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (The Workflow Command-line Compiler tool is included with the Windows Software Development Kit (SDK).)"
+                    },
+                    {
+                        "Nombre":  "WinDbg.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows Debugger for advanced user-mode and kernel-mode debugging.)"
+                    },
+                    {
+                        "Nombre":  "WinProj.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft Project Executable)"
+                    },
+                    {
+                        "Nombre":  "Winword.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Microsoft Office binary)"
+                    },
+                    {
+                        "Nombre":  "wsb.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows Sandbox command-line interface. Creates, lists, controls, and executes commands inside Windows Sandbox sessions from the host CLI.)"
+                    },
+                    {
+                        "Nombre":  "Wsl.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows subsystem for Linux executable)"
+                    },
+                    {
+                        "Nombre":  "XBootMgr.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows Performance Toolkit binary used to start performance traces.)"
+                    },
+                    {
+                        "Nombre":  "XBootMgrSleep.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows Performance Toolkit binary used for tracing and analyzing system performance during sleep and resume transitions.)"
+                    },
+                    {
+                        "Nombre":  "devtunnel.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Binary to enable forwarded ports on windows operating systems.)"
+                    },
+                    {
+                        "Nombre":  "dotnet-counters.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (.NET diagnostic tool for monitoring performance counters of .NET applications in real-time. Installed via \u0027dotnet tool install --global dotnet-counters\u0027 (.NET SDK required).)"
+                    },
+                    {
+                        "Nombre":  "dotnet-trace.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (.NET diagnostic tool for collecting runtime traces from .NET applications. Installed via \u0027dotnet tool install --global dotnet-trace\u0027 (.NET SDK required).)"
+                    },
+                    {
+                        "Nombre":  "vsls-agent.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Agent for Visual Studio Live Share (Code Collaboration))"
+                    },
+                    {
+                        "Nombre":  "vstest.console.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (VSTest.Console.exe is the command-line tool to run tests)"
+                    },
+                    {
+                        "Nombre":  "winfile.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Windows File Manager executable)"
+                    },
+                    {
+                        "Nombre":  "xsd.exe",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (XML Schema Definition Tool included with the Windows Software Development Kit (SDK).)"
+                    },
+                    {
+                        "Nombre":  "CL_LoadAssembly.ps1",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (PowerShell Diagnostic Script)"
+                    },
+                    {
+                        "Nombre":  "CL_Mutexverifiers.ps1",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Proxy execution with CL_Mutexverifiers.ps1)"
+                    },
+                    {
+                        "Nombre":  "CL_Invocation.ps1",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Aero diagnostics script)"
+                    },
+                    {
+                        "Nombre":  "Launch-VsDevShell.ps1",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Locates and imports a Developer PowerShell module and calls the Enter-VsDevShell cmdlet)"
+                    },
+                    {
+                        "Nombre":  "Manage-bde.wsf",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Script for managing BitLocker)"
+                    },
+                    {
+                        "Nombre":  "Pubprn.vbs",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Proxy execution with Pubprn.vbs)"
+                    },
+                    {
+                        "Nombre":  "Syncappvpublishingserver.vbs",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Script used related to app-v and publishing server)"
+                    },
+                    {
+                        "Nombre":  "UtilityFunctions.ps1",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (PowerShell Diagnostic Script)"
+                    },
+                    {
+                        "Nombre":  "winrm.vbs",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Script used for manage Windows RM settings)"
+                    },
+                    {
+                        "Nombre":  "Pester.bat",
+                        "Puntos":  25,
+                        "Motivo":  "Binario documentado en Proyecto LOLBAS (Used as part of the Powershell pester)"
+                    }
+                ],
+    "UltimaActualizacionFeeds":  "2026-10-21 16:30:31"
+}

@@ -1,0 +1,58 @@
+name: "Reporte de Falso Positivo"
+description: "Notificar un proceso legítimo marcado erróneamente como sospechoso o crítico."
+title: "[Falso Positivo]: <Nombre del Proceso>"
+labels: ["falso-positivo", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por ayudarnos a reducir el ruido y mejorar la precisión heurística de la herramienta.
+  - type: input
+    id: proceso
+    attributes:
+      label: Nombre del Proceso
+      description: Ejemplo: myapp.exe
+      placeholder: software.exe
+    validations:
+      required: true
+  - type: input
+    id: ruta
+    attributes:
+      label: Ruta Completa del Ejecutable
+      description: La ubicación en disco del binario.
+      placeholder: C:\Program Files\MiSoftware\software.exe
+    validations:
+      required: true
+  - type: dropdown
+    id: firma
+    attributes:
+      label: ¿El archivo cuenta con Firma Digital (Authenticode)?
+      options:
+        - "Sí, firma válida de fabricante conocido (Microsoft, Google, etc.)"
+        - "Sí, pero de una entidad emisora interna / privada"
+        - "No cuenta con firma digital"
+        - "Desconocido / No verificado"
+    validations:
+      required: true
+  - type: input
+    id: score
+    attributes:
+      label: Puntuación de Riesgo Asignada por la Herramienta
+      description: Ejemplo: 45 (Sospechoso) o 80 (Crítico).
+      placeholder: "45"
+    validations:
+      required: true
+  - type: textarea
+    id: justificacion
+    attributes:
+      label: ¿Por qué este software es legítimo?
+      description: Enlaces al fabricante oficial o detalles del programa.
+      placeholder: "Es el agente oficial de respaldos corporativos de la empresa XYZ..."
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Salida del Script o Fragmento del Reporte
+      description: Copia y pega la fila o salida del comando donde se genera la alerta.
+      render: shell

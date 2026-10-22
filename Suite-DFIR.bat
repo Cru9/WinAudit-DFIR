@@ -29,13 +29,20 @@ echo       - Rogue AP Hunter (Deteccion en vivo de ataques Evil Twin).
 echo       - Benchmark de Entropia y Estimacion de Crackeo PBKDF2 (GPU Hashcat).
 echo       - Sensor de Proximidad y Mapa de Calor RF en tiempo real.
 echo.
+echo   [3] 🌐 SocketSentry
+echo       - Framework forense de sockets de red y threat hunting en memoria.
+echo       - Deteccion de balizas C2 (Beaconing) y servidores maliciosos (Feodo).
+echo       - Inspeccion de binarios LOLBins en red (certutil, powershell, mshta).
+echo       - Analisis heuristico de puertos no estandares y CommandLine.
+echo.
 echo   [0] 🚪 Salir
 echo.
 echo ==============================================================================
-set /p "OPCION=  Ingrese una opcion [1, 2, 0]: "
+set /p "OPCION=  Ingrese una opcion [1, 2, 3, 0]: "
 
 if "%OPCION%"=="1" goto RUN_DETECCION
 if "%OPCION%"=="2" goto RUN_WIFISENTRY
+if "%OPCION%"=="3" goto RUN_SOCKETSENTRY
 if "%OPCION%"=="0" goto SALIR
 
 echo.
@@ -59,6 +66,15 @@ echo   Iniciando WiFiSentry (Suite Forense Inalambrica & Sensor RF)...
 echo ==============================================================================
 echo.
 call "%~dp0WiFiSentry\Ejecutar-WiFiSentry.bat"
+goto MENU
+
+:RUN_SOCKETSENTRY
+cls
+echo ==============================================================================
+echo   Iniciando SocketSentry (Auditoria Forense de Sockets & C2 Hunter)...
+echo ==============================================================================
+echo.
+call "%~dp0SocketSentry\Ejecutar-SocketSentry.bat"
 goto MENU
 
 :SALIR

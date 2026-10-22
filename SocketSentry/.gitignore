@@ -1,0 +1,28 @@
+# Reportes generados localmente (manteniendo el dashboard demo)
+Reportes/*.json
+Reportes/*.csv
+Reportes/SocketSentry_Audit_*.*
+Reportes/SocketSentry_Dashboard_20*.*
+Reportes/SocketSentry_Sockets_*.*
+!Reportes/SocketSentry_Dashboard_Demo.html
+
+# Volcados de memoria forense y logs
+*.dmp
+*.evtx
+*.log
+
+# Archivos de sistema y editores
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+
+# Mantener la base de datos de firmas y reglas
+!db_conexiones.json

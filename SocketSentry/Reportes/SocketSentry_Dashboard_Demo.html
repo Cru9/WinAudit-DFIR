@@ -1,0 +1,2844 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WinAudit-DFIR | SocketSentry SOC Network Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #070914;
+            --bg-card: rgba(13, 20, 36, 0.75);
+            --border-glass: rgba(157, 78, 221, 0.2);
+            --neon-violet: #9d4edd;
+            --neon-cyan: #00f0ff;
+            --neon-green: #00ff88;
+            --neon-red: #ff0055;
+            --neon-yellow: #ffbb00;
+            --text-main: #f0f4fc;
+            --text-muted: #8a99b5;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(157, 78, 221, 0.1) 0%, transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.08) 0%, transparent 45%);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+
+        /* HEADER */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .brand { display: flex; align-items: center; gap: 1rem; }
+        .brand-icon {
+            width: 48px; height: 48px;
+            background: linear-gradient(135deg, var(--neon-violet), var(--neon-cyan));
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem;
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.4);
+        }
+        .brand-text h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
+        .brand-text h1 span { color: var(--neon-violet); }
+        .brand-text p { color: var(--text-muted); font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; }
+
+        .score-box {
+            text-align: right;
+            padding: 0.75rem 1.5rem;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid #ff0055;
+            border-radius: 12px;
+            box-shadow: 0 0 15px #ff005533;
+        }
+        .score-title { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+        .score-val { font-size: 1.8rem; font-weight: 800; color: #ff0055; }
+
+        /* KPI METRICS */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--neon-violet);
+            box-shadow: 0 10px 25px rgba(157, 78, 221, 0.15);
+        }
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--neon-violet);
+        }
+        .kpi-card.alert::before { background: var(--neon-red); }
+        .kpi-card.warn::before { background: var(--neon-yellow); }
+        .kpi-card.ok::before { background: var(--neon-green); }
+
+        .kpi-label { font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 0.5rem; }
+        .kpi-number { font-size: 2.2rem; font-weight: 800; color: var(--text-main); }
+        .kpi-desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+        /* MAIN LAYOUT */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 2.5fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 992px) { .grid-2 { grid-template-columns: 1fr; } }
+
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .panel-header h2 { font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+
+        /* TABLES */
+        .search-box {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--border-glass);
+            border-radius: 8px;
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            margin-bottom: 1rem;
+        }
+        .table-responsive { overflow-x: auto; max-height: 480px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        th {
+            background: rgba(157, 78, 221, 0.1);
+            color: var(--neon-cyan);
+            text-align: left;
+            padding: 0.75rem;
+            position: sticky; top: 0;
+            backdrop-filter: blur(5px);
+        }
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            color: #d1d9e6;
+        }
+        tr:hover td { background: rgba(157, 78, 221, 0.04); }
+
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge-red { background: rgba(255,0,85,0.2); color: #ff3377; border: 1px solid #ff0055; }
+        .badge-yellow { background: rgba(255,187,0,0.2); color: #ffcc00; border: 1px solid #ffbb00; }
+        .badge-green { background: rgba(0,255,136,0.2); color: #00ff88; border: 1px solid #00ff88; }
+        .badge-violet { background: rgba(157,78,221,0.2); color: #c77dff; border: 1px solid #9d4edd; }
+
+        /* MITRE */
+        .mitre-list { display: flex; flex-direction: column; gap: 0.75rem; }
+        .mitre-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+        }
+        .mitre-item:hover { border-color: var(--neon-violet); }
+        .mitre-id { font-family: 'JetBrains Mono', monospace; color: var(--neon-violet); font-weight: 700; }
+
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        footer a { color: var(--neon-cyan); text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <div class="brand">
+                <div class="brand-icon">🌐</div>
+                <div class="brand-text">
+                    <h1>WinAudit-DFIR <span>SocketSentry</span></h1>
+                    <p>Network Socket Forensics, LOLBins & C2 Beacon Threat Hunting | Ecosistema Cru9</p>
+                </div>
+            </div>
+            <div class="score-box">
+                <div class="score-title">NIVEL DE RIESGO DE RED</div>
+                <div class="score-val">100/100</div>
+                <div style="font-size: 0.75rem; color: #ff0055; font-weight: 600;">CRÍTICO (Posible intrusión o baliza C2 activa)</div>
+            </div>
+        </header>
+
+        <!-- KPIS -->
+        <div class="kpi-grid">
+            <div class="kpi-card ok">
+                <div class="kpi-label">Sockets Activos Evaluados</div>
+                <div class="kpi-number">278</div>
+                <div class="kpi-desc">Conexiones TCP en memoria</div>
+            </div>
+            <div class="kpi-card alert">
+                <div class="kpi-label">Conexiones Críticas / C2</div>
+                <div class="kpi-number">3</div>
+                <div class="kpi-desc">Amenazas activas detectadas</div>
+            </div>
+            <div class="kpi-card warn">
+                <div class="kpi-label">Conexiones Sospechosas</div>
+                <div class="kpi-number">3</div>
+                <div class="kpi-desc">Puertos inusuales o heurística</div>
+            </div>
+            <div class="kpi-card warn">
+                <div class="kpi-label">LOLBins del Sistema en Red</div>
+                <div class="kpi-number">4</div>
+                <div class="kpi-desc">PowerShell, Certutil, Rundll32...</div>
+            </div>
+            <div class="kpi-card ok">
+                <div class="kpi-label">Conexiones Externas WAN</div>
+                <div class="kpi-number">167</div>
+                <div class="kpi-desc">Tráfico hacia Internet pública</div>
+            </div>
+        </div>
+
+        <!-- MAIN GRID -->
+        <div class="grid-2">
+            <!-- TABLA DE SOCKETS -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2><span>⚡</span> Tabla Forense de Conexiones de Red</h2>
+                    <span class="badge badge-violet">278 Sockets</span>
+                </div>
+                <input type="text" class="search-box" id="tableFilter" placeholder="🔍 Filtrar por Proceso, PID, IP Remota, Puerto o Severidad...">
+                <div class="table-responsive">
+                    <table id="socketsTable">
+                        <thead>
+                            <tr>
+                                <th>PID</th>
+                                <th>Proceso</th>
+                                <th>IP & Puerto Remoto</th>
+                                <th>Estado</th>
+                                <th>Severidad</th>
+                                <th>Hallazgos / Heurística</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            <tr>
+                                <td>1688</td>
+                                <td style="font-weight:700; color:#fff;">svchost.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>4</td>
+                                <td style="font-weight:700; color:#fff;">System</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>6388</td>
+                                <td style="font-weight:700; color:#fff;">vmware-authd.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>6388</td>
+                                <td style="font-weight:700; color:#fff;">vmware-authd.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>9156</td>
+                                <td style="font-weight:700; color:#fff;">svchost.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>7072</td>
+                                <td style="font-weight:700; color:#fff;">postgres.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>4916</td>
+                                <td style="font-weight:700; color:#fff;">AnyDesk.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>1376</td>
+                                <td style="font-weight:700; color:#fff;">lsass.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>1200</td>
+                                <td style="font-weight:700; color:#fff;">wininit.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>3328</td>
+                                <td style="font-weight:700; color:#fff;">svchost.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>3576</td>
+                                <td style="font-weight:700; color:#fff;">svchost.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>4352</td>
+                                <td style="font-weight:700; color:#fff;">spoolsv.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>1340</td>
+                                <td style="font-weight:700; color:#fff;">services.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>17972</td>
+                                <td style="font-weight:700; color:#fff;">logioptionsplus_agent.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>9640</td>
+                                <td style="font-weight:700; color:#fff;">Riot Client.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>4908</td>
+                                <td style="font-weight:700; color:#fff;">AsusSoftwareManager.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>1928</td>
+                                <td style="font-weight:700; color:#fff;">WUDFHost.exe</td>
+                                <td>127.0.0.1:49710 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>1928</td>
+                                <td style="font-weight:700; color:#fff;">WUDFHost.exe</td>
+                                <td>127.0.0.1:49709 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>8720</td>
+                                <td style="font-weight:700; color:#fff;">WUDFHost.exe</td>
+                                <td>127.0.0.1:49712 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>8720</td>
+                                <td style="font-weight:700; color:#fff;">WUDFHost.exe</td>
+                                <td>127.0.0.1:49711 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>5032</td>
+                                <td style="font-weight:700; color:#fff;">ipfsvc.exe</td>
+                                <td>127.0.0.1:49714 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>5032</td>
+                                <td style="font-weight:700; color:#fff;">ipfsvc.exe</td>
+                                <td>127.0.0.1:49713 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>2764</td>
+                                <td style="font-weight:700; color:#fff;">RiotClientServices.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:51977 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>2764</td>
+                                <td style="font-weight:700; color:#fff;">RiotClientServices.exe</td>
+                                <td>127.0.0.1:51996 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>2764</td>
+                                <td style="font-weight:700; color:#fff;">RiotClientServices.exe</td>
+                                <td>127.0.0.1:51997 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>2764</td>
+                                <td style="font-weight:700; color:#fff;">RiotClientServices.exe</td>
+                                <td>127.0.0.1:52002 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>2764</td>
+                                <td style="font-weight:700; color:#fff;">RiotClientServices.exe</td>
+                                <td>127.0.0.1:53547 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:54850 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:55757 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>2764</td>
+                                <td style="font-weight:700; color:#fff;">RiotClientServices.exe</td>
+                                <td>127.0.0.1:56447 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>2764</td>
+                                <td style="font-weight:700; color:#fff;">RiotClientServices.exe</td>
+                                <td>127.0.0.1:62930 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>2764</td>
+                                <td style="font-weight:700; color:#fff;">RiotClientServices.exe</td>
+                                <td>127.0.0.1:63301 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>2764</td>
+                                <td style="font-weight:700; color:#fff;">RiotClientServices.exe</td>
+                                <td>127.0.0.1:63302 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:65213 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:65214 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:65215 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:65217 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>16456</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>16456</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>127.0.0.1:50942 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>16456</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>127.0.0.1:50943 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>16456</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>127.0.0.1:50944 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>16456</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>127.0.0.1:50945 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>9788</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>9788</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>127.0.0.1:50961 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>9788</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>9788</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>127.0.0.1:50931 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>9788</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>127.0.0.1:50931 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>9788</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>127.0.0.1:50931 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>9788</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>127.0.0.1:50931 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>9788</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>9788</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>127.0.0.1:50960 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>16456</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>127.0.0.1:50947 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>16456</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>127.0.0.1:50938 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>10888</td>
+                                <td style="font-weight:700; color:#fff;">LeagueClient.exe</td>
+                                <td>127.0.0.1:50769 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>10888</td>
+                                <td style="font-weight:700; color:#fff;">LeagueClient.exe</td>
+                                <td>127.0.0.1:50769 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>10888</td>
+                                <td style="font-weight:700; color:#fff;">LeagueClient.exe</td>
+                                <td>127.0.0.1:50769 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25884</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>127.0.0.1:62693 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25884</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>127.0.0.1:62693 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:50769 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>29416</td>
+                                <td style="font-weight:700; color:#fff;">Riot Client.exe</td>
+                                <td>127.0.0.1:50769 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:62695 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:50769 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:50769 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>16456</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>127.0.0.1:62695 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>14568</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>127.0.0.1:62695 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:50769 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>9640</td>
+                                <td style="font-weight:700; color:#fff;">Riot Client.exe</td>
+                                <td>127.0.0.1:50769 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:50769 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:50769 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>14568</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>127.0.0.1:62695 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>16456</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>17556</td>
+                                <td style="font-weight:700; color:#fff;">LeagueClientUx.exe</td>
+                                <td>127.0.0.1:51995 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>SYN_SENT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25640</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:51971 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25640</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>127.0.0.1:52230 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25640</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>127.0.0.1:52460 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:54464 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:54482 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:54483 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25640</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>127.0.0.1:62699 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25640</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>127.0.0.1:62700 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25640</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>127.0.0.1:62701 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25640</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>127.0.0.1:62702 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25640</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>127.0.0.1:62716 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:63298 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25640</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25884</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25884</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>127.0.0.1:56146 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25884</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>127.0.0.1:56342 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25884</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>127.0.0.1:58640 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25884</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>127.0.0.1:62725 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25884</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25884</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>127.0.0.1:62693 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25884</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>127.0.0.1:62693 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25884</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>127.0.0.1:62693 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25884</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>127.0.0.1:62693 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25884</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>127.0.0.1:62693 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25640</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>127.0.0.1:62695 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>29416</td>
+                                <td style="font-weight:700; color:#fff;">Riot Client.exe</td>
+                                <td>127.0.0.1:50769 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>9640</td>
+                                <td style="font-weight:700; color:#fff;">Riot Client.exe</td>
+                                <td>127.0.0.1:50769 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>9640</td>
+                                <td style="font-weight:700; color:#fff;">Riot Client.exe</td>
+                                <td>127.0.0.1:50769 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:50769 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:50769 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>127.0.0.1:50769 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>4</td>
+                                <td style="font-weight:700; color:#fff;">System</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>4</td>
+                                <td style="font-weight:700; color:#fff;">System</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>4</td>
+                                <td style="font-weight:700; color:#fff;">System</td>
+                                <td>0.0.0.0:0 <span class="badge badge-violet">Local (Loopback)</span></td>
+                                <td>LISTENING</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>5564</td>
+                                <td style="font-weight:700; color:#fff;">svchost.exe</td>
+                                <td>104.208.203.89:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>192.178.56.193:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>104.16.56.40:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>104.18.41.183:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>150.171.29.11:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>146.75.126.172:80 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>52.123.255.32:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>104.18.157.37:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>104.18.157.37:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>150.171.110.178:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>20.190.155.2:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>20.190.155.2:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>19156</td>
+                                <td style="font-weight:700; color:#fff;">chrome.exe</td>
+                                <td>140.82.114.3:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>10888</td>
+                                <td style="font-weight:700; color:#fff;">LeagueClient.exe</td>
+                                <td>104.16.56.21:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>150.171.29.11:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>13624</td>
+                                <td style="font-weight:700; color:#fff;">svchost.exe</td>
+                                <td>189.247.197.26:80 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>2764</td>
+                                <td style="font-weight:700; color:#fff;">RiotClientServices.exe</td>
+                                <td>104.18.157.37:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>104.16.206.131:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>104.16.119.50:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>104.18.41.168:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.64.146.73:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.64.146.73:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>10888</td>
+                                <td style="font-weight:700; color:#fff;">LeagueClient.exe</td>
+                                <td>34.111.148.117:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>10888</td>
+                                <td style="font-weight:700; color:#fff;">LeagueClient.exe</td>
+                                <td>104.18.157.37:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>10888</td>
+                                <td style="font-weight:700; color:#fff;">LeagueClient.exe</td>
+                                <td>104.16.119.50:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>104.16.119.50:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>10888</td>
+                                <td style="font-weight:700; color:#fff;">LeagueClient.exe</td>
+                                <td>104.16.56.21:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>10888</td>
+                                <td style="font-weight:700; color:#fff;">LeagueClient.exe</td>
+                                <td>172.64.147.231:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>104.18.157.37:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>10888</td>
+                                <td style="font-weight:700; color:#fff;">LeagueClient.exe</td>
+                                <td>172.64.147.231:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>150.171.110.6:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.64.147.231:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.64.153.253:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>142.251.116.95:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>142.251.116.95:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>9788</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>34.54.84.110:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25884</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>34.54.84.110:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>23.36.185.26:80 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>142.251.116.95:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>13.107.5.93:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>13.107.5.93:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>13.107.5.93:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>13.107.5.93:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.64.153.253:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>23.36.185.26:80 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>20.190.155.2:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>52.123.255.32:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>2764</td>
+                                <td style="font-weight:700; color:#fff;">RiotClientServices.exe</td>
+                                <td>104.16.56.40:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.64.146.73:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>51.132.193.109:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>146.75.106.172:80 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>9788</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>172.217.119.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>20.190.155.2:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>9788</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>172.217.112.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>72.153.5.63:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>2764</td>
+                                <td style="font-weight:700; color:#fff;">RiotClientServices.exe</td>
+                                <td>172.65.244.155:5223 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>150.171.110.178:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>146.75.126.172:80 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>192.178.56.193:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>146.75.106.172:80 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>13844</td>
+                                <td style="font-weight:700; color:#fff;">LockApp.exe</td>
+                                <td>23.11.33.159:80 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.119.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>9788</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>172.217.119.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>19156</td>
+                                <td style="font-weight:700; color:#fff;">chrome.exe</td>
+                                <td>140.82.112.26:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>192.168.68.1:1900 <span class="badge badge-violet">Red Privada Local</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>14568</td>
+                                <td style="font-weight:700; color:#fff;">Antigravity IDE.exe</td>
+                                <td>20.184.175.13:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>13.107.228.40:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.119.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>14940</td>
+                                <td style="font-weight:700; color:#fff;">FileCoAuth.exe</td>
+                                <td>51.132.193.109:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>11740</td>
+                                <td style="font-weight:700; color:#fff;">GoogleDriveFS.exe</td>
+                                <td>172.217.119.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>16104</td>
+                                <td style="font-weight:700; color:#fff;">OneDrive.Sync.Service.exe</td>
+                                <td>51.132.193.109:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>2764</td>
+                                <td style="font-weight:700; color:#fff;">RiotClientServices.exe</td>
+                                <td>104.18.36.199:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>23.103.243.33:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>48.211.73.55:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>16192</td>
+                                <td style="font-weight:700; color:#fff;">MicrosoftStartFeedProvider.exe</td>
+                                <td>189.247.217.136:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>16192</td>
+                                <td style="font-weight:700; color:#fff;">MicrosoftStartFeedProvider.exe</td>
+                                <td>20.184.175.10:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.119.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>4344</td>
+                                <td style="font-weight:700; color:#fff;">svchost.exe</td>
+                                <td>23.11.33.159:80 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>5216</td>
+                                <td style="font-weight:700; color:#fff;">MpDefenderCoreService.exe</td>
+                                <td>52.123.250.7:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>4344</td>
+                                <td style="font-weight:700; color:#fff;">svchost.exe</td>
+                                <td>151.101.198.172:80 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25884</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>172.217.119.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>11740</td>
+                                <td style="font-weight:700; color:#fff;">GoogleDriveFS.exe</td>
+                                <td>172.217.115.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>52.123.250.41:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>11740</td>
+                                <td style="font-weight:700; color:#fff;">GoogleDriveFS.exe</td>
+                                <td>172.217.113.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>11740</td>
+                                <td style="font-weight:700; color:#fff;">GoogleDriveFS.exe</td>
+                                <td>172.217.114.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>128.85.75.152:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>19156</td>
+                                <td style="font-weight:700; color:#fff;">chrome.exe</td>
+                                <td>192.168.68.51:8009 <span class="badge badge-violet">Red Privada Local</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.215.188.232:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>11740</td>
+                                <td style="font-weight:700; color:#fff;">GoogleDriveFS.exe</td>
+                                <td>172.217.119.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>11740</td>
+                                <td style="font-weight:700; color:#fff;">GoogleDriveFS.exe</td>
+                                <td>172.217.114.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>150.171.110.178:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.64.153.253:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>65.8.226.99:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>65.8.226.91:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>104.18.34.3:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>65.8.226.91:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.64.153.253:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>104.18.34.3:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.64.153.253:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>40.99.247.34:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>40.99.247.34:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>51.132.193.109:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>20.99.134.80:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.115.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>11740</td>
+                                <td style="font-weight:700; color:#fff;">GoogleDriveFS.exe</td>
+                                <td>172.217.113.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>11740</td>
+                                <td style="font-weight:700; color:#fff;">GoogleDriveFS.exe</td>
+                                <td>172.217.113.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.64.147.231:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.119.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.119.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>23.213.27.72:80 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>150.171.29.11:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>19156</td>
+                                <td style="font-weight:700; color:#fff;">chrome.exe</td>
+                                <td>140.82.114.5:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>2764</td>
+                                <td style="font-weight:700; color:#fff;">RiotClientServices.exe</td>
+                                <td>104.18.157.37:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>23.98.224.13:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>40.99.249.66:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.112.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.119.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.119.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.119.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>2764</td>
+                                <td style="font-weight:700; color:#fff;">RiotClientServices.exe</td>
+                                <td>172.64.146.73:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>13844</td>
+                                <td style="font-weight:700; color:#fff;">LockApp.exe</td>
+                                <td>189.247.217.136:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>13844</td>
+                                <td style="font-weight:700; color:#fff;">LockApp.exe</td>
+                                <td>189.247.197.42:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>13844</td>
+                                <td style="font-weight:700; color:#fff;">LockApp.exe</td>
+                                <td>4.152.89.97:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>13844</td>
+                                <td style="font-weight:700; color:#fff;">LockApp.exe</td>
+                                <td>23.11.33.159:80 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>2764</td>
+                                <td style="font-weight:700; color:#fff;">RiotClientServices.exe</td>
+                                <td>172.64.147.231:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>19156</td>
+                                <td style="font-weight:700; color:#fff;">chrome.exe</td>
+                                <td>140.82.112.22:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>104.16.119.50:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>10888</td>
+                                <td style="font-weight:700; color:#fff;">LeagueClient.exe</td>
+                                <td>172.64.151.57:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>2764</td>
+                                <td style="font-weight:700; color:#fff;">RiotClientServices.exe</td>
+                                <td>104.16.119.50:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>10888</td>
+                                <td style="font-weight:700; color:#fff;">LeagueClient.exe</td>
+                                <td>172.64.146.73:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>2764</td>
+                                <td style="font-weight:700; color:#fff;">RiotClientServices.exe</td>
+                                <td>172.64.146.73:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>192.178.56.78:80 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>192.178.56.193:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>12036</td>
+                                <td style="font-weight:700; color:#fff;">msedge.exe</td>
+                                <td>135.234.174.40:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Binario documentado en Proyecto LOLBAS (Microsoft Edge browser) hacia IP pública (135.234.174.40)</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>23.213.27.75:80 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>19156</td>
+                                <td style="font-weight:700; color:#fff;">chrome.exe</td>
+                                <td>140.82.114.5:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>2764</td>
+                                <td style="font-weight:700; color:#fff;">RiotClientServices.exe</td>
+                                <td>172.64.153.253:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.64.146.73:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>150.171.30.11:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>150.171.110.178:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>192.168.68.1:1900 <span class="badge badge-violet">Red Privada Local</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>19156</td>
+                                <td style="font-weight:700; color:#fff;">chrome.exe</td>
+                                <td>172.253.156.188:5228 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>19156</td>
+                                <td style="font-weight:700; color:#fff;">chrome.exe</td>
+                                <td>185.199.111.133:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>104.16.119.50:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>150.171.29.11:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.115.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25884</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>172.217.112.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25884</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>172.217.115.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.119.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.119.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.119.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>25884</td>
+                                <td style="font-weight:700; color:#fff;">language_server_windows_x64.exe</td>
+                                <td>172.217.119.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.119.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.119.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.113.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>150.171.110.178:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.119.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.113.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.113.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>146.75.106.172:80 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>104.16.56.21:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.113.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.64.146.73:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>65.8.226.46:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>172.217.114.4:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>0</td>
+                                <td style="font-weight:700; color:#fff;">Desconocido</td>
+                                <td>142.251.210.163:80 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>TIME_WAIT</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>4916</td>
+                                <td style="font-weight:700; color:#fff;">AnyDesk.exe</td>
+                                <td>152.236.2.71:443 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-green">NORMAL</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Conexión estándar confiable</td>
+                            </tr>
+
+                            <tr>
+                                <td>7842</td>
+                                <td style="font-weight:700; color:#fff;">powershell.exe</td>
+                                <td>185.220.101.5:4444 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-red">CRÍTICA</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Puerto conocido de malware (4444 - Metasploit Default Listener) | Ejecutable en carpeta temporal de usuario (%TEMP%) | Comando Base64 ofuscado (-EncodedCommand) | LOLBin del sistema conectado a IP pública externa</td>
+                            </tr>
+
+                            <tr>
+                                <td>5120</td>
+                                <td style="font-weight:700; color:#fff;">rundll32.exe</td>
+                                <td>194.26.29.112:50050 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-red">CRÍTICA</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">Puerto conocido de malware (50050 - Cobalt Strike TeamServer) | LOLBin del sistema (&#x27;rundll32.exe&#x27;) conectado a IP pública externa</td>
+                            </tr>
+
+                            <tr>
+                                <td>9924</td>
+                                <td style="font-weight:700; color:#fff;">certutil.exe</td>
+                                <td>104.21.55.12:8080 <span class="badge badge-violet">Pública / Internet (EXTERNA)</span></td>
+                                <td>ESTABLISHED</td>
+                                <td><span class="badge badge-red">CRÍTICA</span></td>
+                                <td style="font-size:0.75rem; color:#aaa;">LOLBin del sistema (&#x27;certutil.exe&#x27;) conectado a IP pública externa | Parámetro sospechoso en línea de comando (-urlcache)</td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PANEL MITRE Y REPUTACION -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2><span>🎯</span> Mapeo MITRE ATT&CK</h2>
+                </div>
+                <div class="mitre-list">
+                    <div class="mitre-item">
+                        <div>
+                            <div class="mitre-id">T1071.001</div>
+                            <div style="font-size:0.8rem; color:#aaa;">Application Layer Protocol (C2)</div>
+                        </div>
+                        <span class="badge badge-red">Detectado</span>
+                    </div>
+                    <div class="mitre-item">
+                        <div>
+                            <div class="mitre-id">T1218</div>
+                            <div style="font-size:0.8rem; color:#aaa;">System Binary Proxy Execution (LOLBins)</div>
+                        </div>
+                        <span class="badge badge-yellow">4 Procesos</span>
+                    </div>
+                    <div class="mitre-item">
+                        <div>
+                            <div class="mitre-id">T1571</div>
+                            <div style="font-size:0.8rem; color:#aaa;">Non-Standard Port Communication</div>
+                        </div>
+                        <span class="badge badge-yellow">3 Sockets</span>
+                    </div>
+                    <div class="mitre-item">
+                        <div>
+                            <div class="mitre-id">T1105</div>
+                            <div style="font-size:0.8rem; color:#aaa;">Ingress Tool Transfer (Cradles)</div>
+                        </div>
+                        <span class="badge badge-red">Supervisado</span>
+                    </div>
+                </div>
+
+                <div class="panel-header" style="margin-top: 1.5rem;">
+                    <h2><span>🛡️</span> Reglas Activas</h2>
+                </div>
+                <div style="font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; color: var(--text-muted); line-height: 1.6;">
+                    • Base de Datos: v1.2<br>
+                    • Reglas de Rutas: 6<br>
+                    • Argumentos Heurísticos: 5<br>
+                    • Puertos de Malware Catalogados: 0<br>
+                    • LOLBins Monitorizados: 247
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            Generado por <a href="https://github.com/Cru9/WinAudit-DFIR" target="_blank">WinAudit-DFIR Suite / SocketSentry</a> • Autor: Cru9 • 2026-10-22 15:34:20
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('tableFilter').addEventListener('keyup', function() {
+            let filter = this.value.toLowerCase();
+            let rows = document.querySelectorAll('#socketsTable tbody tr');
+            rows.forEach(row => {
+                let text = row.innerText.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>

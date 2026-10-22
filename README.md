@@ -20,22 +20,22 @@
 El objetivo de este ecosistema es centralizar herramientas ligeras, de alta fidelidad y sin dependencias invasivas para diagnosticar, auditar y defender entornos Windows contra intrusiones tanto a nivel de sistema operativo como en el espectro de radiofrecuencia (Wi-Fi).
 
 ```
-                            ┌─────────────────────────────────────────┐
-                            │        WinAudit-DFIR Master Suite       │
-                            │              (Cru9 / DFIR)              │
-                            └────────────────────┬────────────────────┘
-                                                 │
-                    ┌────────────────────────────┴────────────────────────────┐
-                    ▼                                                         ▼
-    ┌───────────────────────────────┐                         ┌───────────────────────────────┐
-    │   📁 Detección de Intrusos    │                         │        📁 WiFiSentry          │
-    │   Triage Forense de Host      │                         │    Forense Inalámbrico        │
-    ├───────────────────────────────┤                         ├───────────────────────────────┤
-    │ • Eventos de Seguridad        │                         │ • Auditoría 802.11 / BSSID    │
-    │ • Fuerza bruta RDP (4625)     │                         │ • Rogue AP / Evil Twin Hunter │
-    │ • Anti-Forensics (1102)       │                         │ • Benchmark PBKDF2 (Hashcat)  │
-    │ • Persistencia de Cuentas     │                         │ • Mapa de Calor RSSI en Vivo  │
-    └───────────────────────────────┘                         └───────────────────────────────┘
+                                    ┌─────────────────────────────────────────┐
+                                    │        WinAudit-DFIR Master Suite       │
+                                    │              (Cru9 / DFIR)              │
+                                    └────────────────────┬────────────────────┘
+                                                         │
+         ┌───────────────────────────────────────────────┼───────────────────────────────────────────────┐
+         ▼                                               ▼                                               ▼
+┌───────────────────────────────┐               ┌───────────────────────────────┐               ┌───────────────────────────────┐
+│   📁 Detección de Intrusos    │               │        📁 WiFiSentry          │               │        📁 SocketSentry        │
+│    Triage Forense de Host     │               │      Forense Inalámbrico      │               │   Threat Hunting de Red & C2  │
+├───────────────────────────────┤               ├───────────────────────────────┤               ├───────────────────────────────┤
+│ • Eventos de Seguridad        │               │ • Auditoría 802.11 / BSSID    │               │ • Inspección de Sockets TCP   │
+│ • Fuerza bruta RDP (4625)     │               │ • Rogue AP / Evil Twin Hunter │               │ • Detección de Balizas (C2)   │
+│ • Anti-Forensics (1102 / 104) │               │ • Benchmark PBKDF2 (Hashcat)  │               │ • Feodo Tracker & LOLBins     │
+│ • Persistencia & LOLBAS       │               │ • Mapa de Calor RSSI en Vivo  │               │ • Preservación & Dump Forense │
+└───────────────────────────────┘               └───────────────────────────────┘               └───────────────────────────────┘
 ```
 
 ---
@@ -55,12 +55,22 @@ Especializado en la inspección automatizada y análisis forense del Visor de Ev
 ---
 
 ### 2. 📡 [WiFiSentry](WiFiSentry/) — Auditoría Forense Wi-Fi, Evil Twin Hunter & Mapa de Calor
-Herramienta de nivel industrial para auditoría defensiva y análisis forense del espectro inalámbrico 802.11 en Windows.
+Herramienta de nivel industrial para auditoría defensiva y análisis forense del espectro inalámbrico 802.11 en Windows. Disponible en Python 3 (`WiFiSentry.py`) y PowerShell (`WiFiSentry.ps1`).
 * **Rogue AP Hunter (Evil Twin Radar):** Detección en tiempo real de suplantación de identidad Wi-Fi comparando BSSID (MAC), OUI de fabricantes, discrepancias de cifrado y anomalías de canal.
 * **Calculadora de Entropía & Benchmark de Crackeo:** Estimación matemática de resistencia WPA2/WPA3 frente a ataques de diccionario y ataques masivos por GPU (clústeres Hashcat / RTX 4090).
 * **Sensor de Proximidad & Heatmap Espectral:** Radar térmico en consola en vivo para rastrear fuentes emisoras mediante delta de señal ($\Delta \pm\%$), nivel RSSI estimado y saturación de canales.
 * **Exportación Forense:** Generación de reportes ejecutivos en HTML interactivo (Glassmorphism cyberpunk) y volcados JSON/CSV estructurados.
 * 🔗 *[Ver documentación detallada de WiFiSentry →](WiFiSentry/README.md)*
+
+---
+
+### 3. 🌐 [SocketSentry](SocketSentry/) — Framework Forense de Red, LOLBins y C2 Threat Hunting
+Framework especializado en la inspección profunda de sockets de red y detección de actividad Command & Control (C2) en tiempo real. Disponible en Python 3 (`SocketSentry.py`) y PowerShell (`SocketSentry.ps1`).
+* **Correlación de Sockets en Memoria:** Mapeo de conexiones TCP/UDP activas hacia procesos propietarios, rutas en disco y líneas de comando completas.
+* **Threat Intelligence Integrada:** Sincronización con Abuse.ch Feodo Tracker (IPs C2 activas) y catálogo de más de 245 binarios LOLBAS.
+* **Detección de Balizas C2 (*Beaconing*):** Algoritmo de análisis de cadencia temporal para identificar llamadas periódicas hacia infraestructuras de ataque.
+* **Respuesta y Preservación Forense:** Generación de volcados de memoria volátil (`MiniDump`) y contención activa mediante bloqueo saliente en Windows Defender Firewall.
+* 🔗 *[Ver documentación detallada de SocketSentry →](SocketSentry/README.md)*
 
 ---
 
@@ -77,6 +87,10 @@ Herramienta de nivel industrial para auditoría defensiva y análisis forense de
 | **WiFiSentry** | Discovery | `T1040` | Network Sniffing / Wi-Fi Reconnaissance |
 | **WiFiSentry** | Credential Access | `T1110` | Brute Force (Estimación de crackeo de PSK WPA2/WPA3) |
 | **WiFiSentry** | Initial Access | `T1557` | Adversary-in-the-Middle / Rogue AP (Ataques Evil Twin) |
+| **SocketSentry** | Command and Control | `T1071.001` | Application Layer Protocol (Canales C2 sobre HTTP/HTTPS/Puertos raros) |
+| **SocketSentry** | Defense Evasion | `T1218` | System Binary Proxy Execution (Abuso de LOLBins en red) |
+| **SocketSentry** | Command and Control | `T1571` | Non-Standard Port (Puertos de malware 4444, 50050, 1337) |
+| **SocketSentry** | Ingress Tool Transfer | `T1105` | Ingress Tool Transfer (Cradles de descarga con Certutil / PowerShell) |
 
 ---
 
@@ -105,6 +119,13 @@ cd WiFiSentry
 ```
 *(O directamente mediante Python: `python WiFiSentry\WiFiSentry.py`)*
 
+#### Para threat hunting y análisis forense de red:
+```cmd
+cd SocketSentry
+.\Ejecutar-SocketSentry.bat
+```
+*(O directamente mediante Python: `python SocketSentry\SocketSentry.py`)*
+
 ---
 
 ## 📂 Estructura del Repositorio
@@ -112,7 +133,7 @@ cd WiFiSentry
 ```text
 WinAudit-DFIR/
 │
-├── Suite-DFIR.bat                    # Lanzador interactivo centralizado
+├── Suite-DFIR.bat                    # Lanzador interactivo centralizado (Menú 1, 2, 3)
 ├── README.md                         # Documentación principal del ecosistema
 ├── LICENSE                           # Licencia MIT (Cru9)
 ├── .gitignore                        # Reglas de exclusión de git
@@ -131,16 +152,30 @@ WinAudit-DFIR/
 │   ├── CONTRIBUTING.md               # Guía para desarrolladores y colaboradores
 │   └── README.md                     # Documentación completa de Detección de Intrusos
 │
-└── 📁 WiFiSentry/                    # MÓDULO 2: FORENSE INALÁMBRICO & SENSOR RF
-    ├── WiFiSentry.py                 # Core analítico en Python (CLI + GUI Dashboard)
-    ├── WiFiSentry.ps1                # Alternativa nativa en PowerShell 5.1+/7+
-    ├── Ejecutar-WiFiSentry.bat       # Lanzador con selector automático de runtime
-    ├── Cerrar-Ventanas-WiFiSentry.bat# Script de limpieza y detención de procesos
+├── 📁 WiFiSentry/                    # MÓDULO 2: FORENSE INALÁMBRICO & SENSOR RF
+│   ├── WiFiSentry.py                 # Core analítico en Python (CLI + GUI Dashboard)
+│   ├── WiFiSentry.ps1                # Alternativa nativa en PowerShell 5.1+/7+
+│   ├── Ejecutar-WiFiSentry.bat       # Lanzador con selector automático de runtime
+│   ├── Cerrar-Ventanas-WiFiSentry.bat# Script de limpieza y detención de procesos
+│   ├── assets/                       # Banners e infografías de ciberseguridad
+│   ├── Reportes/                     # Dashboard HTML y reportes de muestra
+│   ├── SECURITY.md                   # Política de seguridad y divulgación
+│   ├── CONTRIBUTING.md               # Guía para desarrolladores y colaboradores
+│   └── README.md                     # Documentación completa de WiFiSentry
+│
+└── 📁 SocketSentry/                  # MÓDULO 3: THREAT HUNTING DE RED & C2
+    ├── SocketSentry.py               # Core analítico en Python 3 (CLI + GUI Dashboard + Beacon Hunter)
+    ├── SocketSentry.ps1              # Motor nativo avanzado en PowerShell 5.1+/7+
+    ├── Auditar-Conexiones.ps1        # Motor original forense y respuesta activa
+    ├── Ejecutar-SocketSentry.bat     # Lanzador inteligente multi-runtime con UAC
+    ├── Ejecutar-Auditoria-Red.bat    # Script de compatibilidad retrocompatible
+    ├── Cerrar-Ventanas-SocketSentry.bat # Script de limpieza y detención de procesos
+    ├── db_conexiones.json            # Base de datos de amenazas (LOLBAS, Feodo C2, puertos)
     ├── assets/                       # Banners e infografías de ciberseguridad
     ├── Reportes/                     # Dashboard HTML y reportes de muestra
     ├── SECURITY.md                   # Política de seguridad y divulgación
     ├── CONTRIBUTING.md               # Guía para desarrolladores y colaboradores
-    └── README.md                     # Documentación completa de WiFiSentry
+    └── README.md                     # Documentación completa de SocketSentry
 ```
 
 ---

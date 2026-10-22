@@ -2,9 +2,6 @@
 # Git Ignore - WinAudit-DFIR Suite
 # ==============================================================================
 
-# Subproyectos excluidos temporalmente
-SocketSentry/
-
 # Reportes dinámicos generados localmente
 **/Reportes/*.json
 **/Reportes/*.csv
@@ -14,7 +11,7 @@ SocketSentry/
 **/*_wifi_creds.*
 
 # Python Cache & Entornos
-__pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 .venv/
