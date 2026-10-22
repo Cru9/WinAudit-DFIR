@@ -15,7 +15,7 @@
 ![WinAudit-DFIR Master Banner](assets/master_banner.jpg)
 
 <div align="center">
-  <img src="assets/terminal_preview.svg" alt="WinAudit-DFIR Live Terminal Demo" width="100%" style="border-radius: 8px; margin: 15px 0;" />
+  <img src="assets/terminal_demo.gif" alt="WinAudit-DFIR Live Terminal Demo" width="100%" style="border-radius: 8px; margin: 15px 0;" />
   <p><em>Demostración en vivo: Ejecución interactiva del motor forense dual en tiempo real.</em></p>
 </div>
 
@@ -152,9 +152,9 @@ WinAudit-DFIR/
 ├── COMMUNITY_LAUNCH_KIT.md           # Guía de difusión, temas de GitHub y textos para foros
 ├── LICENSE                           # Licencia MIT (Cru9)
 ├── .gitignore                        # Reglas de exclusión de git
-├── 📁 assets/                        # Banners maestros y animación interactiva en SVG
+├── 📁 assets/                        # Banners maestros y animación interactiva en GIF
 │   ├── master_banner.jpg
-│   └── terminal_preview.svg
+│   └── terminal_demo.gif
 │
 ├── 📁 Detección de Intrusos/         # MÓDULO 1: FORENSE DE HOST & EVENT LOGS
 │   ├── IntruderDetector.py           # Core analítico en Python 3 (CLI + GUI Dashboard + SIEM)
