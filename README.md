@@ -2,7 +2,7 @@
 ### Ecosistema Modular de Triage Forense y Detección de Amenazas en Windows
 **Desarrollado por [Cru9](https://github.com/Cru9)**
 
-[![GitHub release](https://img.shields.io/badge/Release-v1.2-blue.svg)](https://github.com/Cru9/WinAudit-DFIR/releases)
+[![GitHub release](https://img.shields.io/badge/Release-v1.2.1-blue.svg)](https://github.com/Cru9/WinAudit-DFIR/releases)
 [![CI](https://github.com/Cru9/WinAudit-DFIR/actions/workflows/ci.yml/badge.svg)](https://github.com/Cru9/WinAudit-DFIR/actions/workflows/ci.yml)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B%20%7C%207%2B-blue.svg?logo=powershell)](https://github.com/Cru9/WinAudit-DFIR)
 [![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
@@ -43,7 +43,8 @@ El objetivo de este ecosistema es centralizar herramientas ligeras, de alta fide
 │ • Fuerza bruta RDP (4625)     │               │ • Rogue AP / Evil Twin Hunter │               │ • Detección de Balizas (C2)   │
 │ • Anti-Forensics (1102 / 104) │               │ • Benchmark PBKDF2 (Hashcat)  │               │ • Feodo Tracker & LOLBins     │
 │ • Persistencia & LOLBAS       │               │ • Mapa de Calor RSSI en Vivo  │               │ • Preservación & Dump Forense │
-└───────────────────────────────┘               └───────────────────────────────┘               └───────────────────────────────┘
+│ • Firmas Authenticode & Tasks │               └───────────────────────────────┘               └───────────────────────────────┘
+└───────────────────────────────┘
 ```
 
 ---
@@ -56,6 +57,7 @@ Especializado en la inspección automatizada y análisis forense del Visor de Ev
 * **Vectores de Autenticación & Fuerza Bruta:** Rastreo de ataques de fuerza bruta y password spraying (Event ID 4625), clasificación de IPs atacantes y cuentas bloqueadas (4740).
 * **Movimiento Lateral:** Detección de accesos RDP remotos interactivos (Event ID 4624 tipo 10) y sesiones SMB de red (tipo 3).
 * **Persistencia y Elevación:** Identificación de creación anómala de usuarios o modificación de grupos de administradores (Event IDs 4720, 4732, 4728) mediante resolución robusta de SIDs (`S-1-5-32-544`).
+* **Persistencia en Inicio & Tareas Programadas:** Hunter forense de programas de arranque (`Win32_StartupCommand` / Registry Run Keys) y tareas programadas raíz (`\`) no-Microsoft con validación criptográfica de firmas digitales mediante **Authenticode** (`Get-AuthenticodeSignature`).
 * **Hunter de Comandos LOLBAS & Ransomware:** Detección de eliminación de copias de seguridad (`vssadmin delete shadows`), `certutil`, `powershell -enc` (Event ID 4688).
 * **Radar SIEM en Tiempo Real:** Monitor continuo en vivo para alertar de intrusiones activas al instante.
 * 🔗 *[Ver documentación detallada de Detección de Intrusos →](Detección%20de%20Intrusos/README.md)*
@@ -90,6 +92,7 @@ Framework especializado en la inspección profunda de sockets de red y detecció
 | **Detección de Intrusos** | Credential Access | `T1110.001` | Password Guessing / Brute Force (Intentos de acceso fallidos 4625) |
 | **Detección de Intrusos** | Lateral Movement | `T1021.001` | Remote Desktop Protocol (Sesiones interactivas RDP Tipo 10) |
 | **Detección de Intrusos** | Persistence | `T1136.001` | Create Local Account (Creación de cuentas no autorizadas 4720) |
+| **Detección de Intrusos** | Persistence | `T1547.001` / `T1053` | Boot Autostart & Scheduled Tasks (Inspección Authenticode y recurrencia) |
 | **Detección de Intrusos** | Impact / Evasion | `T1490` | Inhibit System Recovery (Comandos vssadmin / wmic delete shadows 4688) |
 | **Detección de Intrusos** | Persistence | `T1543.003` | Windows Service Creation (Nuevos servicios sospechosos 7045) |
 | **WiFiSentry** | Discovery | `T1040` | Network Sniffing / Wi-Fi Reconnaissance |
@@ -145,7 +148,7 @@ WinAudit-DFIR/
 │   ├── workflows/ci.yml              # Pipeline de integración continua (Python & PowerShell)
 │   ├── workflows/release-asset.yml   # Empaquetado automatizado de ZIPs para Releases
 │   └── ISSUE_TEMPLATE/               # Plantillas para bugs, features y aportes de IOCs
-├── Suite-DFIR.bat                    # Lanzador interactivo centralizado (Menú 1, 2, 3)
+├── Suite-DFIR.bat                    # Lanzador interactivo centralizado (Menú 1, 2, 3, 4)
 ├── README.md                         # Documentación principal del ecosistema
 ├── CONTRIBUTING.md                   # Normas de contribución y arquitectura
 ├── SECURITY.md                       # Política de divulgación responsable de vulnerabilidades
@@ -159,6 +162,7 @@ WinAudit-DFIR/
 ├── 📁 Detección de Intrusos/         # MÓDULO 1: FORENSE DE HOST & EVENT LOGS
 │   ├── IntruderDetector.py           # Core analítico en Python 3 (CLI + GUI Dashboard + SIEM)
 │   ├── IntruderDetector.ps1          # Motor nativo avanzado en PowerShell 5.1+/7+
+│   ├── Auditar-Persistencia-Arranque.ps1 # Auditoría de persistencia, tareas y firmas Authenticode
 │   ├── Auditoria-Seguridad.ps1       # Script original retrocompatible
 │   ├── Ejecutar-Deteccion.bat        # Lanzador inteligente multi-runtime con UAC
 │   ├── Ejecutar-Auditoria.bat        # Script de compatibilidad

@@ -17,7 +17,7 @@ if %errorLevel% equ 0 goto :RunApp
 
 :: 3. Intentar elevacion UNA SOLA VEZ. Si el usuario cancela, continuar normalmente sin abrir mas ventanas
 echo [i] Solicitando permisos de Administrador para funciones completas...
-powershell -NoProfile -Command "try { Start-Process cmd -ArgumentList '/c \"\"%~f0\"\" -elevated' -Verb RunAs } catch { exit 1 }" >nul 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -Command "try { Start-Process -FilePath '%~f0' -ArgumentList '-elevated' -Verb RunAs } catch { exit 1 }" >nul 2>&1
 
 :: Si se elevo con exito, cerrar esta ventana original para no duplicar
 if %errorLevel% equ 0 exit /b

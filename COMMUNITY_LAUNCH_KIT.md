@@ -65,7 +65,7 @@ Feedback, issues, and rule contributions (especially new LOLBAS / C2 heuristics)
 ### 🅱️ Publicación para LinkedIn (Perfil Profesional & Grupos de SecOps/DFIR)
 **Texto del Post:**
 ```text
-🚨 Emocionado de presentar WinAudit-DFIR v1.2: Suite forense de respuesta ante incidentes (DFIR) y Threat Hunting para entornos Windows, desarrollada con arquitectura abierta y cero dependencias externas obligatorias.
+🚨 Emocionado de presentar WinAudit-DFIR v1.2.1: Suite forense de respuesta ante incidentes (DFIR) y Threat Hunting para entornos Windows, desarrollada con arquitectura abierta y cero dependencias externas obligatorias.
 
 En operaciones reales de triaje o respuesta a incidentes, los analistas de seguridad enfrentan desafíos comunes:
 ❌ Máquinas comprometidas sin acceso a internet para descargar dependencias.
@@ -73,7 +73,7 @@ En operaciones reales de triaje o respuesta a incidentes, los analistas de segur
 ❌ Necesidad de presentar evidencia clara tanto a técnicos como a directivos.
 
 WinAudit-DFIR resuelve esto mediante una arquitectura Dual-Runtime (Python 3 estándar + PowerShell 5.1/7+ nativo) dividida en 3 pilares clave:
-1️⃣ Host Forensics: Auditoría de persistencias, escalamiento de privilegios y análisis de Event Logs de Windows.
+1️⃣ Host Forensics: Auditoría de persistencias en arranque con firmas digitales Authenticode, tareas programadas, escalamiento de privilegios y análisis de Event Logs de Windows.
 2️⃣ WiFiSentry: Radar de ciberdefensa inalámbrica, detección en vivo de ataques Evil Twin y mapas de calor RF.
 3️⃣ SocketSentry: Inspección profunda de sockets de red, correlación de binarios LOLBAS, detección de balizas C2 (Beaconing) y sincronización con Abuse.ch Feodo Tracker.
 
@@ -90,15 +90,16 @@ Incluye reportes ejecutivos e interactivos en HTML oscuro (Cyberpunk) y esquemas
 
 ### 🅲 Hilo para Twitter / X / Mastodon
 ```text
-🛡️ Presentando WinAudit-DFIR v1.2: Suite industrial de respuesta a incidentes y triaje forense en Windows.
+🛡️ Presentando WinAudit-DFIR v1.2.1: Suite industrial de respuesta a incidentes y triaje forense en Windows.
 
 ⚡ 0 librerías pip externas obligatorias
 ⚡ Dual-Runtime: Python 3 + PowerShell nativo
+⚡ Hunter de persistencia de arranque con validación Authenticode
 ⚡ Dashboards forenses HTML interactivos
 
 👇 Hilo con detalles técnicos y link al repo:
 
-1/4 🖥️ Detección de Intrusos: Caza de persistencias WMI, tareas ocultas, servicios anómalos y correlación de Event Logs (4624, 4672, 1102).
+1/4 🖥️ Detección de Intrusos: Caza de persistencias en arranque (Authenticode), tareas ocultas, servicios anómalos y correlación de Event Logs (4624, 4672, 1102).
 
 2/4 📡 WiFiSentry: Radar RF 802.11 ax/ac, cazador de Rogue APs (Evil Twin), benchmark de crackeo WPA2/WPA3 y sensor térmico de proximidad en vivo.
 

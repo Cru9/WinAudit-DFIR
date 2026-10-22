@@ -17,7 +17,7 @@ if %errorLevel% equ 0 goto :CheckRuntime
 
 :: 3. Intentar elevacion UNA SOLA VEZ para resolucion de sockets y procesos privilegiados
 echo [i] Solicitando permisos de Administrador para analisis profundo de sockets...
-powershell -NoProfile -Command "try { Start-Process cmd -ArgumentList '/c \"\"%~f0\"\" -elevated' -Verb RunAs } catch { exit 1 }" >nul 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -Command "try { Start-Process -FilePath '%~f0' -ArgumentList '-elevated' -Verb RunAs } catch { exit 1 }" >nul 2>&1
 
 :: Si se elevo con exito, cerrar esta ventana original para no duplicar
 if %errorLevel% equ 0 exit /b

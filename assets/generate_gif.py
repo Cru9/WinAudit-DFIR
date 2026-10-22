@@ -36,7 +36,7 @@ def create_terminal_gif():
     draw.ellipse([(54, 11), (66, 23)], fill=(16, 185, 129))   # Maximize
 
     # Title text
-    title = "Cru9 :: WinAudit-DFIR Suite v1.2 — [Live Incident Response Console]"
+    title = "Cru9 :: WinAudit-DFIR Suite v1.2.1 — [Live Incident Response Console]"
     draw.text((width // 2 - 200, 10), title, font=font_title, fill=dim_color)
 
     frames = []
@@ -55,7 +55,7 @@ def create_terminal_gif():
         [
             ((dim_color, "PS C:\\Incident-Response\\WinAudit-DFIR> "), (cyan_color, ".\\Suite-DFIR.bat")),
             ((cyan_color, "=================================================================================="),),
-            ((cyan_color, "  [+] WinAudit-DFIR Suite v1.2 "), (dim_color, "| Dual-Runtime Engine (Python 3 & PowerShell)")),
+            ((cyan_color, "  [+] WinAudit-DFIR Suite v1.2.1 "), (dim_color, "| Dual-Runtime Engine (Python 3 & PowerShell)")),
             ((cyan_color, "=================================================================================="),),
             ((text_color, "  [1] Detección de Intrusos (Host Forensics & Event Logs)"),),
             ((text_color, "  [2] WiFiSentry (RF Spectrum, Rogue AP & Evil Twin Hunter)"),),
@@ -80,7 +80,7 @@ def create_terminal_gif():
         [
             ((dim_color, "PS C:\\Incident-Response\\WinAudit-DFIR> "), (cyan_color, ".\\Suite-DFIR.bat")),
             ((cyan_color, "=================================================================================="),),
-            ((cyan_color, "  [+] WinAudit-DFIR Suite v1.2 "), (dim_color, "| Dual-Runtime Engine (Python 3 & PowerShell)")),
+            ((cyan_color, "  [+] WinAudit-DFIR Suite v1.2.1 "), (dim_color, "| Dual-Runtime Engine (Python 3 & PowerShell)")),
             ((cyan_color, "=================================================================================="),),
             ((amber_color, "  Selecciona una opcion [1, 2, 3]: "), (cyan_color, "3")),
             ((green_color, "  [+] Runtime: Python 3.12 | Zero pip dependencies"),),
@@ -95,7 +95,7 @@ def create_terminal_gif():
         [
             ((dim_color, "PS C:\\Incident-Response\\WinAudit-DFIR> "), (cyan_color, ".\\Suite-DFIR.bat")),
             ((cyan_color, "=================================================================================="),),
-            ((cyan_color, "  [+] WinAudit-DFIR Suite v1.2 "), (dim_color, "| Dual-Runtime Engine (Python 3 & PowerShell)")),
+            ((cyan_color, "  [+] WinAudit-DFIR Suite v1.2.1 "), (dim_color, "| Dual-Runtime Engine (Python 3 & PowerShell)")),
             ((cyan_color, "=================================================================================="),),
             ((green_color, "  [+] Runtime: Python 3.12 | Zero pip dependencies"),),
             ((red_color, "  [!] ALERTA CRITICA [Score: 100/100] — Coincidencia C2 Feodo Tracker confirmada:"),),

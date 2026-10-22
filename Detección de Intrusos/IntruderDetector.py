@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-IntruderDetector v1.2 | Suite Forense de Host, Detección de Intrusos y Triage de Seguridad en Windows
+IntruderDetector v1.2.1 | Suite Forense de Host, Detección de Intrusos y Triage de Seguridad en Windows
 Desarrollado por: Ezequiel Diaz (Cru9) | https://github.com/Cru9
 Parte del Ecosistema WinAudit-DFIR
 """
@@ -79,7 +79,7 @@ def show_banner():
 =============================================================================="""
     print(f"{CYAN}{BOLD}{banner}{MAGENTA}")
     print("  Suite DFIR de Detección de Intrusos, Triage de Host & Forense de Eventos")
-    print("  Ecosistema Cru9 | Windows Host Security Intelligence | v1.2")
+    print("  Ecosistema Cru9 | Windows Host Security Intelligence | v1.2.1")
     print(f"=============================================================================={RESET}\n")
 
 
@@ -253,6 +253,7 @@ class IntruderDetector:
         self.account_changes: List[Dict[str, Any]] = []
         self.suspicious_processes: List[Dict[str, Any]] = []
         self.service_persistence: List[Dict[str, Any]] = []
+        self.startup_persistence: List[Dict[str, Any]] = []
         self.admin_members: List[Dict[str, str]] = []
         self.threat_score = 0
         self.threat_level = "BAJO"
@@ -495,6 +496,26 @@ class IntruderDetector:
         self.service_persistence = results
         return results
 
+    def audit_startup_and_task_persistence(self) -> List[Dict[str, Any]]:
+        """Módulo 7: Inspecciona comandos de inicio (Win32_StartupCommand), tareas raíz no-Microsoft y firmas Authenticode."""
+        results = []
+        ps_script = SCRIPT_DIR / "Auditar-Persistencia-Arranque.ps1"
+        if ps_script.exists():
+            cmd = ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(ps_script), "-Json"]
+            try:
+                proc = subprocess.run(cmd, capture_output=True, text=True, errors="replace", timeout=45)
+                out = proc.stdout.strip()
+                if out:
+                    data = json.loads(out)
+                    if isinstance(data, dict):
+                        results = [data]
+                    elif isinstance(data, list):
+                        results = data
+            except Exception:
+                pass
+        self.startup_persistence = results
+        return results
+
     def calculate_threat_score(self):
         """Calcula el índice de riesgo global del sistema host (0 a 100)."""
         score = 0
@@ -530,6 +551,14 @@ class IntruderDetector:
         if high_services:
             score += len(high_services) * 15
 
+        # Persistencia en arranque / tareas sospechosas o no firmadas
+        sus_startup = [p for p in self.startup_persistence if p.get("Sospechoso")]
+        if sus_startup:
+            score += len(sus_startup) * 12
+        unsigned_startup = [p for p in self.startup_persistence if p.get("Firma") in ["NotSigned", "HashMismatch"]]
+        if unsigned_startup:
+            score += len(unsigned_startup) * 15
+
         self.threat_score = min(score, 100)
         if self.threat_score >= 60:
             self.threat_level = "CRÍTICO (Alta probabilidad de intrusión)"
@@ -543,23 +572,26 @@ class IntruderDetector:
         print(f"\n{CYAN}{BOLD}[*] INICIANDO AUDITORÍA FORENSE INTEGRAL DE HOST (Últimos {self.days_back} días)...{RESET}")
         time.sleep(0.5)
 
-        print(f"  {YELLOW}├─ [1/6] Inspeccionando Integridad de Registros (Anti-Forensics)...{RESET}")
+        print(f"  {YELLOW}├─ [1/7] Inspeccionando Integridad de Registros (Anti-Forensics)...{RESET}")
         self.audit_cleared_logs()
 
-        print(f"  {YELLOW}├─ [2/6] Analizando Intentos de Autenticación Fallidos (Fuerza Bruta)...{RESET}")
+        print(f"  {YELLOW}├─ [2/7] Analizando Intentos de Autenticación Fallidos (Fuerza Bruta)...{RESET}")
         self.audit_failed_logons()
 
-        print(f"  {YELLOW}├─ [3/6] Rastreo de Movimiento Lateral y Accesos RDP/Red...{RESET}")
+        print(f"  {YELLOW}├─ [3/7] Rastreo de Movimiento Lateral y Accesos RDP/Red...{RESET}")
         self.audit_successful_logons()
 
-        print(f"  {YELLOW}├─ [4/6] Verificando Alteración de Cuentas y Administradores Locales...{RESET}")
+        print(f"  {YELLOW}├─ [4/7] Verificando Alteración de Cuentas y Administradores Locales...{RESET}")
         self.audit_account_manipulation()
 
-        print(f"  {YELLOW}├─ [5/6] Escaneando Ejecución de Comandos LOLBAS y Procesos Sospechosos...{RESET}")
+        print(f"  {YELLOW}├─ [5/7] Escaneando Ejecución de Comandos LOLBAS y Procesos Sospechosos...{RESET}")
         self.audit_suspicious_processes_and_lolbas()
 
-        print(f"  {YELLOW}└─ [6/6] Auditando Persistencia en Servicios y Tareas Programadas...{RESET}")
+        print(f"  {YELLOW}├─ [6/7] Auditando Persistencia en Servicios de Windows (Event 7045)...{RESET}")
         self.audit_services_and_persistence()
+
+        print(f"  {YELLOW}└─ [7/7] Inspeccionando Persistencia en Arranque y Tareas (Authenticode)...{RESET}")
+        self.audit_startup_and_task_persistence()
 
         self.calculate_threat_score()
         print(f"\n{GREEN}{BOLD}[+] Auditoría completada con éxito. Nivel de Riesgo Global: {self.threat_level}{RESET}\n")
@@ -649,6 +681,20 @@ class IntruderDetector:
         else:
             print(f"  {GREEN}[✓] Sin instalación reciente de servicios sospechosos.{RESET}")
 
+        # 7. Persistencia en Arranque y Tareas Programadas
+        print(f"\n{BOLD}[7] PERSISTENCIA EN ARRANQUE & TAREAS CON FIRMAS AUTHENTICODE (T1547 / T1053):{RESET}")
+        if self.startup_persistence:
+            sus_items = [p for p in self.startup_persistence if p.get("Sospechoso")]
+            if sus_items:
+                print(f"  {RED}[!] Detectados {len(sus_items)} elemento(s) sospechoso(s) de inicio:{RESET}")
+                for item in sus_items[:5]:
+                    print(f"      • [{item.get('Categoria')}] {item.get('Nombre')} | Firma: {item.get('Firma')} | Severidad: {item.get('Severidad')}")
+                    print(f"        Ruta: {item.get('Ruta')} ({item.get('Motivo')})")
+            else:
+                print(f"  {GREEN}[✓] Se auditaron {len(self.startup_persistence)} entradas de arranque/tareas; todas cuentan con firma válida y reputación legítima.{RESET}")
+        else:
+            print(f"  {DIM}[i] No se registraron anomalías en comandos de auto-arranque o tareas programadas raíz.{RESET}")
+
         print(f"\n{CYAN}=============================================================================={RESET}\n")
 
     def export_json(self, filepath: Optional[Path] = None) -> Path:
@@ -676,7 +722,8 @@ class IntruderDetector:
                 "account_changes": self.account_changes,
                 "administrators": self.admin_members,
                 "suspicious_processes": self.suspicious_processes,
-                "services": self.service_persistence
+                "services": self.service_persistence,
+                "startup_and_tasks": self.startup_persistence
             }
         }
         with open(filepath, "w", encoding="utf-8") as f:
@@ -710,9 +757,11 @@ class IntruderDetector:
         total_cleared = len(self.cleared_logs)
         total_accounts = len(self.account_changes)
         total_threats = len(self.suspicious_processes)
+        total_startup_sus = len([p for p in self.startup_persistence if p.get("Sospechoso")])
+        total_startup_entries = len(self.startup_persistence)
 
         # Gráfico donut SVG para distribución de eventos
-        tot_all = max(total_failed + total_rdp + total_cleared + total_accounts + total_threats, 1)
+        tot_all = max(total_failed + total_rdp + total_cleared + total_accounts + total_threats + total_startup_sus, 1)
         pct_failed = int((total_failed / tot_all) * 100)
         pct_rdp = int((total_rdp / tot_all) * 100)
         pct_cleared = int((total_cleared / tot_all) * 100)
@@ -968,6 +1017,11 @@ class IntruderDetector:
                 <div class="kpi-number">{total_accounts}</div>
                 <div class="kpi-desc">Alteraciones en usuarios/grupos</div>
             </div>
+            <div class="kpi-card {'alert' if total_startup_sus > 0 else 'ok'}">
+                <div class="kpi-label">Persistencia Arranque / Tareas</div>
+                <div class="kpi-number">{total_startup_entries}</div>
+                <div class="kpi-desc">{'Alertas detectadas (' + str(total_startup_sus) + ')' if total_startup_sus > 0 else 'Firmas Authenticode válidas'}</div>
+            </div>
         </div>
 
         <!-- MAIN GRID -->
@@ -1058,6 +1112,13 @@ class IntruderDetector:
                         </div>
                         <span class="badge {'badge-yellow' if total_accounts > 0 else 'badge-green'}">{total_accounts} Cambios</span>
                     </div>
+                    <div class="mitre-item">
+                        <div>
+                            <div class="mitre-id">T1547.001 / T1053</div>
+                            <div style="font-size:0.8rem; color:#aaa;">Boot Autostart & Scheduled Tasks (Authenticode)</div>
+                        </div>
+                        <span class="badge {'badge-red' if total_startup_sus > 0 else 'badge-green'}">{'Alerta' if total_startup_sus > 0 else 'Validado'}</span>
+                    </div>
                 </div>
 
                 <div class="panel-header" style="margin-top: 1.5rem;">
@@ -1079,7 +1140,7 @@ class IntruderDetector:
         </div>
 
         <footer>
-            Generado por <a href="https://github.com/Cru9/WinAudit-DFIR" target="_blank">WinAudit-DFIR Suite / IntruderDetector</a> • Autor: Cru9 • {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+            Generado por <a href="https://github.com/Cru9/WinAudit-DFIR" target="_blank">WinAudit-DFIR Suite / IntruderDetector v1.2.1</a> • Autor: Cru9 • {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         </footer>
     </div>
 
@@ -1175,14 +1236,15 @@ def interactive_menu():
         print("  [4] 🌐 Rastreo de Accesos Remotos & Movimiento Lateral (RDP 10 / Red 3)")
         print("  [5] 👥 Auditoría de Persistencia y Cuentas de Administrador (4720 / S-1-5-32-544)")
         print("  [6] 🥷 Hunter de Comandos Sospechosos & LOLBAS (Evento 4688 / T1490)")
-        print("  [7] ⚙️  Persistencia en Servicios y Tareas Programadas (Eventos 4698 / 7045)")
-        print("  [8] 📡 Radar de Intrusiones en Vivo (Monitor en Tiempo Real / Live Tail)")
-        print("  [9] 📊 Generar y Abrir Dashboard HTML Cyberpunk (Reporte Ejecutivo)")
-        print("  [10] 💾 Exportar Evidencias Multi-formato (JSON + CSV)")
+        print("  [7] ⚙️  Persistencia en Servicios de Windows (Evento 7045)")
+        print("  [8] 🚀 Hunter de Persistencia en Inicio y Tareas Programadas (Authenticode)")
+        print("  [9] 📡 Radar de Intrusiones en Vivo (Monitor en Tiempo Real / Live Tail)")
+        print("  [10] 📊 Generar y Abrir Dashboard HTML Cyberpunk (Reporte Ejecutivo)")
+        print("  [11] 💾 Exportar Evidencias Multi-formato (JSON + CSV)")
         print("  [0] 🚪 Salir")
         print("  ────────────────────────────────────────────────────────────────────────")
 
-        choice = input("\n  Ingrese una opción [0-10]: ").strip()
+        choice = input("\n  Ingrese una opción [0-11]: ").strip()
 
         if choice == "1":
             detector.run_full_audit()
@@ -1252,10 +1314,26 @@ def interactive_menu():
             input("\n  Presiona Enter para continuar...")
 
         elif choice == "8":
-            detector.live_radar_monitor(interval=3)
+            res = detector.audit_startup_and_task_persistence()
+            print(f"\n{CYAN}{BOLD}=== PERSISTENCIA EN ARRANQUE Y TAREAS PROGRAMADAS (AUTHENTICODE) ==={RESET}")
+            if res:
+                for s in res:
+                    sev_col = RED if s.get("Sospechoso") else GREEN
+                    print(f"  {sev_col}• [{s.get('Categoria')}] {s.get('Nombre')}{RESET}")
+                    print(f"    Ruta:    {s.get('Ruta')}")
+                    print(f"    Firma:   {s.get('Firma')} ({s.get('Firmante', '-')[:50]})")
+                    print(f"    Gatillo: {s.get('Intervalo')} | Usuario: {s.get('Usuario')}")
+                    if s.get("Motivo"):
+                        print(f"    {YELLOW}Motivo:  {s.get('Motivo')}{RESET}")
+            else:
+                print(f"  {GREEN}[✓] No se registraron entradas de persistencia de arranque anómalas.{RESET}")
             input("\n  Presiona Enter para continuar...")
 
         elif choice == "9":
+            detector.live_radar_monitor(interval=3)
+            input("\n  Presiona Enter para continuar...")
+
+        elif choice == "10":
             if not detector.failed_logons and not detector.cleared_logs:
                 detector.run_full_audit()
             html_path = detector.generate_html_dashboard()
@@ -1266,7 +1344,7 @@ def interactive_menu():
                 pass
             input("\n  Presiona Enter para continuar...")
 
-        elif choice == "10":
+        elif choice == "11":
             if not detector.failed_logons and not detector.cleared_logs:
                 detector.run_full_audit()
             j = detector.export_json()
