@@ -84,6 +84,17 @@ Framework especializado en la inspección profunda de sockets de red y detecció
 
 ---
 
+### 4. 🚀 [StartupSentry](StartupSentry/) — Hunter de Persistencia en Inicio, Tareas Programadas y Firmas Authenticode
+Framework forense especializado en el triage de mecanismos de persistencia en el arranque de Windows. Disponible en Python 3 (`StartupSentry.py`) y PowerShell nativo (`StartupSentry.ps1`).
+* **Auditoría de Auto-Arranque:** Inspección exhaustiva de `Win32_StartupCommand`, carpetas de inicio de usuario/sistema y claves de registro en `HKLM`/`HKCU:Run` y `RunOnce`.
+* **Tareas Programadas en Raíz (`\`):** Detección de tareas programadas no pertenecientes a Microsoft y análisis de gatillos con intervalos recurrentes de alta frecuencia (`<= 30 min`).
+* **Validación Criptográfica Authenticode:** Verificación automatizada de firmas digitales (`Valid`, `NotSigned`, `HashMismatch`), emisores y certificados.
+* **Heurística Anti-Evasión:** Identificación de binarios alojados en `AppData`, `Temp`, `Users\Public`, suplantación de procesos del sistema (*Masquerading*) y LOLBins.
+* **Dashboards y Evidencias:** Generación de dashboards ejecutivos interactivos HTML Cyberpunk y exportación estructurada JSON/CSV.
+* 🔗 *[Ver documentación detallada de StartupSentry →](StartupSentry/README.md)*
+
+---
+
 ## 🎯 Cobertura con la Matriz MITRE ATT&CK®
 
 | Módulo | Táctica MITRE | ID Técnica | Descripción / Detección |
@@ -92,7 +103,6 @@ Framework especializado en la inspección profunda de sockets de red y detecció
 | **Detección de Intrusos** | Credential Access | `T1110.001` | Password Guessing / Brute Force (Intentos de acceso fallidos 4625) |
 | **Detección de Intrusos** | Lateral Movement | `T1021.001` | Remote Desktop Protocol (Sesiones interactivas RDP Tipo 10) |
 | **Detección de Intrusos** | Persistence | `T1136.001` | Create Local Account (Creación de cuentas no autorizadas 4720) |
-| **Detección de Intrusos** | Persistence | `T1547.001` / `T1053` | Boot Autostart & Scheduled Tasks (Inspección Authenticode y recurrencia) |
 | **Detección de Intrusos** | Impact / Evasion | `T1490` | Inhibit System Recovery (Comandos vssadmin / wmic delete shadows 4688) |
 | **Detección de Intrusos** | Persistence | `T1543.003` | Windows Service Creation (Nuevos servicios sospechosos 7045) |
 | **WiFiSentry** | Discovery | `T1040` | Network Sniffing / Wi-Fi Reconnaissance |
@@ -102,6 +112,10 @@ Framework especializado en la inspección profunda de sockets de red y detecció
 | **SocketSentry** | Defense Evasion | `T1218` | System Binary Proxy Execution (Abuso de LOLBins en red) |
 | **SocketSentry** | Command and Control | `T1571` | Non-Standard Port (Puertos de malware 4444, 50050, 1337) |
 | **SocketSentry** | Ingress Tool Transfer | `T1105` | Ingress Tool Transfer (Cradles de descarga con Certutil / PowerShell) |
+| **StartupSentry** | Persistence | `T1547.001` | Registry Run Keys / Startup Folder (Win32_StartupCommand y Run keys) |
+| **StartupSentry** | Persistence / Execution | `T1053.005` | Scheduled Tasks (Tareas raíz no-MS e intervalos recurrentes <= 30 min) |
+| **StartupSentry** | Defense Evasion | `T1553.002` | Subvert Trust Controls: Code Signing (Binarios NotSigned / HashMismatch) |
+| **StartupSentry** | Defense Evasion | `T1036.005` | Masquerading: Match Legitimate Name (Binarios de sistema fuera de System32) |
 
 ---
 
@@ -137,6 +151,13 @@ cd SocketSentry
 ```
 *(O directamente mediante Python: `python SocketSentry\SocketSentry.py`)*
 
+#### Para persistencia de arranque y tareas programadas:
+```cmd
+cd StartupSentry
+.\Ejecutar-StartupSentry.bat
+```
+*(O directamente mediante Python: `python StartupSentry\StartupSentry.py`)*
+
 ---
 
 ## 📂 Estructura del Repositorio
@@ -148,7 +169,7 @@ WinAudit-DFIR/
 │   ├── workflows/ci.yml              # Pipeline de integración continua (Python & PowerShell)
 │   ├── workflows/release-asset.yml   # Empaquetado automatizado de ZIPs para Releases
 │   └── ISSUE_TEMPLATE/               # Plantillas para bugs, features y aportes de IOCs
-├── Suite-DFIR.bat                    # Lanzador interactivo centralizado (Menú 1, 2, 3, 4)
+├── Suite-DFIR.bat                    # Lanzador interactivo centralizado (Menú 1, 2, 3, 4, 5)
 ├── README.md                         # Documentación principal del ecosistema
 ├── CONTRIBUTING.md                   # Normas de contribución y arquitectura
 ├── SECURITY.md                       # Política de divulgación responsable de vulnerabilidades
@@ -161,7 +182,6 @@ WinAudit-DFIR/
 ├── 📁 Detección de Intrusos/         # MÓDULO 1: FORENSE DE HOST & EVENT LOGS
 │   ├── IntruderDetector.py           # Core analítico en Python 3 (CLI + GUI Dashboard + SIEM)
 │   ├── IntruderDetector.ps1          # Motor nativo avanzado en PowerShell 5.1+/7+
-│   ├── Auditar-Persistencia-Arranque.ps1 # Auditoría de persistencia, tareas y firmas Authenticode
 │   ├── Auditoria-Seguridad.ps1       # Script original retrocompatible
 │   ├── Ejecutar-Deteccion.bat        # Lanzador inteligente multi-runtime con UAC
 │   ├── Ejecutar-Auditoria.bat        # Script de compatibilidad
@@ -183,19 +203,28 @@ WinAudit-DFIR/
 │   ├── CONTRIBUTING.md               # Guía para desarrolladores y colaboradores
 │   └── README.md                     # Documentación completa de WiFiSentry
 │
-└── 📁 SocketSentry/                  # MÓDULO 3: THREAT HUNTING DE RED & C2
-    ├── SocketSentry.py               # Core analítico en Python 3 (CLI + GUI Dashboard + Beacon Hunter)
-    ├── SocketSentry.ps1              # Motor nativo avanzado en PowerShell 5.1+/7+
-    ├── Auditar-Conexiones.ps1        # Motor original forense y respuesta activa
-    ├── Ejecutar-SocketSentry.bat     # Lanzador inteligente multi-runtime con UAC
-    ├── Ejecutar-Auditoria-Red.bat    # Script de compatibilidad retrocompatible
-    ├── Cerrar-Ventanas-SocketSentry.bat # Script de limpieza y detención de procesos
-    ├── db_conexiones.json            # Base de datos de amenazas (LOLBAS, Feodo C2, puertos)
-    ├── assets/                       # Banners e infografías de ciberseguridad
+├── 📁 SocketSentry/                  # MÓDULO 3: THREAT HUNTING DE RED & C2
+│   ├── SocketSentry.py               # Core analítico en Python 3 (CLI + GUI Dashboard + Beacon Hunter)
+│   ├── SocketSentry.ps1              # Motor nativo avanzado en PowerShell 5.1+/7+
+│   ├── Auditar-Conexiones.ps1        # Motor original forense y respuesta activa
+│   ├── Ejecutar-SocketSentry.bat     # Lanzador inteligente multi-runtime con UAC
+│   ├── Ejecutar-Auditoria-Red.bat    # Script de compatibilidad retrocompatible
+│   ├── Cerrar-Ventanas-SocketSentry.bat # Script de limpieza y detención de procesos
+│   ├── db_conexiones.json            # Base de datos de amenazas (LOLBAS, Feodo C2, puertos)
+│   ├── assets/                       # Banners e infografías de ciberseguridad
+│   ├── Reportes/                     # Dashboard HTML y reportes de muestra
+│   ├── SECURITY.md                   # Política de seguridad y divulgación
+│   ├── CONTRIBUTING.md               # Guía para desarrolladores y colaboradores
+│   └── README.md                     # Documentación completa de SocketSentry
+│
+└── 📁 StartupSentry/                 # MÓDULO 4: PERSISTENCIA EN ARRANQUE & TAREAS
+    ├── StartupSentry.py              # Core analítico en Python 3 (CLI + Dashboard HTML Cyberpunk)
+    ├── StartupSentry.ps1             # Motor forense nativo en PowerShell 5.1+/7+ (Authenticode)
+    ├── Ejecutar-StartupSentry.bat    # Lanzador inteligente multi-runtime con UAC
+    ├── Cerrar-Ventanas-StartupSentry.bat # Script de limpieza y detención de procesos
+    ├── assets/                       # Banners e infografías HUD de ciberseguridad
     ├── Reportes/                     # Dashboard HTML y reportes de muestra
-    ├── SECURITY.md                   # Política de seguridad y divulgación
-    ├── CONTRIBUTING.md               # Guía para desarrolladores y colaboradores
-    └── README.md                     # Documentación completa de SocketSentry
+    └── README.md                     # Documentación completa de StartupSentry
 ```
 
 ---

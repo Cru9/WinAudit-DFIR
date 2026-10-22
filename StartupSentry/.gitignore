@@ -1,0 +1,24 @@
+# Reportes generados localmente (manteniendo el dashboard demo)
+Reportes/*.json
+Reportes/*.csv
+Reportes/StartupSentry_Audit_*.*
+Reportes/StartupSentry_Dashboard_20*.*
+!Reportes/.gitkeep
+
+# Volcados de memoria forense y logs
+*.dmp
+*.evtx
+*.log
+
+# Archivos de sistema y editores
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/

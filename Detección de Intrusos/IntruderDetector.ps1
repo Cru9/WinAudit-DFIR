@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    IntruderDetector v1.2.1 - Suite de Auditoría Forense y Detección de Intrusos en Windows.
+    IntruderDetector v1.2 - Suite de Auditoría Forense y Detección de Intrusos en Windows.
 .DESCRIPTION
     Inspecciona y correlaciona eventos clave del Visor de Seguridad y Sistema:
     - Borrado de registros de auditoría (Evasión / Evento 1102 / 104)
@@ -10,9 +10,8 @@
     - Detección de comandos LOLBAS y procesos sospechosos (Evento 4688)
     - Instalación de nuevos servicios (Evento 7045)
     - Auditoría agnóstica de administradores locales (SID S-1-5-32-544)
-    - Persistencia en inicio y tareas programadas con validación de firmas Authenticode
 .NOTES
-    Autor: Ezequiel Diaz (Cru9) | Ecosistema WinAudit-DFIR v1.2.1
+    Autor: Ezequiel Diaz (Cru9) | Ecosistema WinAudit-DFIR
 #>
 
 [CmdletBinding()]
@@ -61,7 +60,7 @@ function Parse-EventData {
 
 Clear-Host
 Write-Host "======================================================================" -ForegroundColor Cyan
-Write-Host "     INTRUDER DETECTOR v1.2.1 - TRIAGE FORENSE DE HOST EN WINDOWS     " -ForegroundColor Yellow -BackgroundColor Black
+Write-Host "      INTRUDER DETECTOR v1.2 - TRIAGE FORENSE DE HOST EN WINDOWS      " -ForegroundColor Yellow -BackgroundColor Black
 Write-Host "      Autor: Cru9 | Periodo de análisis: Últimos $DiasAtras días           " -ForegroundColor Gray
 Write-Host "======================================================================" -ForegroundColor Cyan
 
@@ -239,17 +238,6 @@ try {
     }
 } catch {
     net localgroup Administradores
-}
-
-# -------------------------------------------------------------
-# 8. Persistencia en Inicio y Tareas Programadas (Authenticode / T1547 / T1053)
-# -------------------------------------------------------------
-Show-Header "8. PERSISTENCIA EN ARRANQUE Y TAREAS PROGRAMADAS (Authenticode / T1547 / T1053)"
-$scriptPersistencia = Join-Path $PSScriptRoot "Auditar-Persistencia-Arranque.ps1"
-if (Test-Path $scriptPersistencia) {
-    & $scriptPersistencia
-} else {
-    Write-Host " [INFO] Script de persistencia no encontrado en: $scriptPersistencia" -ForegroundColor Gray
 }
 
 Write-Host ""

@@ -5,7 +5,7 @@
 :: ==============================================================================
 setlocal
 chcp 65001 >nul 2>&1
-mode con: cols=105 lines=35 >nul 2>&1
+mode con: cols=105 lines=38 >nul 2>&1
 title WinAudit-DFIR Suite v1.2.1 [Cru9 DFIR Ecosystem]
 cd /d "%~dp0"
 
@@ -84,7 +84,7 @@ echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[ MODULOS DE AUDITORIA ^& RESPUESTA A INCIDEN
 echo  %C_BLUE%+--------------------------------------------------------------------------------------------------+%C_RESET%
 echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
 echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[1]%C_RESET%  %C_BOLD%%C_CYAN%Deteccion de Intrusos %C_GRAY%(IntruderDetector v1.2.1)%C_RESET%                                             %C_BLUE%^|%C_RESET%
-echo  %C_BLUE%^|       %C_GRAY%- Triage forense de host, persistencia de arranque (Authenticode) y Event Logs.             %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|       %C_GRAY%- Triage forense de host, eventos de seguridad (Security Log) y fuerza bruta.               %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|       %C_GRAY%- Analisis de Event IDs (1102, 4625, 4624, 4720), fuerza bruta RDP y LOLBins.              %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
 echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[2]%C_RESET%  %C_BOLD%%C_CYAN%WiFiSentry %C_GRAY%(Wireless Forensic Suite ^& RF Sensor v1.2.1)%C_RESET%                                     %C_BLUE%^|%C_RESET%
@@ -95,7 +95,11 @@ echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[3]%C_RESET%  %C_BOLD%%C_CYAN%SocketSentry %C
 echo  %C_BLUE%^|       %C_GRAY%- Inspeccion forense de sockets TCP/UDP y procesos sospechosos en memoria.                 %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|       %C_GRAY%- Deteccion de balizas C2 (Beaconing), servidores Feodo y LOLBins en red.                  %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
-echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[4]%C_RESET%  %C_BOLD%%C_YELLOW%Explorador de Evidencias %C_GRAY%(Abrir Directorio de Reportes DFIR)%C_RESET%                                %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[4]%C_RESET%  %C_BOLD%%C_CYAN%StartupSentry %C_GRAY%(Autostart ^& Task Persistence Hunter v1.2.1)%C_RESET%                                %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|       %C_GRAY%- Auditoria de programas de arranque, claves Run/RunOnce y firmas Authenticode.             %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|       %C_GRAY%- Deteccion de tareas programadas raiz (\), gatillos recurrentes y masquerading.           %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
+echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[5]%C_RESET%  %C_BOLD%%C_YELLOW%Explorador de Evidencias %C_GRAY%(Abrir Directorios de Reportes DFIR)%C_RESET%                               %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|       %C_GRAY%- Visualizar dashboards HTML interactivos, evidencias en JSON y tablas CSV.                %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
 echo  %C_BLUE%^|  %C_BOLD%%C_RED%[0]%C_RESET%  %C_BOLD%%C_WHITE%Finalizar Sesion Forense %C_GRAY%(Cerrar Suite DFIR)%C_RESET%                                                %C_BLUE%^|%C_RESET%
@@ -112,11 +116,12 @@ set "OPCION=%OPCION: =%"
 if "%OPCION%"=="1" goto RUN_DETECCION
 if "%OPCION%"=="2" goto RUN_WIFISENTRY
 if "%OPCION%"=="3" goto RUN_SOCKETSENTRY
-if "%OPCION%"=="4" goto RUN_REPORTES
+if "%OPCION%"=="4" goto RUN_STARTUPSENTRY
+if "%OPCION%"=="5" goto RUN_REPORTES
 if "%OPCION%"=="0" goto SALIR
 
 echo.
-echo   %C_YELLOW%[!] Opcion invalida '%OPCION%'. Por favor seleccione [1, 2, 3, 4 o 0]...%C_RESET%
+echo   %C_YELLOW%[!] Opcion invalida '%OPCION%'. Por favor seleccione [1, 2, 3, 4, 5 o 0]...%C_RESET%
 timeout /t 2 >nul 2>&1 || ping 127.0.0.1 -n 3 >nul
 goto MENU
 
@@ -180,6 +185,22 @@ if exist "%~dp0SocketSentry\Ejecutar-SocketSentry.bat" (
 )
 goto MENU
 
+:RUN_STARTUPSENTRY
+cls
+echo.
+echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
+echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%StartupSentry v1.2.1 (Persistencia, Tareas y Firmas Authenticode)              %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%^|  %C_GRAY%Iniciando triage de programas de arranque, tareas raiz y validacion criptografica...          %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
+echo.
+if exist "%~dp0StartupSentry\Ejecutar-StartupSentry.bat" (
+    call "%~dp0StartupSentry\Ejecutar-StartupSentry.bat" -elevated
+) else (
+    echo   %C_RED%[!] Error: No se encontro el archivo Ejecutar-StartupSentry.bat en el repositorio.%C_RESET%
+    pause
+)
+goto MENU
+
 :RUN_REPORTES
 cls
 echo.
@@ -201,6 +222,10 @@ if exist "%~dp0WiFiSentry\Reportes" (
 )
 if exist "%~dp0SocketSentry\Reportes" (
     start "" explorer "%~dp0SocketSentry\Reportes"
+    set "OPENED=1"
+)
+if exist "%~dp0StartupSentry\Reportes" (
+    start "" explorer "%~dp0StartupSentry\Reportes"
     set "OPENED=1"
 )
 if "%OPENED%"=="0" (
