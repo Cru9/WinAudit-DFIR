@@ -28,38 +28,39 @@
 El objetivo de este ecosistema es centralizar herramientas ligeras, de alta fidelidad y sin dependencias invasivas para diagnosticar, auditar y defender entornos Windows contra intrusiones tanto a nivel de sistema operativo como en el espectro de radiofrecuencia (Wi-Fi).
 
 ```
-                                    ┌─────────────────────────────────────────┐
-                                    │        WinAudit-DFIR Master Suite       │
-                                    │              (Cru9 / DFIR)              │
-                                    └────────────────────┬────────────────────┘
-                                                         │
-         ┌───────────────────────────────────────────────┼───────────────────────────────────────────────┐
-         ▼                                               ▼                                               ▼
-┌───────────────────────────────┐               ┌───────────────────────────────┐               ┌───────────────────────────────┐
-│   📁 Detección de Intrusos    │               │        📁 WiFiSentry          │               │        📁 SocketSentry        │
-│    Triage Forense de Host     │               │      Forense Inalámbrico      │               │   Threat Hunting de Red & C2  │
-├───────────────────────────────┤               ├───────────────────────────────┤               ├───────────────────────────────┤
-│ • Eventos de Seguridad        │               │ • Auditoría 802.11 / BSSID    │               │ • Inspección de Sockets TCP   │
-│ • Fuerza bruta RDP (4625)     │               │ • Rogue AP / Evil Twin Hunter │               │ • Detección de Balizas (C2)   │
-│ • Anti-Forensics (1102 / 104) │               │ • Benchmark PBKDF2 (Hashcat)  │               │ • Feodo Tracker & LOLBins     │
-│ • Persistencia & LOLBAS       │               │ • Mapa de Calor RSSI en Vivo  │               │ • Preservación & Dump Forense │
-│ • Firmas Authenticode & Tasks │               └───────────────────────────────┘               └───────────────────────────────┘
-└───────────────────────────────┘
+                                 ┌─────────────────────────────────────────┐
+                                 │       WinAudit-DFIR Master Suite        │
+                                 │              (Cru9 / DFIR)              │
+                                 └────────────────────┬────────────────────┘
+                                                      │
+            ┌───────────────────────────┬─────────────┴─────────────┬───────────────────────────┐
+            │                           │                           │                           │
+            ▼                           ▼                           ▼                           ▼
+┌────────────────────────┐  ┌────────────────────────┐  ┌────────────────────────┐  ┌────────────────────────┐
+│  Detección de Intrusos │  │       WiFiSentry       │  │      SocketSentry      │  │     StartupSentry      │
+│    Forense de Host     │  │  Forense Inalámbrico   │  │   Threat Hunter Red    │  │ Persistencia & Firmas  │
+├────────────────────────┤  ├────────────────────────┤  ├────────────────────────┤  ├────────────────────────┤
+│ • Security Event Logs  │  │ • Auditoría 802.11 RF  │  │ • Sockets TCP/UDP Vivo │  │ • Win32_StartupCommand │
+│ • Fuerza Bruta (4625)  │  │ • Rogue AP / Evil Twin │  │ • Balizas C2 Beaconing │  │ • Claves Registry Run  │
+│ • Anti-Forensics (1102)│  │ • PBKDF2 GPU Benchmark │  │ • Feodo Tracker IOCs   │  │ • Carpetas Startup LNK │
+│ • Inicios RDP / Red    │  │ • Proximidad RF en Vivo│  │ • Catálogo de LOLBins  │  │ • Tareas Raíz no-MS    │
+│ • Radar SIEM en Vivo   │  │ • Heatmap de Señal RSSI│  │ • Preservación MiniDump│  │ • Firmas Authenticode  │
+└────────────────────────┘  └────────────────────────┘  └────────────────────────┘  └────────────────────────┘
 ```
 
 ---
 
 ## 🗂️ Módulos Integrados
 
-### 1. 🛡️ [Detección de Intrusos](Detección%20de%20Intrusos/) — Triage Forense de Host y Persistencia
+### 1. 🛡️ [Detección de Intrusos](Detección%20de%20Intrusos/) — Triage Forense de Host, Event Logs & SIEM Radar
 Especializado en la inspección automatizada y análisis forense del Visor de Eventos de Seguridad (`Security Log`) y Sistema (`System Log`) de Windows. Disponible en Python 3 (`IntruderDetector.py`) y PowerShell (`IntruderDetector.ps1`).
 * **Inspección de Registros de Seguridad:** Detección de borrado intencional de logs (Anti-Forensics / Event ID 1102 y 104).
 * **Vectores de Autenticación & Fuerza Bruta:** Rastreo de ataques de fuerza bruta y password spraying (Event ID 4625), clasificación de IPs atacantes y cuentas bloqueadas (4740).
 * **Movimiento Lateral:** Detección de accesos RDP remotos interactivos (Event ID 4624 tipo 10) y sesiones SMB de red (tipo 3).
 * **Persistencia y Elevación:** Identificación de creación anómala de usuarios o modificación de grupos de administradores (Event IDs 4720, 4732, 4728) mediante resolución robusta de SIDs (`S-1-5-32-544`).
-* **Persistencia en Inicio & Tareas Programadas:** Hunter forense de programas de arranque (`Win32_StartupCommand` / Registry Run Keys) y tareas programadas raíz (`\`) no-Microsoft con validación criptográfica de firmas digitales mediante **Authenticode** (`Get-AuthenticodeSignature`).
+* **Nuevos Servicios del Sistema:** Detección de nuevos servicios instalados en el sistema operativo (Event ID 7045 en System Log / tácticas APT, PsExec y ransomware).
 * **Hunter de Comandos LOLBAS & Ransomware:** Detección de eliminación de copias de seguridad (`vssadmin delete shadows`), `certutil`, `powershell -enc` (Event ID 4688).
-* **Radar SIEM en Tiempo Real:** Monitor continuo en vivo para alertar de intrusiones activas al instante.
+* **Radar SIEM en Tiempo Real:** Monitor continuo en vivo (*Live Tail*) para alertar de intrusiones activas al instante con avisos visuales y sonoros.
 * 🔗 *[Ver documentación detallada de Detección de Intrusos →](Detección%20de%20Intrusos/README.md)*
 
 ---
