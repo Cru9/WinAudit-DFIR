@@ -152,7 +152,6 @@ WinAudit-DFIR/
 ├── README.md                         # Documentación principal del ecosistema
 ├── CONTRIBUTING.md                   # Normas de contribución y arquitectura
 ├── SECURITY.md                       # Política de divulgación responsable de vulnerabilidades
-├── COMMUNITY_LAUNCH_KIT.md           # Guía de difusión, temas de GitHub y textos para foros
 ├── LICENSE                           # Licencia MIT (Cru9)
 ├── .gitignore                        # Reglas de exclusión de git
 ├── 📁 assets/                        # Banners maestros y animación interactiva en GIF
@@ -205,7 +204,7 @@ WinAudit-DFIR/
 
 Si **WinAudit-DFIR** te ha resultado útil en tus auditorías, laboratorios o respuesta ante incidentes:
 * Regálanos una **estrella ⭐ en GitHub** para ayudar a que más analistas de seguridad conozcan la herramienta.
-* Consulta [`COMMUNITY_LAUNCH_KIT.md`](./COMMUNITY_LAUNCH_KIT.md) si deseas compartir el proyecto en foros, LinkedIn o comunidades DFIR.
+* Comparte el proyecto en tus redes profesionales, foros de ciberseguridad o comunidades de analistas DFIR.
 * Revisa [`CONTRIBUTING.md`](./CONTRIBUTING.md) para enviar sugerencias o nuevas reglas de detección.
 
 ---

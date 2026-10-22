@@ -25,3 +25,8 @@ venv/
 *.user
 Thumbs.db
 Desktop.ini
+
+# Borradores internos de marketing y difusión
+COMMUNITY_LAUNCH_KIT.md
+*LAUNCH_KIT*
+
