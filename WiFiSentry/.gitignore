@@ -1,0 +1,19 @@
+# Ignorar reportes generados y volcados de auditoría
+Reportes/
+*.html
+*.json
+*.csv
+*.xml
+*.log
+
+# Perfiles exportados temporalmente
+Perfiles_Exportados/
+*_wifi_creds.*
+
+# Archivos del sistema y editores
+.vscode/
+.idea/
+*.suo
+*.user
+Thumbs.db
+Desktop.ini
