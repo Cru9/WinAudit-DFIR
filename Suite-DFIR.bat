@@ -18,7 +18,7 @@ echo ===========================================================================
 echo.
 echo   Selecciona el modulo de auditoria y respuesta a incidentes:
 echo.
-echo   [1] 🛡️ WinAudit-DFIR
+echo   [1] 🛡️ Detección de Intrusos
 echo       - Triage forense de host y persistencia en Windows.
 echo       - Analisis de Visor de Eventos de Seguridad (1102, 4625, 4624, 4720).
 echo       - Deteccion de fuerza bruta RDP y cuentas privilegiadas.
@@ -34,7 +34,7 @@ echo.
 echo ==============================================================================
 set /p "OPCION=  Ingrese una opcion [1, 2, 0]: "
 
-if "%OPCION%"=="1" goto RUN_WINAUDIT
+if "%OPCION%"=="1" goto RUN_DETECCION
 if "%OPCION%"=="2" goto RUN_WIFISENTRY
 if "%OPCION%"=="0" goto SALIR
 
@@ -43,13 +43,13 @@ echo   [!] Opcion invalida. Intenta nuevamente...
 timeout /t 2 >nul
 goto MENU
 
-:RUN_WINAUDIT
+:RUN_DETECCION
 cls
 echo ==============================================================================
-echo   Iniciando WinAudit-DFIR (Auditoria Forense de Eventos de Seguridad)...
+echo   Iniciando Detección de Intrusos (Auditoria Forense de Eventos de Seguridad)...
 echo ==============================================================================
 echo.
-call "%~dp0WinAudit-DFIR\Ejecutar-Auditoria.bat"
+call "%~dp0Detección de Intrusos\Ejecutar-Auditoria.bat"
 goto MENU
 
 :RUN_WIFISENTRY

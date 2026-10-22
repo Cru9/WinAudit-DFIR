@@ -26,8 +26,8 @@ El objetivo de este ecosistema es centralizar herramientas ligeras, de alta fide
                     ┌────────────────────────────┴────────────────────────────┐
                     ▼                                                         ▼
     ┌───────────────────────────────┐                         ┌───────────────────────────────┐
-    │     📁 WinAudit-DFIR          │                         │        📁 WiFiSentry          │
-    │  Triage Forense de Host       │                         │    Forense Inalámbrico        │
+    │   📁 Detección de Intrusos    │                         │        📁 WiFiSentry          │
+    │   Triage Forense de Host      │                         │    Forense Inalámbrico        │
     ├───────────────────────────────┤                         ├───────────────────────────────┤
     │ • Eventos de Seguridad        │                         │ • Auditoría 802.11 / BSSID    │
     │ • Fuerza bruta RDP (4625)     │                         │ • Rogue AP / Evil Twin Hunter │
@@ -40,12 +40,12 @@ El objetivo de este ecosistema es centralizar herramientas ligeras, de alta fide
 
 ## 🗂️ Módulos Integrados
 
-### 1. 🛡️ [WinAudit-DFIR](WinAudit-DFIR/) — Triage Forense de Host y Persistencia
+### 1. 🛡️ [Detección de Intrusos](Detección%20de%20Intrusos/) — Triage Forense de Host y Persistencia
 Especializado en la inspección automatizada y análisis forense del Visor de Eventos de Seguridad (`Security Log`) de Windows.
 * **Inspección de Registros de Seguridad:** Detección de borrado intencional de logs (Anti-Forensics / Event ID 1102).
 * **Vectores de Autenticación:** Rastreo de ataques de fuerza bruta local y remota (Event ID 4625) y accesos RDP exitosos (Event ID 4624 tipo 10).
 * **Persistencia y Elevación:** Identificación de creación anómala de usuarios o modificación de grupos de administradores (Event IDs 4720, 4732, 4728) mediante resolución robusta de SIDs (`S-1-5-32-544`).
-* 🔗 *[Ver documentación detallada de WinAudit-DFIR →](WinAudit-DFIR/README.md)*
+* 🔗 *[Ver documentación detallada de Detección de Intrusos →](Detección%20de%20Intrusos/README.md)*
 
 ---
 
@@ -63,10 +63,10 @@ Herramienta de nivel industrial para auditoría defensiva y análisis forense de
 
 | Módulo | Táctica MITRE | ID Técnica | Descripción / Detección |
 | :--- | :--- | :--- | :--- |
-| **WinAudit-DFIR** | Defense Evasion | `T1070.001` | Clear Windows Event Logs (Vaciado de registro de auditoría) |
-| **WinAudit-DFIR** | Credential Access | `T1110.001` | Password Guessing / Brute Force (Intentos de acceso fallidos) |
-| **WinAudit-DFIR** | Lateral Movement | `T1021.001` | Remote Desktop Protocol (Sesiones interactivas RDP Tipo 10) |
-| **WinAudit-DFIR** | Persistence | `T1136.001` | Create Local Account (Creación de cuentas no autorizadas) |
+| **Detección de Intrusos** | Defense Evasion | `T1070.001` | Clear Windows Event Logs (Vaciado de registro de auditoría) |
+| **Detección de Intrusos** | Credential Access | `T1110.001` | Password Guessing / Brute Force (Intentos de acceso fallidos) |
+| **Detección de Intrusos** | Lateral Movement | `T1021.001` | Remote Desktop Protocol (Sesiones interactivas RDP Tipo 10) |
+| **Detección de Intrusos** | Persistence | `T1136.001` | Create Local Account (Creación de cuentas no autorizadas) |
 | **WiFiSentry** | Discovery | `T1040` | Network Sniffing / Wi-Fi Reconnaissance |
 | **WiFiSentry** | Credential Access | `T1110` | Brute Force (Estimación de crackeo de PSK WPA2/WPA3) |
 | **WiFiSentry** | Initial Access | `T1557` | Adversary-in-the-Middle / Rogue AP (Ataques Evil Twin) |
@@ -86,7 +86,7 @@ Suite-DFIR.bat
 
 #### Para auditar eventos de Windows:
 ```cmd
-cd WinAudit-DFIR
+cd "Detección de Intrusos"
 .\Ejecutar-Auditoria.bat
 ```
 
@@ -109,7 +109,7 @@ WinAudit-DFIR/
 ├── LICENSE                           # Licencia MIT (Cru9)
 ├── .gitignore                        # Reglas de exclusión de git
 │
-├── 📁 WinAudit-DFIR/                 # MÓDULO 1: FORENSE DE HOST & EVENT LOGS
+├── 📁 Detección de Intrusos/         # MÓDULO 1: FORENSE DE HOST & EVENT LOGS
 │   ├── Auditoria-Seguridad.ps1       # Script nativo de análisis forense en PowerShell
 │   ├── Ejecutar-Auditoria.bat        # Lanzador rápido con elevación UAC
 │   ├── LICENSE                       # Licencia del módulo
