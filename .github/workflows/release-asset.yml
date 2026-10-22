@@ -1,0 +1,52 @@
+name: Build & Attach Release ZIP
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    name: Package Suite & Attach to Release
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Prepare Standalone Suite Archive
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          if ([string]::IsNullOrWhiteSpace($tag)) { $tag = "latest" }
+          $zipName = "WinAudit-DFIR-$tag.zip"
+          Write-Host "[+] Packaging $zipName for DFIR Field Operations..." -ForegroundColor Cyan
+
+          # Exclude git directories, dynamic runtime reports, and caches
+          $excludeList = @(
+              ".git*",
+              "*.pyc",
+              "__pycache__",
+              "*/Reportes/*.json",
+              "*/Reportes/*.csv",
+              "*/Reportes/SocketSentry_Audit_*.*",
+              "*/Reportes/SocketSentry_Dashboard_20*.*",
+              "*/Perfiles_Exportados"
+          )
+
+          $filesToZip = Get-ChildItem -Path . -Exclude $excludeList
+          Compress-Archive -Path $filesToZip -DestinationPath "./$zipName" -Force
+          Write-Host "[✓] Archive created successfully: $zipName" -ForegroundColor Green
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: WinAudit-DFIR-*.zip
+          generate_release_notes: true
+          draft: false
+          prerelease: false

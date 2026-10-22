@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Preguntas y Discusión Técnica
+    url: https://github.com/Cru9/WinAudit-DFIR/discussions
+    about: Haz preguntas sobre análisis forense o debate mejoras con la comunidad.
+  - name: 🛡️ Reporte de Vulnerabilidad de Seguridad
+    url: https://github.com/Cru9/WinAudit-DFIR/security/policy
+    about: Política de divulgación responsable de fallos de seguridad.

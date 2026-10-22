@@ -1,0 +1,48 @@
+name: 🚀 Solicitud de Nueva Característica
+description: Sugiere una nueva funcionalidad, módulo defensivo o mejora para WinAudit-DFIR.
+title: "[FEATURE] "
+labels: ["enhancement", "feature-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ¿Tienes una idea para potenciar las capacidades de análisis forense o respuesta ante incidentes de la suite? ¡Cuéntanos!
+  - type: input
+    id: summary
+    attributes:
+      label: Título Corto de la Característica
+      placeholder: "Ej: Soporte para análisis de eventos USB o exportación a formato Timesketch"
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: ¿Qué necesidad u objetivo resuelve?
+      description: Describe el caso de uso forense o problema de seguridad que aborda.
+      placeholder: "Actualmente los analistas deben revisar manualmente los eventos USB..."
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solución Propuesta
+      description: Describe cómo debería comportarse o integrarse la nueva función.
+    validations:
+      required: true
+  - type: dropdown
+    id: mitre
+    attributes:
+      label: Táctica MITRE ATT&CK Relacionada
+      options:
+        - "Initial Access"
+        - "Execution"
+        - "Persistence"
+        - "Privilege Escalation"
+        - "Defense Evasion"
+        - "Credential Access"
+        - "Discovery"
+        - "Lateral Movement"
+        - "Collection"
+        - "Command and Control"
+        - "Exfiltration"
+        - "Impact"

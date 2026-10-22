@@ -1,0 +1,67 @@
+name: CI - WinAudit-DFIR Suite Quality & Syntax
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  validate-suite:
+    name: Validate Python, PowerShell & Threat Intel
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify Python Syntax (Zero-Dependency py_compile)
+        shell: pwsh
+        run: |
+          Write-Host "[+] Validating Python files across all DFIR modules..." -ForegroundColor Cyan
+          $pyFiles = Get-ChildItem -Path . -Recurse -Filter *.py
+          $hasErrors = $false
+          foreach ($file in $pyFiles) {
+              Write-Host " -> Checking: $($file.FullName)"
+              python -m py_compile "$($file.FullName)"
+              if ($LASTEXITCODE -ne 0) {
+                  Write-Error "Syntax error in $($file.FullName)"
+                  $hasErrors = $true
+              }
+          }
+          if ($hasErrors) { exit 1 }
+          Write-Host "[✓] All Python modules compiled successfully!" -ForegroundColor Green
+
+      - name: Verify Threat Intel & JSON Schemas
+        shell: pwsh
+        run: |
+          Write-Host "[+] Validating JSON integrity..." -ForegroundColor Cyan
+          $jsonFiles = Get-ChildItem -Path . -Recurse -Filter *.json
+          foreach ($file in $jsonFiles) {
+              Write-Host " -> Validating JSON: $($file.FullName)"
+              Get-Content -Path $file.FullName -Raw | ConvertFrom-Json | Out-Null
+          }
+          Write-Host "[✓] All JSON intelligence databases are valid!" -ForegroundColor Green
+
+      - name: Run PSScriptAnalyzer on PowerShell Scripts
+        shell: pwsh
+        run: |
+          Write-Host "[+] Auditing PowerShell code quality..." -ForegroundColor Cyan
+          $psFiles = @(
+              "WiFiSentry/WiFiSentry.ps1",
+              "SocketSentry/SocketSentry.ps1",
+              "SocketSentry/Auditar-Conexiones.ps1"
+          )
+          foreach ($script in $psFiles) {
+              if (Test-Path $script) {
+                  Write-Host " -> Analyzing: $script"
+                  Invoke-ScriptAnalyzer -Path $script -Severity Error -Recurse
+              }
+          }
+          Write-Host "[✓] PowerShell syntax audit completed!" -ForegroundColor Green

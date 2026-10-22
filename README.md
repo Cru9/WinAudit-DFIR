@@ -2,14 +2,22 @@
 ### Ecosistema Modular de Triage Forense y Detección de Amenazas en Windows
 **Desarrollado por [Cru9](https://github.com/Cru9)**
 
-[![GitHub release](https://img.shields.io/badge/Release-v1.2-blue.svg)](https://github.com/Cru9/WinAudit-DFIR)
+[![GitHub release](https://img.shields.io/badge/Release-v1.2-blue.svg)](https://github.com/Cru9/WinAudit-DFIR/releases)
+[![CI](https://github.com/Cru9/WinAudit-DFIR/actions/workflows/ci.yml/badge.svg)](https://github.com/Cru9/WinAudit-DFIR/actions/workflows/ci.yml)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B%20%7C%207%2B-blue.svg?logo=powershell)](https://github.com/Cru9/WinAudit-DFIR)
 [![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![Plataforma](https://img.shields.io/badge/Plataforma-Windows%2010%20%7C%2011%20%7C%20Server-0078D6.svg?logo=windows)](https://github.com/Cru9/WinAudit-DFIR)
 [![Licencia](https://img.shields.io/badge/Licencia-MIT-green.svg)](LICENSE)
 [![MITRE ATT&CK](https://img.shields.io/badge/MITRE%20ATT%26CK-Defensive-red.svg)](https://attack.mitre.org/)
+[![GitHub stars](https://img.shields.io/github/stars/Cru9/WinAudit-DFIR?style=social)](https://github.com/Cru9/WinAudit-DFIR/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/Cru9/WinAudit-DFIR?style=social)](https://github.com/Cru9/WinAudit-DFIR/network/members)
 
 ![WinAudit-DFIR Master Banner](assets/master_banner.jpg)
+
+<div align="center">
+  <img src="assets/terminal_preview.svg" alt="WinAudit-DFIR Live Terminal Demo" width="100%" style="border-radius: 8px; margin: 15px 0;" />
+  <p><em>Demostración en vivo: Ejecución interactiva del motor forense dual en tiempo real.</em></p>
+</div>
 
 ---
 
@@ -133,11 +141,20 @@ cd SocketSentry
 ```text
 WinAudit-DFIR/
 │
+├── .github/                          # Automatización CI/CD y plantillas comunitarias
+│   ├── workflows/ci.yml              # Pipeline de integración continua (Python & PowerShell)
+│   ├── workflows/release-asset.yml   # Empaquetado automatizado de ZIPs para Releases
+│   └── ISSUE_TEMPLATE/               # Plantillas para bugs, features y aportes de IOCs
 ├── Suite-DFIR.bat                    # Lanzador interactivo centralizado (Menú 1, 2, 3)
 ├── README.md                         # Documentación principal del ecosistema
+├── CONTRIBUTING.md                   # Normas de contribución y arquitectura
+├── SECURITY.md                       # Política de divulgación responsable de vulnerabilidades
+├── COMMUNITY_LAUNCH_KIT.md           # Guía de difusión, temas de GitHub y textos para foros
 ├── LICENSE                           # Licencia MIT (Cru9)
 ├── .gitignore                        # Reglas de exclusión de git
-├── 📁 assets/                        # Banners maestros del ecosistema (master_banner.jpg)
+├── 📁 assets/                        # Banners maestros y animación interactiva en SVG
+│   ├── master_banner.jpg
+│   └── terminal_preview.svg
 │
 ├── 📁 Detección de Intrusos/         # MÓDULO 1: FORENSE DE HOST & EVENT LOGS
 │   ├── IntruderDetector.py           # Core analítico en Python 3 (CLI + GUI Dashboard + SIEM)
@@ -180,9 +197,18 @@ WinAudit-DFIR/
 
 ---
 
+## ⭐ Apoya el Proyecto
+
+Si **WinAudit-DFIR** te ha resultado útil en tus auditorías, laboratorios o respuesta ante incidentes:
+* Regálanos una **estrella ⭐ en GitHub** para ayudar a que más analistas de seguridad conozcan la herramienta.
+* Consulta [`COMMUNITY_LAUNCH_KIT.md`](./COMMUNITY_LAUNCH_KIT.md) si deseas compartir el proyecto en foros, LinkedIn o comunidades DFIR.
+* Revisa [`CONTRIBUTING.md`](./CONTRIBUTING.md) para enviar sugerencias o nuevas reglas de detección.
+
+---
+
 ## 🛡️ Licencia y Reconocimientos
 
 Este proyecto está distribuido bajo la licencia **MIT** - consulta el archivo [LICENSE](LICENSE) para más detalles.
 
 **Autor:** [Cru9](https://github.com/Cru9)  
-**Propósito:** Investigación en ciberseguridad, respuesta a incidentes (IR) y educación defensiva.
+**Propósito:** Investigación en ciberseguridad defensiva, respuesta a incidentes (DFIR) y educación.

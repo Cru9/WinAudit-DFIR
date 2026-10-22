@@ -1,0 +1,57 @@
+name: 🐛 Reporte de Error / Bug
+description: Reporta un error de ejecución, excepción no controlada o fallo visual en la suite.
+title: "[BUG] "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por tomarte el tiempo de reportar este problema en **WinAudit-DFIR**. Tu ayuda permite mantener la suite robusta en entornos de producción.
+  - type: dropdown
+    id: module
+    attributes:
+      label: Módulo Afectado
+      description: ¿En qué módulo de la suite ocurrió el fallo?
+      options:
+        - "Suite-DFIR.bat (Menú Central)"
+        - "Detección de Intrusos (Host & Logs)"
+        - "WiFiSentry (RF & Evil Twin Hunter)"
+        - "SocketSentry (Sockets & C2 Hunter)"
+    validations:
+      required: true
+  - type: dropdown
+    id: runtime
+    attributes:
+      label: Entorno de Ejecución
+      description: ¿Cómo ejecutaste la herramienta?
+      options:
+        - "Lanzador Batch (.bat)"
+        - "Python 3 (.py)"
+        - "PowerShell 5.1 / 7+ (.ps1)"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Descripción del Problema
+      description: Explica detalladamente qué ocurrió de forma inesperada.
+      placeholder: "Al ejecutar la opción 2, la consola muestra una excepción de tipo..."
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Pasos para Reproducir
+      description: ¿Qué comandos o pasos realizaste antes del fallo?
+      placeholder: |
+        1. Iniciar Suite-DFIR.bat como Administrador
+        2. Seleccionar la opción 3
+        3. Intentar generar el reporte HTML
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Salida de la Consola o Captura de Error
+      description: Pega aquí la traza de error de la terminal.
+      render: shell

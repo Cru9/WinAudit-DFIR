@@ -1,0 +1,29 @@
+name: 🛡️ Propuesta de Regla / IOC / Falso Positivo
+description: Propón un nuevo indicador C2, binario LOLBAS, regla de detección o exclusión de falso positivo.
+title: "[THREAT-INTEL] "
+labels: ["threat-intelligence", "signatures"]
+body:
+  - type: dropdown
+    id: type
+    attributes:
+      label: Tipo de Aporte
+      options:
+        - "Nuevo IOC de IP C2 (Command & Control)"
+        - "Nuevo LOLBin / Binario del Sistema Abusable"
+        - "Puerto o Rango Sospechoso"
+        - "Regla Heurística de CommandLine"
+        - "Exclusión de Falso Positivo (Software Legítimo)"
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Datos del Indicador / IOC
+      description: Proporciona la IP, puerto, binario, hash SHA256 o argumento correspondiente.
+      placeholder: |
+        - IP / Dominio: 198.51.100.23
+        - Binario LOLBin: curl.exe
+        - Motivo: Utilizado en campañas de descarga silenciosa de payloads
+        - Referencia Externa (URL de VirusTotal, Feodo Tracker, etc.)
+    validations:
+      required: true
