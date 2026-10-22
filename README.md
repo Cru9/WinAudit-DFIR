@@ -9,6 +9,8 @@
 [![Licencia](https://img.shields.io/badge/Licencia-MIT-green.svg)](LICENSE)
 [![MITRE ATT&CK](https://img.shields.io/badge/MITRE%20ATT%26CK-Defensive-red.svg)](https://attack.mitre.org/)
 
+![WinAudit-DFIR Master Banner](assets/master_banner.jpg)
+
 ---
 
 ## 🧭 Visión General del Proyecto
@@ -114,6 +116,7 @@ WinAudit-DFIR/
 ├── README.md                         # Documentación principal del ecosistema
 ├── LICENSE                           # Licencia MIT (Cru9)
 ├── .gitignore                        # Reglas de exclusión de git
+├── 📁 assets/                        # Banners maestros del ecosistema (master_banner.jpg)
 │
 ├── 📁 Detección de Intrusos/         # MÓDULO 1: FORENSE DE HOST & EVENT LOGS
 │   ├── IntruderDetector.py           # Core analítico en Python 3 (CLI + GUI Dashboard + SIEM)
