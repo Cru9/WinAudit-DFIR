@@ -120,7 +120,10 @@ class StartupSentry:
         if solo_sospechosos:
             filtrados = [x for x in filtrados if x.get("Sospechoso")]
         if filtro_categoria:
-            filtrados = [x for x in filtrados if str(x.get("Categoria", "")).lower() == filtro_categoria.lower()]
+            if filtro_categoria.lower() == "arranque":
+                filtrados = [x for x in filtrados if str(x.get("Categoria", "")).lower() in ("autoarranque", "registrorun", "carpetainicio")]
+            else:
+                filtrados = [x for x in filtrados if str(x.get("Categoria", "")).lower() == filtro_categoria.lower()]
 
         tot_analizados = len(self.items)
         tot_sospechosos = len([x for x in self.items if x.get("Sospechoso")])
@@ -210,6 +213,7 @@ class StartupSentry:
         tot_criticos = len([x for x in self.items if x.get("Severidad") == "CRITICA"])
         tot_altos = len([x for x in self.items if x.get("Severidad") == "ALTA"])
         tot_tareas = len([x for x in self.items if x.get("Categoria") == "TareaProgramada"])
+        tot_carpetas = len([x for x in self.items if x.get("Categoria") == "CarpetaInicio"])
         score = self.calculate_threat_score()
 
         # Filas de tabla HTML
@@ -619,6 +623,7 @@ class StartupSentry:
                 <button class="filter-btn" onclick="applyFilter('alertas')">Solo Alertas ({tot_sospechosos})</button>
                 <button class="filter-btn" onclick="applyFilter('sin_firma')">Sin Firma ({tot_sin_firma})</button>
                 <button class="filter-btn" onclick="applyFilter('tareas')">Tareas ({tot_tareas})</button>
+                <button class="filter-btn" onclick="applyFilter('carpetas')">Carpetas Inicio ({tot_carpetas})</button>
             </div>
 
             <div class="table-wrap">
@@ -664,6 +669,7 @@ class StartupSentry:
                 if (mode === 'alertas' && !sospechoso) show = false;
                 if (mode === 'sin_firma' && (firma === 'Valid' || firma === 'N/A')) show = false;
                 if (mode === 'tareas' && !cat.includes('tarea')) show = false;
+                if (mode === 'carpetas' && !cat.includes('carpeta')) show = false;
 
                 if (q) {{
                     const text = r.innerText.toLowerCase();
@@ -726,9 +732,9 @@ def interactive_menu():
 
         elif opt == "2":
             if not sentry.items:
-                print(f"\n{CYAN}[*] Recopilando datos de auto-arranque...{RESET}")
+                print(f"\n{CYAN}[*] Recopilando datos de auto-arranque, registro y carpetas Startup...{RESET}")
                 sentry.run_ps_audit()
-            sentry.print_summary(filtro_categoria="AutoArranque")
+            sentry.print_summary(filtro_categoria="arranque")
             input(f"  {GRAY}Presione Enter para continuar...{RESET}")
 
         elif opt == "3":

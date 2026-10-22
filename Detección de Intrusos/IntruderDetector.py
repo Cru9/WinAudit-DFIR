@@ -466,7 +466,7 @@ class IntruderDetector:
         return results
 
     def audit_services_and_persistence(self) -> List[Dict[str, Any]]:
-        """Módulo 6: Detecta nuevos servicios instalados (7045 - System Log) y tareas programadas (4698)."""
+        """Módulo 6: Detecta nuevos servicios de Windows instalados en el registro de Sistema (Evento 7045)."""
         results = []
         ms = self.days_back * 86400000
         # Evento 7045: A service was installed in the system
@@ -558,7 +558,7 @@ class IntruderDetector:
         print(f"  {YELLOW}├─ [5/6] Escaneando Ejecución de Comandos LOLBAS y Procesos Sospechosos...{RESET}")
         self.audit_suspicious_processes_and_lolbas()
 
-        print(f"  {YELLOW}└─ [6/6] Auditando Persistencia en Servicios y Tareas Programadas...{RESET}")
+        print(f"  {YELLOW}└─ [6/6] Auditando Nuevos Servicios de Windows (Evento 7045)...{RESET}")
         self.audit_services_and_persistence()
 
         self.calculate_threat_score()
@@ -1175,7 +1175,7 @@ def interactive_menu():
         print("  [4] 🌐 Rastreo de Accesos Remotos & Movimiento Lateral (RDP 10 / Red 3)")
         print("  [5] 👥 Auditoría de Persistencia y Cuentas de Administrador (4720 / S-1-5-32-544)")
         print("  [6] 🥷 Hunter de Comandos Sospechosos & LOLBAS (Evento 4688 / T1490)")
-        print("  [7] ⚙️  Persistencia en Servicios y Tareas Programadas (Eventos 4698 / 7045)")
+        print("  [7] ⚙️  Nuevos Servicios Instalados en el Sistema (Evento 7045 en System Log)")
         print("  [8] 📡 Radar de Intrusiones en Vivo (Monitor en Tiempo Real / Live Tail)")
         print("  [9] 📊 Generar y Abrir Dashboard HTML Cyberpunk (Reporte Ejecutivo)")
         print("  [10] 💾 Exportar Evidencias Multi-formato (JSON + CSV)")

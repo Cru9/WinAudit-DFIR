@@ -247,7 +247,102 @@ foreach ($rp in $regPaths) {
 }
 
 # -----------------------------------------------------------------------------
-# 3. Auditoría de Tareas Programadas en Raíz (\) No-Microsoft
+# 3. Auditoría de Carpetas de Inicio de Windows (Startup Folders / .LNK / Scripts)
+# -----------------------------------------------------------------------------
+$startupFolders = @(
+    @{ Path = [System.IO.Path]::Combine($env:APPDATA, "Microsoft\Windows\Start Menu\Programs\Startup"); Scope = "User Startup" },
+    @{ Path = [System.IO.Path]::Combine($env:ProgramData, "Microsoft\Windows\Start Menu\Programs\Startup"); Scope = "All Users Startup" }
+)
+
+$wshShell = $null
+try {
+    $wshShell = New-Object -ComObject WScript.Shell -ErrorAction SilentlyContinue
+} catch {}
+
+foreach ($sf in $startupFolders) {
+    if (Test-Path $sf.Path) {
+        try {
+            $files = Get-ChildItem -Path $sf.Path -File -ErrorAction SilentlyContinue
+            foreach ($f in $files) {
+                $targetPath = $f.FullName
+                $cmdArgs = ""
+                if ($f.Extension -eq ".lnk" -and $wshShell) {
+                    try {
+                        $shortcut = $wshShell.CreateShortcut($f.FullName)
+                        $targetPath = $shortcut.TargetPath
+                        $cmdArgs = $shortcut.Arguments
+                    } catch {}
+                }
+
+                $binPath = Resolve-BinaryPath $targetPath
+                $dedupKey = "FOLDER:$($f.Name):$binPath"
+                if ($processedKeys.Contains($dedupKey)) { continue }
+                $processedKeys.Add($dedupKey) | Out-Null
+
+                $sigStatus = "NoEncontrado"
+                $signer = "-"
+                $certSubject = "-"
+                if ($binPath -and (Test-Path -Path $binPath -PathType Leaf -ErrorAction SilentlyContinue)) {
+                    $sigObj = Get-AuthenticodeSignature -FilePath $binPath -ErrorAction SilentlyContinue
+                    $sigStatus = $sigObj.Status.ToString()
+                    if ($sigObj.SignerCertificate) {
+                        $certSubject = $sigObj.SignerCertificate.Subject
+                        $signer = Get-FriendlySigner $sigObj.SignerCertificate
+                    }
+                }
+
+                $esSospechoso = $false
+                $motivos = [System.Collections.Generic.List[string]]::new()
+                $severidad = "BAJA"
+
+                if ($f.Extension -match '(?i)\.(vbs|js|bat|cmd|ps1|hta)$') {
+                    $esSospechoso = $true
+                    $severidad = "ALTA"
+                    $motivos.Add("Script ejecutable alojado directamente en carpeta de inicio ($($f.Extension))")
+                }
+
+                if ($binPath -match '(?i)(appdata|\\temp\\|users\\public|\$recycle\.bin)') {
+                    $esSospechoso = $true
+                    if ($severidad -ne "CRITICA") { $severidad = "MEDIA" }
+                    $motivos.Add("Acceso directo apuntando a carpeta temporal o de usuario")
+                }
+
+                if ($sigStatus -ne "Valid") {
+                    if ($sigStatus -eq "HashMismatch") {
+                        $esSospechoso = $true
+                        $severidad = "CRITICA"
+                        $motivos.Add("Firma Digital Corrupta (HashMismatch)")
+                    } elseif ($sigStatus -eq "NotSigned") {
+                        if ($esSospechoso) { $severidad = "ALTA" }
+                        $motivos.Add("Binario sin firma digital válida (NotSigned)")
+                    }
+                }
+
+                $fullCmd = if ($cmdArgs) { "$targetPath $cmdArgs" } else { $targetPath }
+                $item = [PSCustomObject]@{
+                    Id          = "DIR-$($results.Count + 1)"
+                    Categoria   = "CarpetaInicio"
+                    Nombre      = $f.Name
+                    Comando     = $fullCmd
+                    Ruta        = $binPath
+                    Firma       = $sigStatus
+                    Firmante    = $signer
+                    Certificado = $certSubject
+                    Ubicacion   = $sf.Scope
+                    Usuario     = if ($sf.Scope -match 'User') { $env:USERNAME } else { "Todos (Sistema)" }
+                    Intervalo   = "Al Iniciar Sesión"
+                    Sospechoso  = $esSospechoso
+                    Severidad   = $severidad
+                    Motivo      = ($motivos -join " | ")
+                }
+                $results.Add($item)
+            }
+        } catch {}
+    }
+}
+
+# -----------------------------------------------------------------------------
+# 4. Auditoría de Tareas Programadas en Raíz (\) No-Microsoft
 # -----------------------------------------------------------------------------
 try {
     $tasks = Get-ScheduledTask -TaskPath '\' -ErrorAction SilentlyContinue | Where-Object {
