@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-IntruderDetector v2.0 | Suite Forense de Host, Detección de Intrusos y Triage de Seguridad en Windows
+IntruderDetector v1.2 | Suite Forense de Host, Detección de Intrusos y Triage de Seguridad en Windows
 Desarrollado por: Ezequiel Diaz (Cru9) | https://github.com/Cru9
 Parte del Ecosistema WinAudit-DFIR
 """
@@ -79,7 +79,7 @@ def show_banner():
 =============================================================================="""
     print(f"{CYAN}{BOLD}{banner}{MAGENTA}")
     print("  Suite DFIR de Detección de Intrusos, Triage de Host & Forense de Eventos")
-    print("  Ecosistema Cru9 | Windows Host Security Intelligence | v2.0")
+    print("  Ecosistema Cru9 | Windows Host Security Intelligence | v1.2")
     print(f"=============================================================================={RESET}\n")
 
 
