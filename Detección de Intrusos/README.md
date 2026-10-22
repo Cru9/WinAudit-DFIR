@@ -1,141 +1,132 @@
-# WinAudit-DFIR 🛡️
-### Herramienta Ligera de Detección de Intrusos y Triage Forense para Windows
+# IntruderDetector (Detección de Intrusos) 🛡️⚡
+### Suite de Triage Forense de Host, Detección de Intrusos y Anti-Forensics Defense para Windows
+**Desarrollado por [Cru9](https://github.com/Cru9)**
 
+![IntruderDetector Banner](assets/banner.jpg)
+
+[![Release](https://img.shields.io/badge/Release-v2.0--Industrial-blue.svg)](https://github.com/Cru9/WinAudit-DFIR)
+[![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B%20%7C%207%2B-blue.svg?logo=powershell)](https://github.com/)
 [![Plataforma](https://img.shields.io/badge/Plataforma-Windows%2010%20%7C%2011%20%7C%20Server-0078D6.svg?logo=windows)](https://github.com/)
 [![Licencia](https://img.shields.io/badge/Licencia-MIT-green.svg)](LICENSE)
 [![MITRE ATT&CK](https://img.shields.io/badge/MITRE%20ATT%26CK-Defensive-red.svg)](https://attack.mitre.org/)
 
-**WinAudit-DFIR** es un script en PowerShell diseñado para realizar una auditoría forense rápida y automatizada sobre el Registro de Eventos de Seguridad (`Security Log`) de Windows. Permite a analistas de Blue Team, administradores de sistemas y entusiastas de ciberseguridad responder a la pregunta: ***¿Alguien ha intentado o logrado entrar a este equipo?***
+---
+
+## 🧭 Visión General
+
+**IntruderDetector** es una solución forense integral y ligera diseñada para responder con precisión y velocidad a la pregunta crítica del analista de seguridad: ***¿Alguien ha intentado o logrado vulnerar este equipo Windows?***
+
+El módulo forma parte del ecosistema **WinAudit-DFIR** y está capacitado para operar tanto de forma **individual e independiente** en investigaciones de host, como de forma **grupal y coordinada** dentro de la suite maestra mediante exportaciones estructuradas en JSON, CSV y Dashboards HTML interactivos.
 
 ---
 
-## 📌 Tabla de Contenidos
-- [Características Principales](#-características-principales)
-- [Mapeo con MITRE ATT&CK](#-mapeo-con-mitre-attck)
-- [Estructura del Proyecto](#-estructura-del-proyecto)
-- [Requisitos](#-requisitos)
-- [Instalación y Uso](#-instalación-y-uso)
-  - [Opción 1: Lanzador Rápido (.bat)](#opción-1-lanzador-rápido-bat)
-  - [Opción 2: Consola de PowerShell](#opción-2-consola-de-powershell)
-- [Interpretación de Resultados](#-interpretación-de-resultados)
-- [Mejores Prácticas y Limitaciones](#-mejores-prácticas-y-limitaciones)
-- [Contribuciones](#-contribuciones)
-- [Licencia](#-licencia)
+## 🚀 Capacidades y Módulos Forenses
+
+| Módulo | Event ID | Técnica / Táctica | Qué Detecta & Correlaciona |
+| :--- | :--- | :--- | :--- |
+| **Integridad de Logs** | `1102` / `104` | Anti-Forensics (`T1070.001`) | Vaciado intencional de registros de Seguridad o Sistema para encubrir huellas. |
+| **Hunter de Fuerza Bruta** | `4625` / `4740` | Password Spraying (`T1110.001`) | Intentos fallidos, clasificación IP (privada vs pública), tasa de ataque y cuentas bloqueadas. |
+| **Movimiento Lateral & RDP** | `4624` (Tipo 10 / 3) | Remote Services (`T1021.001`) | Sesiones remotas interactivas por Escritorio Remoto o carpetas compartidas SMB. |
+| **Persistencia de Cuentas** | `4720` / `4732` / `4728` | Create Local Account (`T1136.001`) | Creación de usuarios no autorizados o adición de miembros a grupos privilegiados. |
+| **Auditoría de Administradores** | `S-1-5-32-544` | Privilege Discovery (`T1087.002`) | Inspección de miembros del grupo Administradores mediante SID universal agnóstico al idioma. |
+| **Hunter de Comandos LOLBAS** | `4688` / `4104` | Process Injection & LOLBAS (`T1490`) | Destrucción de copias de seguridad (`vssadmin delete shadows`), `certutil`, `powershell -enc`. |
+| **Persistencia por Servicios** | `7045` (System) | Create Windows Service (`T1543.003`) | Nuevos servicios instalados en el sistema (tácticas APT / ransomware / PsExec). |
+| **Radar en Tiempo Real (SIEM)** | Múltiple | Real-time Tail Monitoring | Escucha continua de eventos críticos con alertas auditivas y visuales inmediatas. |
 
 ---
 
-## 🚀 Características Principales
+## 🎯 Matriz Visual de Amenazas y Triage Forense
 
-- **100% Nativo sin dependencias externas:** Utiliza exclusivamente herramientas y APIs del sistema (`Get-WinEvent`).
-- **Resiliente y agnóstico al idioma:** Resuelve el grupo de administradores mediante SID (`S-1-5-32-544`), funcionando indistintamente en Windows en español, inglés, francés, etc.
-- **Parsing XML de Eventos:** Extrae propiedades (`IpAddress`, `TargetUserName`, `LogonType`) directamente de la estructura XML de cada evento, evitando discrepancias de índices entre distintas compilaciones de Windows.
-- **Detección de Anti-Forensics:** Identifica si un atacante intentó vaciar los registros de auditoría para encubrir su rastro.
-- **Salida visual clara:** Formato estructurado en tablas con código de colores según el nivel de severidad.
+![Threat Matrix](assets/attack_threat_matrix.jpg)
 
 ---
 
-## 🎯 Mapeo con MITRE ATT&CK
+## 💻 Modos de Ejecución
 
-| Fase | Event ID | Técnica / Táctica | Código MITRE | Qué Detecta |
-|---|---|---|---|---|
-| **Evasión** | `1102` | *Indicator Removal: Clear Windows Event Logs* | [T1070.001](https://attack.mitre.org/techniques/T1070/001/) | Vaciado manual del log de seguridad (`wevtutil cl`). |
-| **Acceso Inicial** | `4625` | *Brute Force / Password Spraying* | [T1110](https://attack.mitre.org/techniques/T1110/) | Intentos fallidos agrupados por IP y cuenta objetivo. |
-| **Movimiento Lateral** | `4624` (Tipo 10) | *Remote Services: Remote Desktop Protocol* | [T1021.001](https://attack.mitre.org/techniques/T1021/001/) | Conexiones interactivas remotas (RDP) exitosas. |
-| **Movimiento Lateral** | `4624` (Tipo 3) | *Remote Services: SMB/Windows Admin Shares* | [T1021.002](https://attack.mitre.org/techniques/T1021/002/) | Accesos a recursos compartidos de red desde otros equipos. |
-| **Persistencia** | `4720` | *Create Account: Local Account* | [T1136.001](https://attack.mitre.org/techniques/T1136/001/) | Creación de nuevas cuentas de usuario en el sistema. |
-| **Escalada de Privilegios** | `4732` / `4728` | *Account Manipulation: Group Membership* | [T1098](https://attack.mitre.org/techniques/T1098/) | Inclusión de cuentas en grupos locales privilegiados. |
+### 1. Lanzador Inteligente (.bat) — *Recomendado*
+El script detecta automáticamente si cuentas con **Python 3** instalado en tu sistema; de ser así, ejecuta el core analítico de Python. En caso contrario, realiza una conmutación por error transparente hacia el motor nativo de **PowerShell**.
+
+```cmd
+Ejecutar-Deteccion.bat
+```
+*(Solicita automáticamente elevación de Administrador sin bucles de ventanas).*
 
 ---
 
-## 📂 Estructura del Proyecto
+### 2. Ejecución Directa en Python (`.py`)
+Compatible con Python 3.8+ sin librerías externas de terceros (`pip`).
 
-```text
-├── Auditoria-Seguridad.ps1   # Script principal con la lógica de auditoría
-├── Ejecutar-Auditoria.bat    # Lanzador directo con soporte UTF-8 y pausa de terminal
-├── README.md                 # Documentación completa del proyecto
-├── LICENSE                   # Licencia MIT
-└── .gitignore                # Reglas de exclusión para control de versiones
+#### Menú Interactivo Completo:
+```cmd
+python IntruderDetector.py
+```
+
+#### Modo Automatizado / Headless (Ideal para Triage Centralizado):
+```cmd
+# Auditoría de los últimos 7 días con exportación de reporte HTML, JSON y CSV
+python IntruderDetector.py --scan --days 7 --json --csv --html
+
+# Iniciar Radar de Intrusiones en Vivo (Monitor en tiempo real)
+python IntruderDetector.py --live
 ```
 
 ---
 
-## 📋 Requisitos
-
-* **Sistema Operativo:** Windows 10, Windows 11 o Windows Server 2016+.
-* **PowerShell:** Versión 5.1 o superior (PowerShell 7 admitido).
-* **Privilegios:** Requiere **permisos de Administrador** para leer el canal `Security` del Visor de Eventos.
-
----
-
-## 💻 Instalación y Uso
-
-### Clonar el repositorio
-```bash
-git clone https://github.com/Cru9/WinAudit-DFIR.git
-cd WinAudit-DFIR
-```
-
-### Opción 1: Lanzador Rápido (.bat)
-1. Haz clic derecho sobre `Ejecutar-Auditoria.bat`.
-2. Selecciona **"Ejecutar como administrador"**.
-3. La auditoría se ejecutará y mantendrá la ventana abierta para que puedas revisar cómodamente los hallazgos.
-
-### Opción 2: Consola de PowerShell
-Abre una terminal de PowerShell con privilegios elevados (**Ejecutar como Administrador**) y ejecuta:
+### 3. Motor Nativo en PowerShell (`.ps1`)
+Para entornos donde no es posible instalar Python o en auditorías directas vía consola PowerShell:
 
 ```powershell
-# Ejecución estándar (audita los últimos 7 días)
-powershell -ExecutionPolicy Bypass -File .\Auditoria-Seguridad.ps1
-
-# Auditoría personalizada (ejemplo: últimos 30 días, máximo 100 eventos)
-powershell -ExecutionPolicy Bypass -File .\Auditoria-Seguridad.ps1 -DiasAtras 30 -MaxEventos 100
+.\IntruderDetector.ps1 -DiasAtras 7
 ```
 
-#### Parámetros Disponibles:
-* `-DiasAtras [int]`: Ventana de tiempo a inspeccionar hacia el pasado (por defecto: `7`).
-* `-MaxEventos [int]`: Límite máximo de eventos exitosos a desplegar en tabla (por defecto: `50`).
+---
+
+## 📊 Dashboard Ejecutivo Cyberpunk y Exportación Forense
+
+Cada auditoría genera evidencias estructuradas en la carpeta [`Reportes/`](Reportes/):
+1. **Dashboard HTML Interactivo:** Diseño Cyberpunk Glassmorphism con tarjetas KPI, gráficos de severidad, tabla con filtro en tiempo real y vista ejecutiva para directivos o clientes. Puedes consultar una demostración en vivo en [`Reportes/IntruderDetector_Dashboard_Demo.html`](Reportes/IntruderDetector_Dashboard_Demo.html).
+2. **Bundle JSON Forense:** Esquema estandarizado con metadatos del host, timestamp ISO 8601, lista de IoCs (IPs atacantes, usuarios comprometidos) listo para ser ingerido por herramientas SIEM o por la Master Suite de Cru9.
+3. **Volcado CSV:** Formato tabular para análisis rápido en Excel o Jupyter Notebooks.
 
 ---
 
-## 🔍 Interpretación de Resultados
+## 📂 Estructura del Módulo
 
-* **`[OK]` en Verde:** No se registraron anomalías en esa categoría durante la ventana de tiempo evaluada.
-* **`[!]` o `[ALERTA]` en Amarillo:** 
-  * Intentos fallidos aislados desde la IP `127.0.0.1` o IPs locales (`192.168.x.x`) suelen deberse a errores de tipeo del usuario o servicios internos.
-  * Inicios de sesión de red tipo 3 son habituales si compartes impresoras o carpetas en tu red local.
-* **`[ALERTA CRÍTICA]` en Rojo:**
-  * **Borrado de registros (1102):** Acción sumamente sospechosa que suele indicar encubrimiento deliberado.
-  * **Sesiones RDP (Tipo 10) desde IPs públicas desconocidas:** Posible compromiso de credenciales.
-  * **Usuarios creados (`4720`) desconocidos:** Evidencia clara de tácticas de persistencia.
-
----
-
-## ⚠️ Mejores Prácticas y Limitaciones
-
-1. **Tamaño del Registro de Eventos:**
-   En instalaciones estándar de Windows cliente, el tamaño máximo de `Security.evtx` es de 20 MB. Bajo un ataque de fuerza bruta masivo, los eventos antiguos pueden sobrescribirse rápidamente. Si administras entornos corporativos, configura el tamaño a mínimo 100-500 MB o centraliza los logs en un SIEM (Splunk, Elastic, Sentinel).
-2. **Políticas de Auditoría Avanzadas:**
-   Para asegurar que todos los eventos `4625`, `4720` y `4732` se generen, verifica que las directivas de auditoría de Windows estén activadas en `secpol.msc` (*Configuración de seguridad -> Directivas locales -> Directiva de auditoría*).
-3. **Escritorio Remoto (RDP):**
-   Nunca expongas el puerto `3389` directamente a Internet. Utiliza siempre una VPN con autenticación de dos factores (2FA).
-
----
-
-## 🤝 Contribuciones
-
-¡Las contribuciones son bienvenidas! Si deseas añadir nuevas reglas de detección (por ejemplo: eventos Sysmon, PowerShell script block logging `4104` o servicios nuevos `7045`):
-1. Haz un Fork del proyecto.
-2. Crea una rama para tu feature (`git checkout -b feature/NuevaDeteccion`).
-3. Realiza tus cambios y haz commit (`git commit -m 'Añade detección de nuevo servicio'`).
-4. Sube la rama (`git push origin feature/NuevaDeteccion`).
-5. Abre un Pull Request.
+```text
+Detección de Intrusos/
+│
+├── IntruderDetector.py             # Motor central en Python 3 (CLI + GUI Dashboard + SIEM)
+├── IntruderDetector.ps1            # Motor nativo avanzado en PowerShell 5.1+/7+
+├── Auditoria-Seguridad.ps1         # Script original preservado para máxima compatibilidad
+├── Ejecutar-Deteccion.bat          # Lanzador inteligente multi-runtime con UAC
+├── Ejecutar-Auditoria.bat          # Script de compatibilidad retrocompatible
+├── Cerrar-Ventanas-Deteccion.bat   # Limpieza y cierre seguro de procesos en consola
+├── .gitignore                      # Reglas de exclusión de reportes dinámicos
+├── LICENSE                         # Licencia MIT
+├── SECURITY.md                     # Política de seguridad y uso responsable
+├── CONTRIBUTING.md                 # Guía para desarrolladores
+│
+├── 📁 assets/                      # Banners e infografías de alta resolución
+│   ├── banner.jpg
+│   └── attack_threat_matrix.jpg
+│
+└── 📁 Reportes/                    # Almacenamiento de reportes y dashboard demo
+    └── IntruderDetector_Dashboard_Demo.html
+```
 
 ---
 
-## 📄 Licencia
+## 🤝 Operación Individual y Grupal (WinAudit-DFIR Suite)
 
-Este proyecto está bajo la Licencia **MIT**. Consulta el archivo [LICENSE](LICENSE) para más detalles.
+- **Modo Individual:** Funciona de manera 100% aislada en cualquier equipo Windows cliente o servidor sin requerir conexión a internet ni herramientas adicionales.
+- **Modo Grupal (Suite Maestra):** Se coordina con [`WiFiSentry`](../WiFiSentry/) y [`Suite-DFIR.bat`](../Suite-DFIR.bat) en la raíz del repositorio, compartiendo un estándar unificado de nomenclatura, reportes ejecutivos y cadena de custodia.
 
 ---
-*Desarrollado para la comunidad de Ciberseguridad y Blue Team.*
+
+## 🛡️ Licencia y Créditos
+
+Este proyecto está bajo la licencia **MIT** - consulta el archivo [LICENSE](LICENSE) para más detalles.
+
+**Autor:** [Cru9](https://github.com/Cru9)  
+**Propósito:** Investigación en ciberseguridad, respuesta a incidentes (IR) y concientización defensiva.

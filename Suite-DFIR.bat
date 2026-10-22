@@ -49,7 +49,7 @@ echo ===========================================================================
 echo   Iniciando Detección de Intrusos (Auditoria Forense de Eventos de Seguridad)...
 echo ==============================================================================
 echo.
-call "%~dp0Detección de Intrusos\Ejecutar-Auditoria.bat"
+call "%~dp0Detección de Intrusos\Ejecutar-Deteccion.bat"
 goto MENU
 
 :RUN_WIFISENTRY

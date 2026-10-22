@@ -41,10 +41,13 @@ El objetivo de este ecosistema es centralizar herramientas ligeras, de alta fide
 ## 🗂️ Módulos Integrados
 
 ### 1. 🛡️ [Detección de Intrusos](Detección%20de%20Intrusos/) — Triage Forense de Host y Persistencia
-Especializado en la inspección automatizada y análisis forense del Visor de Eventos de Seguridad (`Security Log`) de Windows.
-* **Inspección de Registros de Seguridad:** Detección de borrado intencional de logs (Anti-Forensics / Event ID 1102).
-* **Vectores de Autenticación:** Rastreo de ataques de fuerza bruta local y remota (Event ID 4625) y accesos RDP exitosos (Event ID 4624 tipo 10).
+Especializado en la inspección automatizada y análisis forense del Visor de Eventos de Seguridad (`Security Log`) y Sistema (`System Log`) de Windows. Disponible en Python 3 (`IntruderDetector.py`) y PowerShell (`IntruderDetector.ps1`).
+* **Inspección de Registros de Seguridad:** Detección de borrado intencional de logs (Anti-Forensics / Event ID 1102 y 104).
+* **Vectores de Autenticación & Fuerza Bruta:** Rastreo de ataques de fuerza bruta y password spraying (Event ID 4625), clasificación de IPs atacantes y cuentas bloqueadas (4740).
+* **Movimiento Lateral:** Detección de accesos RDP remotos interactivos (Event ID 4624 tipo 10) y sesiones SMB de red (tipo 3).
 * **Persistencia y Elevación:** Identificación de creación anómala de usuarios o modificación de grupos de administradores (Event IDs 4720, 4732, 4728) mediante resolución robusta de SIDs (`S-1-5-32-544`).
+* **Hunter de Comandos LOLBAS & Ransomware:** Detección de eliminación de copias de seguridad (`vssadmin delete shadows`), `certutil`, `powershell -enc` (Event ID 4688).
+* **Radar SIEM en Tiempo Real:** Monitor continuo en vivo para alertar de intrusiones activas al instante.
 * 🔗 *[Ver documentación detallada de Detección de Intrusos →](Detección%20de%20Intrusos/README.md)*
 
 ---
@@ -63,10 +66,12 @@ Herramienta de nivel industrial para auditoría defensiva y análisis forense de
 
 | Módulo | Táctica MITRE | ID Técnica | Descripción / Detección |
 | :--- | :--- | :--- | :--- |
-| **Detección de Intrusos** | Defense Evasion | `T1070.001` | Clear Windows Event Logs (Vaciado de registro de auditoría) |
-| **Detección de Intrusos** | Credential Access | `T1110.001` | Password Guessing / Brute Force (Intentos de acceso fallidos) |
+| **Detección de Intrusos** | Defense Evasion | `T1070.001` | Clear Windows Event Logs (Vaciado de registro de auditoría 1102 / 104) |
+| **Detección de Intrusos** | Credential Access | `T1110.001` | Password Guessing / Brute Force (Intentos de acceso fallidos 4625) |
 | **Detección de Intrusos** | Lateral Movement | `T1021.001` | Remote Desktop Protocol (Sesiones interactivas RDP Tipo 10) |
-| **Detección de Intrusos** | Persistence | `T1136.001` | Create Local Account (Creación de cuentas no autorizadas) |
+| **Detección de Intrusos** | Persistence | `T1136.001` | Create Local Account (Creación de cuentas no autorizadas 4720) |
+| **Detección de Intrusos** | Impact / Evasion | `T1490` | Inhibit System Recovery (Comandos vssadmin / wmic delete shadows 4688) |
+| **Detección de Intrusos** | Persistence | `T1543.003` | Windows Service Creation (Nuevos servicios sospechosos 7045) |
 | **WiFiSentry** | Discovery | `T1040` | Network Sniffing / Wi-Fi Reconnaissance |
 | **WiFiSentry** | Credential Access | `T1110` | Brute Force (Estimación de crackeo de PSK WPA2/WPA3) |
 | **WiFiSentry** | Initial Access | `T1557` | Adversary-in-the-Middle / Rogue AP (Ataques Evil Twin) |
@@ -84,11 +89,12 @@ Suite-DFIR.bat
 
 ### Ejecución Independiente por Módulo
 
-#### Para auditar eventos de Windows:
+#### Para auditar eventos e intrusiones de Windows:
 ```cmd
 cd "Detección de Intrusos"
-.\Ejecutar-Auditoria.bat
+.\Ejecutar-Deteccion.bat
 ```
+*(O directamente mediante Python: `python "Detección de Intrusos\IntruderDetector.py"`)*
 
 #### Para auditoría de redes inalámbricas:
 ```cmd
@@ -110,10 +116,17 @@ WinAudit-DFIR/
 ├── .gitignore                        # Reglas de exclusión de git
 │
 ├── 📁 Detección de Intrusos/         # MÓDULO 1: FORENSE DE HOST & EVENT LOGS
-│   ├── Auditoria-Seguridad.ps1       # Script nativo de análisis forense en PowerShell
-│   ├── Ejecutar-Auditoria.bat        # Lanzador rápido con elevación UAC
-│   ├── LICENSE                       # Licencia del módulo
-│   └── README.md                     # Manual técnico y matriz MITRE del host
+│   ├── IntruderDetector.py           # Core analítico en Python 3 (CLI + GUI Dashboard + SIEM)
+│   ├── IntruderDetector.ps1          # Motor nativo avanzado en PowerShell 5.1+/7+
+│   ├── Auditoria-Seguridad.ps1       # Script original retrocompatible
+│   ├── Ejecutar-Deteccion.bat        # Lanzador inteligente multi-runtime con UAC
+│   ├── Ejecutar-Auditoria.bat        # Script de compatibilidad
+│   ├── Cerrar-Ventanas-Deteccion.bat # Script de limpieza y detención de procesos
+│   ├── assets/                       # Banners e infografías de ciberseguridad
+│   ├── Reportes/                     # Dashboard HTML y reportes de muestra
+│   ├── SECURITY.md                   # Política de seguridad y divulgación
+│   ├── CONTRIBUTING.md               # Guía para desarrolladores y colaboradores
+│   └── README.md                     # Documentación completa de Detección de Intrusos
 │
 └── 📁 WiFiSentry/                    # MÓDULO 2: FORENSE INALÁMBRICO & SENSOR RF
     ├── WiFiSentry.py                 # Core analítico en Python (CLI + GUI Dashboard)
