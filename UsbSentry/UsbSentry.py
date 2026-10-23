@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 ==============================================================================
-UsbSentry v1.2.1 - Framework Forense de Dispositivos USB y BadUSB Hunter
+UsbSentry v2.0.0 - Framework Forense de Dispositivos USB y BadUSB Hunter
 Ecosistema Cru9 | WinAudit-DFIR Suite
 ==============================================================================
 Inspecciona y correlaciona artefactos forenses de almacenamiento USB en Windows:
@@ -38,7 +38,7 @@ try:
 except ImportError:
     winreg = None
 
-VERSION = "1.2.1"
+VERSION = "2.0.0"
 AUTHOR = "Cru9"
 TOOL_NAME = "UsbSentry"
 

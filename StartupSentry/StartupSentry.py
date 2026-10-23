@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 r"""
 ========================================================================================
-   STARTUPSENTRY v1.2.1 - FORENSIC AUTOSTART & TASK PERSISTENCE HUNTER
+   STARTUPSENTRY v2.0.0 - FORENSIC AUTOSTART & TASK PERSISTENCE HUNTER
    Framework de Detección de Persistencia, Tareas Programadas y Firmas Authenticode
    Ecosistema WinAudit-DFIR | Desarrollado por Cru9
 ========================================================================================
@@ -135,7 +135,7 @@ class StartupSentry:
         score_color = GREEN if score < 25 else (YELLOW if score < 60 else RED)
 
         print(f"\n{CYAN}+---------------------------------------------------------------------------------------+{RESET}")
-        print(f"{CYAN}|  {BOLD}{WHITE}STARTUPSENTRY v1.2.1 - METRICAS DE AMENAZAS EN ARRANQUE Y PERSISTENCIA{RESET}               {CYAN}|{RESET}")
+        print(f"{CYAN}|  {BOLD}{WHITE}STARTUPSENTRY v2.0.0 - METRICAS DE AMENAZAS EN ARRANQUE Y PERSISTENCIA{RESET}               {CYAN}|{RESET}")
         print(f"{CYAN}+---------------------------------------------------------------------------------------+{RESET}")
         print(f"   {GRAY}Host:{WHITE} {self.hostname}  {GRAY}|  Usuario:{WHITE} {self.username}  {GRAY}|  Score de Riesgo: {score_color}{BOLD}{score}/100{RESET}")
         print(f"   {GRAY}Total Evaluados:    {WHITE}{tot_analizados:<5}{RESET}  {GRAY}|  Alertas Sospechosas: {RED if tot_sospechosos else GREEN}{tot_sospechosos:<5}{RESET}")
@@ -175,7 +175,7 @@ class StartupSentry:
         payload = {
             "metadata": {
                 "tool": "StartupSentry",
-                "version": "1.2.1",
+                "version": "2.0.0",
                 "author": "Cru9",
                 "timestamp": self.scan_time.isoformat(),
                 "hostname": self.hostname,
@@ -249,7 +249,7 @@ class StartupSentry:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StartupSentry v1.2.1 | Forensic Autostart & Task Persistence Dashboard</title>
+    <title>StartupSentry v2.0.0 | Forensic Autostart & Task Persistence Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     <style>
@@ -648,7 +648,7 @@ class StartupSentry:
         </div>
 
         <footer>
-            Generado por <a href="https://github.com/Cru9/WinAudit-DFIR" target="_blank">WinAudit-DFIR Suite // StartupSentry v1.2.1</a> • Autor: Cru9 • {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+            Generado por <a href="https://github.com/Cru9/WinAudit-DFIR" target="_blank">WinAudit-DFIR Suite // StartupSentry v2.0.0</a> • Autor: Cru9 • {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         </footer>
     </div>
 
@@ -708,7 +708,7 @@ def interactive_menu():
         score_badge = f"{GREEN}[RIESGO BAJO: {score}/100]{RESET}" if score < 25 else (f"{YELLOW}[RIESGO MEDIO: {score}/100]{RESET}" if score < 60 else f"{RED}[RIESGO CRITICO: {score}/100]{RESET}")
 
         print(f"{CYAN}+---------------------------------------------------------------------------------------+{RESET}")
-        print(f"{CYAN}|   {BOLD}{WHITE}STARTUPSENTRY v1.2.1 - FORENSIC AUTOSTART & TASK PERSISTENCE HUNTER{RESET}                 {CYAN}|{RESET}")
+        print(f"{CYAN}|   {BOLD}{WHITE}STARTUPSENTRY v2.0.0 - FORENSIC AUTOSTART & TASK PERSISTENCE HUNTER{RESET}                 {CYAN}|{RESET}")
         print(f"{CYAN}|   {GRAY}Ecosistema WinAudit-DFIR | Desarrollado por Cru9{RESET}                                    {CYAN}|{RESET}")
         print(f"{CYAN}+---------------------------------------------------------------------------------------+{RESET}")
         print(f"  {GRAY}[+] Host:{WHITE} {sentry.hostname}  {GRAY}|  Usuario:{WHITE} {sentry.username}  {GRAY}|  Registros:{WHITE} {len(sentry.items)}  {GRAY}|  {score_badge}")

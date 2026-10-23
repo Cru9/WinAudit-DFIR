@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-WiFiSentry v1.2 | Suite de Auditoria WLAN, Radar Evil Twin & Mapa de Calor en Vivo
+WiFiSentry v2.0.0 | Suite de Auditoria WLAN, Radar Evil Twin & Mapa de Calor en Vivo
 Autor: Ezequiel Diaz (Cru9) | https://github.com/Cru9
 """
 
@@ -54,7 +54,7 @@ def show_banner():
 =============================================================================="""
     print(f"{CYAN}{BOLD}{banner_art}{MAGENTA}")
     print("  Suite DFIR de Auditoria WLAN, Radar Evil Twin & Mapa de Calor en Vivo")
-    print("  Ecosistema Cru9 | Multiplataforma (Windows, Linux, macOS) | v1.2")
+    print("  Ecosistema Cru9 | Multiplataforma (Windows, Linux, macOS) | v2.0.0")
     print(f"=============================================================================={RESET}\n")
 
 
@@ -913,7 +913,7 @@ def export_html_report(output_path=None):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WiFiSentry v1.2 | Centro de Operaciones Forenses WLAN</title>
+    <title>WiFiSentry v2.0.0 | Centro de Operaciones Forenses WLAN</title>
     <style>
         :root {{
             --bg-base: #080c14;
@@ -1176,7 +1176,7 @@ def export_html_report(output_path=None):
 
     <header class="header">
         <div class="header-title">
-            <h1>WiFiSentry v1.2</h1>
+            <h1>WiFiSentry v2.0.0</h1>
             <p>Suite DFIR de Auditoria WLAN, Radar Evil Twin & Mapa de Calor en Vivo</p>
         </div>
         <div>
@@ -1462,7 +1462,7 @@ def export_html_report(output_path=None):
         </div>
 
         <div class="footer">
-            <p>Generado de forma automatizada por <strong>WiFiSentry v1.2</strong> | Ecosistema DFIR Cru9 | <a href="https://github.com/Cru9" target="_blank">github.com/Cru9</a></p>
+            <p>Generado de forma automatizada por <strong>WiFiSentry v2.0.0</strong> | Ecosistema DFIR Cru9 | <a href="https://github.com/Cru9" target="_blank">github.com/Cru9</a></p>
             <p style="margin-top: 5px; opacity: 0.6;">Fecha de auditoria forense: {fecha_str}</p>
         </div>
 
@@ -1683,7 +1683,7 @@ def show_cheatsheet():
 
 def main():
     import argparse
-    parser = argparse.ArgumentParser(description="WiFiSentry v1.2 | Suite de Auditoria WLAN DFIR")
+    parser = argparse.ArgumentParser(description="WiFiSentry v2.0.0 | Suite de Auditoria WLAN DFIR")
     parser.add_argument("--audit", action="store_true", help="Auditoria rapida en consola")
     parser.add_argument("--radar", action="store_true", help="Radar Evil Twin en vivo")
     parser.add_argument("--heatmap", action="store_true", help="Mapa de calor Wi-Fi en tiempo real")

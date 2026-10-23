@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    WiFiSentry v1.2: Framework de Auditoria WLAN, Radar Evil Twin en Vivo,
+    WiFiSentry v2.0.0: Framework de Auditoria WLAN, Radar Evil Twin en Vivo,
     Calculadora de Entropia / Crackeo y Hardening Defensivo.
 
 .DESCRIPTION
@@ -29,7 +29,7 @@ param(
 
 $ErrorActionPreference = 'SilentlyContinue'
 
-$Host.UI.RawUI.WindowTitle = "WiFiSentry v1.2 | Suite WLAN DFIR, Radar Evil Twin & Mapa de Calor (Cru9)"
+$Host.UI.RawUI.WindowTitle = "WiFiSentry v2.0.0 | Suite WLAN DFIR, Radar Evil Twin & Mapa de Calor (Cru9)"
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $ReportDir = Join-Path $ScriptDir "Reportes"
@@ -51,7 +51,7 @@ function Show-Banner {
     Write-Host "                                                  |___/ " -ForegroundColor Cyan
     Write-Host "==============================================================================" -ForegroundColor Magenta
     Write-Host "  Suite DFIR de Auditoria WLAN, Radar Evil Twin & Mapa de Calor en Vivo" -ForegroundColor White
-    Write-Host "  Ecosistema Cru9 | Framework Forense Inalambrico Didactico | v1.2" -ForegroundColor DarkGray
+    Write-Host "  Ecosistema Cru9 | Framework Forense Inalambrico Didactico | v2.0.0" -ForegroundColor DarkGray
     Write-Host "==============================================================================`n" -ForegroundColor Magenta
 }
 
@@ -1076,7 +1076,7 @@ function Export-HtmlAuditReport {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WiFiSentry v1.2 | Centro de Operaciones Forenses WLAN</title>
+    <title>WiFiSentry v2.0.0 | Centro de Operaciones Forenses WLAN</title>
     <style>
         :root {
             --bg-base: #080c14;
@@ -1378,7 +1378,7 @@ function Export-HtmlAuditReport {
 
     <header class="header">
         <div class="header-title">
-            <h1>WiFiSentry v1.2</h1>
+            <h1>WiFiSentry v2.0.0</h1>
             <p>Suite DFIR de Auditoria WLAN, Radar Evil Twin & Mapa de Calor en Vivo</p>
         </div>
         <div>
@@ -1662,7 +1662,7 @@ $tbodyProfiles
         </div>
 
         <div class="footer">
-            <p>Generado de forma automatizada por <strong>WiFiSentry v1.2</strong> | Ecosistema DFIR Cru9 | <a href="https://github.com/Cru9" target="_blank">github.com/Cru9</a></p>
+            <p>Generado de forma automatizada por <strong>WiFiSentry v2.0.0</strong> | Ecosistema DFIR Cru9 | <a href="https://github.com/Cru9" target="_blank">github.com/Cru9</a></p>
             <p style="margin-top: 5px; opacity: 0.6;">Fecha de auditoria forense: $fechaStr</p>
         </div>
 

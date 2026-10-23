@@ -2,7 +2,7 @@
 ### Ecosistema Modular de Triage Forense y Detección de Amenazas en Windows
 **Desarrollado por [Cru9](https://github.com/Cru9)**
 
-[![GitHub release](https://img.shields.io/badge/Release-v1.2.1-blue.svg)](https://github.com/Cru9/WinAudit-DFIR/releases)
+[![GitHub release](https://img.shields.io/badge/Release-v2.0.0-blue.svg)](https://github.com/Cru9/WinAudit-DFIR/releases)
 [![CI](https://github.com/Cru9/WinAudit-DFIR/actions/workflows/ci.yml/badge.svg)](https://github.com/Cru9/WinAudit-DFIR/actions/workflows/ci.yml)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B%20%7C%207%2B-blue.svg?logo=powershell)](https://github.com/Cru9/WinAudit-DFIR)
 [![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)

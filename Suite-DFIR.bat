@@ -1,12 +1,12 @@
 @echo off
 :: ==============================================================================
 :: WinAudit-DFIR - Master Forensic & Incident Response Suite
-:: Autor: Ezequiel Diaz (Cru9) | Version: v1.2.1
+:: Autor: Ezequiel Diaz (Cru9) | Version: v2.0.0
 :: ==============================================================================
 setlocal
 chcp 65001 >nul 2>&1
 mode con: cols=105 lines=38 >nul 2>&1
-title WinAudit-DFIR Suite v1.2.1 [Cru9 DFIR Ecosystem]
+title WinAudit-DFIR Suite v2.0.0 [Cru9 DFIR Ecosystem]
 cd /d "%~dp0"
 
 :: -----------------------------------------------------------------------------
@@ -75,31 +75,31 @@ echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%  \ \/  \/ / ^| ^| '_ \    / /\ \ ^| ^| ^| ^|
 echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%   \  /\  /  ^| ^| ^| ^| ^|  / ____ \^| ^|_^| ^| (_^| ^| ^| ^|_   ^| ^|__^| ^| ^|     _^| ^|_^| ^| \ \                %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%    \/  \/   ^|_^|_^| ^|_^| /_/    \_\\__,_^|\__,_^|_^|\__^|  ^|_____/^|_^|    ^|_____^|_^|  \_^|               %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%^|                                                                                                  ^|%C_RESET%
-echo  %C_CYAN%^|             %C_BOLD%%C_CYAN%DFIR CYBERSECURITY ECOSYSTEM %C_GRAY%v1.2.1  %C_WHITE%^|  %C_MAGENTA%DEVELOPED BY CRU9                             %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%^|             %C_BOLD%%C_CYAN%DFIR CYBERSECURITY ECOSYSTEM %C_GRAY%v2.0.0  %C_WHITE%^|  %C_MAGENTA%DEVELOPED BY CRU9                             %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
 echo   %C_GRAY%[+] HOST:%C_WHITE% %COMPUTERNAME%  %C_GRAY%^|  USUARIO:%C_WHITE% %USERNAME%  %C_GRAY%^|  ESTADO: %PRIV_LABEL%  %C_GRAY%^|  MOTOR: %RUNTIME_LABEL%
 echo.
 echo  %C_BLUE%.--------------------------------------------------------------------------------------------------.%C_RESET%
-echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[ MODULOS DE AUDITORIA ^& RESPUESTA A INCIDENTES ]                   %C_GRAY%[ WINDFIR ECOSYSTEM v1.2.1 ]%C_BLUE%  ^|%C_RESET%
+echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[ MODULOS DE AUDITORIA ^& RESPUESTA A INCIDENTES ]                   %C_GRAY%[ WINDFIR ECOSYSTEM v2.0.0 ]%C_BLUE%  ^|%C_RESET%
 echo  %C_BLUE%+--------------------------------------------------------------------------------------------------+%C_RESET%
 echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
-echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[1]%C_RESET%  %C_BOLD%%C_CYAN%Deteccion de Intrusos %C_GRAY%(IntruderDetector v1.2.1)%C_RESET%                                             %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[1]%C_RESET%  %C_BOLD%%C_CYAN%Deteccion de Intrusos %C_GRAY%(IntruderDetector v2.0.0)%C_RESET%                                             %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|       %C_GRAY%- Triage forense de host, eventos de seguridad (Security Log) y fuerza bruta.               %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|       %C_GRAY%- Analisis de Event IDs (1102, 4625, 4624, 4720), fuerza bruta RDP y LOLBins.              %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
-echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[2]%C_RESET%  %C_BOLD%%C_CYAN%WiFiSentry %C_GRAY%(Wireless Forensic Suite ^& RF Sensor v1.2.1)%C_RESET%                                     %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[2]%C_RESET%  %C_BOLD%%C_CYAN%WiFiSentry %C_GRAY%(Wireless Forensic Suite ^& RF Sensor v2.0.0)%C_RESET%                                     %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|       %C_GRAY%- Rogue AP Hunter: deteccion en tiempo real de ataques Evil Twin y BSSID clonados.         %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|       %C_GRAY%- Benchmark de entropia PBKDF2 (GPU Hashcat) y sensor de proximidad RF en vivo.            %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
-echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[3]%C_RESET%  %C_BOLD%%C_CYAN%SocketSentry %C_GRAY%(Network Sockets ^& Threat Hunter v1.2.1)%C_RESET%                                       %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[3]%C_RESET%  %C_BOLD%%C_CYAN%SocketSentry %C_GRAY%(Network Sockets ^& Threat Hunter v2.0.0)%C_RESET%                                       %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|       %C_GRAY%- Inspeccion forense de sockets TCP/UDP y procesos sospechosos en memoria.                 %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|       %C_GRAY%- Deteccion de balizas C2 (Beaconing), servidores Feodo y LOLBins en red.                  %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
-echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[4]%C_RESET%  %C_BOLD%%C_CYAN%StartupSentry %C_GRAY%(Autostart ^& Task Persistence Hunter v1.2.1)%C_RESET%                                %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[4]%C_RESET%  %C_BOLD%%C_CYAN%StartupSentry %C_GRAY%(Autostart ^& Task Persistence Hunter v2.0.0)%C_RESET%                                %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|       %C_GRAY%- Auditoria de programas de arranque, claves Run/RunOnce y firmas Authenticode.             %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|       %C_GRAY%- Deteccion de tareas programadas raiz (\), gatillos recurrentes y masquerading.           %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
-echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[5]%C_RESET%  %C_BOLD%%C_CYAN%UsbSentry %C_GRAY%(USB Storage Forensics ^& BadUSB Hunter v1.2.1)%C_RESET%                                  %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[5]%C_RESET%  %C_BOLD%%C_CYAN%UsbSentry %C_GRAY%(USB Storage Forensics ^& BadUSB Hunter v2.0.0)%C_RESET%                                  %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|       %C_GRAY%- Historial USBSTOR, correlacion de letras de unidad (MountedDevices) y seriales.          %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|       %C_GRAY%- Deteccion de inyectores de pulsaciones BadUSB (Rubber Ducky, Flipper Zero, emuladores).   %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
@@ -134,7 +134,7 @@ goto MENU
 cls
 echo.
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
-echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%IntruderDetector v1.2.1 (Deteccion de Intrusos)                               %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%IntruderDetector v2.0.0 (Deteccion de Intrusos)                               %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%^|  %C_GRAY%Iniciando triage forense de host, persistencia y eventos de seguridad...                        %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
 echo.
@@ -162,7 +162,7 @@ goto MENU
 cls
 echo.
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
-echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%WiFiSentry v1.2.1 (Auditoria Forense Inalambrica 802.11)                        %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%WiFiSentry v2.0.0 (Auditoria Forense Inalambrica 802.11)                        %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%^|  %C_GRAY%Iniciando Rogue AP Hunter, benchmark PBKDF2 y sensor RF en tiempo real...                      %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
 echo.
@@ -178,7 +178,7 @@ goto MENU
 cls
 echo.
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
-echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%SocketSentry v1.2.1 (Threat Hunting de Red ^& Sockets)                          %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%SocketSentry v2.0.0 (Threat Hunting de Red ^& Sockets)                          %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%^|  %C_GRAY%Iniciando inspeccion de sockets, deteccion de balizas C2 y amenazas en red...                  %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
 echo.
@@ -194,7 +194,7 @@ goto MENU
 cls
 echo.
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
-echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%StartupSentry v1.2.1 (Persistencia, Tareas y Firmas Authenticode)              %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%StartupSentry v2.0.0 (Persistencia, Tareas y Firmas Authenticode)              %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%^|  %C_GRAY%Iniciando triage de programas de arranque, tareas raiz y validacion criptografica...          %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
 echo.
@@ -210,7 +210,7 @@ goto MENU
 cls
 echo.
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
-echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%UsbSentry v1.2.1 (Forense de Almacenamiento USB ^& BadUSB Hunter)               %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%UsbSentry v2.0.0 (Forense de Almacenamiento USB ^& BadUSB Hunter)               %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%^|  %C_GRAY%Iniciando historial USBSTOR, MountedDevices y deteccion de inyectores de hardware...          %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
 echo.

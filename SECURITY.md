@@ -4,8 +4,8 @@
 
 | Versión | Estado de Soporte |
 | :--- | :--- |
-| `v1.2.1` (Actual) | :white_check_mark: Soporte Activo |
-| `< v1.2.1` | :x: No soportado |
+| `v2.0.0` (Actual) | :white_check_mark: Soporte Activo |
+| `< v2.0.0` | :x: No soportado |
 
 ---
 

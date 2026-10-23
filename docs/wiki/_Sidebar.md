@@ -20,5 +20,5 @@
 
 ---
 <div align="center">
-  <small>WinAudit-DFIR v1.2.1<br>Desarrollado por <b>Cru9</b></small>
+  <small>WinAudit-DFIR v2.0.0<br>Desarrollado por <b>Cru9</b></small>
 </div>

@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    SocketSentry v1.2 - Framework de Detección y Análisis Forense de Conexiones de Red en Windows.
+    SocketSentry v2.0.0 - Framework de Detección y Análisis Forense de Conexiones de Red en Windows.
 .DESCRIPTION
     Herramienta avanzada de Threat Hunting y DFIR (Digital Forensics & Incident Response) para Windows.
     Wrapper principal y conmutador para Auditar-Conexiones.ps1.

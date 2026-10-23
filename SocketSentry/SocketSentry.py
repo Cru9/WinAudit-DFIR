@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-SocketSentry v1.2 | Framework Forense y Hunter de Conexiones de Red, Sockets y C2 en Windows
+SocketSentry v2.0.0 | Framework Forense y Hunter de Conexiones de Red, Sockets y C2 en Windows
 Desarrollado por: Ezequiel Diaz (Cru9) | https://github.com/Cru9
 Parte del Ecosistema WinAudit-DFIR
 """
@@ -80,7 +80,7 @@ def show_banner():
 =============================================================================="""
     print(f"{CYAN}{BOLD}{banner}{MAGENTA}")
     print("  Framework Forense de Sockets, C2 Beacon Hunter & Auditoría de Red")
-    print("  Ecosistema Cru9 | Windows Network Security Intelligence | v1.2")
+    print("  Ecosistema Cru9 | Windows Network Security Intelligence | v2.0.0")
     print(f"=============================================================================={RESET}\n")
 
 

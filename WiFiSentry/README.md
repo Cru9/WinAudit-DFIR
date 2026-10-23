@@ -2,10 +2,10 @@
 
 <img src="./assets/banner.jpg" alt="WiFiSentry Banner" width="100%" style="border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);" />
 
-# 🛡️ WiFiSentry v1.2.1
+# 🛡️ WiFiSentry v2.0.0
 ### Suite DFIR de Auditoría WLAN, Radar Evil Twin & Mapa de Calor en Tiempo Real
 
-[![Release](https://img.shields.io/badge/Release-v1.2.1-blue.svg)](https://github.com/Cru9/WinAudit-DFIR)
+[![Release](https://img.shields.io/badge/Release-v2.0.0-blue.svg)](https://github.com/Cru9/WinAudit-DFIR)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-0078D6?logo=windows&logoColor=white)](#)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%20%7C%207%2B-5391FE?logo=powershell&logoColor=white)](#)
 [![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB?logo=python&logoColor=white)](#)
@@ -132,7 +132,7 @@ En WPA2, la clave se deriva mediante **PBKDF2-HMAC-SHA1 con 4,096 iteraciones**.
 ```text
 ==============================================================================
   Suite DFIR de Auditoria WLAN, Radar Evil Twin & Mapa de Calor en Vivo
-  Ecosistema Cru9 | Framework Forense Inalambrico Didactico | v1.2.1
+  Ecosistema Cru9 | Framework Forense Inalambrico Didactico | v2.0.0
 ==============================================================================
 
    SELECCIONA UNA OPCION:
