@@ -1,6 +1,6 @@
-<#
+﻿<#
 .SYNOPSIS
-    WiFiSentry v2.0.0: Framework de Auditoria WLAN, Radar Evil Twin en Vivo,
+    WiFiSentry v3.0.0: Framework de Auditoria WLAN, Radar Evil Twin en Vivo,
     Calculadora de Entropia / Crackeo y Hardening Defensivo.
 
 .DESCRIPTION
@@ -29,7 +29,7 @@ param(
 
 $ErrorActionPreference = 'SilentlyContinue'
 
-$Host.UI.RawUI.WindowTitle = "WiFiSentry v2.0.0 | Suite WLAN DFIR, Radar Evil Twin & Mapa de Calor (Cru9)"
+$Host.UI.RawUI.WindowTitle = "WiFiSentry v3.0.0 | Suite WLAN DFIR, Radar Evil Twin & Mapa de Calor (Cru9)"
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $ReportDir = Join-Path $ScriptDir "Reportes"
@@ -51,7 +51,7 @@ function Show-Banner {
     Write-Host "                                                  |___/ " -ForegroundColor Cyan
     Write-Host "==============================================================================" -ForegroundColor Magenta
     Write-Host "  Suite DFIR de Auditoria WLAN, Radar Evil Twin & Mapa de Calor en Vivo" -ForegroundColor White
-    Write-Host "  Ecosistema Cru9 | Framework Forense Inalambrico Didactico | v2.0.0" -ForegroundColor DarkGray
+    Write-Host "  Ecosistema Cru9 | Framework Forense Inalambrico Didactico | v3.0.0" -ForegroundColor DarkGray
     Write-Host "==============================================================================`n" -ForegroundColor Magenta
 }
 
@@ -1076,83 +1076,77 @@ function Export-HtmlAuditReport {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WiFiSentry v2.0.0 | Centro de Operaciones Forenses WLAN</title>
+    <title>WiFiSentry v3.0.0 | Centro de Operaciones Forenses WLAN</title>
     <style>
         :root {
-            --bg-base: #080c14;
-            --bg-card: rgba(15, 23, 42, 0.78);
-            --bg-card-hover: rgba(30, 41, 59, 0.85);
-            --border-glow: rgba(0, 242, 254, 0.2);
-            --border-card: rgba(255, 255, 255, 0.08);
-            --cyan: #00f2fe;
-            --magenta: #d946ef;
-            --purple: #8b5cf6;
-            --green: #10b981;
-            --yellow: #f59e0b;
-            --red: #ef4444;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --font-mono: 'Consolas', 'Fira Code', monospace;
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --border-card: #e2e8f0;
+            --text-heading: #0f172a;
+            --text-body: #334155;
+            --text-muted: #64748b;
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07);
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            background-color: var(--bg-base);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(0, 242, 254, 0.12) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.12) 0px, transparent 50%);
-            color: var(--text-main);
+            background-color: var(--bg-page);
+            color: var(--text-body);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             min-height: 100vh;
             line-height: 1.6;
         }
 
         .header {
-            background: rgba(8, 12, 20, 0.95);
-            border-bottom: 1px solid var(--border-glow);
-            padding: 16px 36px;
+            background: var(--bg-card);
+            border-bottom: 2px solid var(--border-card);
+            border-top: 4px solid var(--primary);
+            padding: 20px 36px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 1000;
-            backdrop-filter: blur(12px);
+            box-shadow: var(--shadow-sm);
         }
         .header-title h1 {
-            font-size: 1.7rem;
-            font-weight: 900;
-            letter-spacing: 1px;
-            background: linear-gradient(135deg, var(--cyan), var(--purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            letter-spacing: -0.02em;
         }
-        .header-title p { color: var(--text-muted); font-size: 0.85rem; margin-top: 2px; }
+        .header-title p { color: var(--text-muted); font-size: 0.9rem; margin-top: 2px; }
         .author-tag {
-            background: rgba(0, 242, 254, 0.1);
-            border: 1px solid var(--border-glow);
+            background: var(--primary-light);
+            border: 1px solid #bfdbfe;
             padding: 6px 14px;
             border-radius: 20px;
             font-size: 0.8rem;
-            color: var(--cyan);
+            color: var(--primary);
             font-weight: 600;
         }
 
-        .container { max-width: 1380px; margin: 0 auto; padding: 25px 20px 60px 20px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 25px 20px 60px 20px; }
 
         /* NAVEGACION TABULADA */
         .tabs-nav {
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            background: #e2e8f0;
+            padding: 4px;
+            border-radius: 10px;
             margin-bottom: 25px;
-            flex-wrap: wrap;
-            border-bottom: 1px solid var(--border-card);
-            padding-bottom: 12px;
+            width: fit-content;
         }
         .tab-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-card);
-            color: var(--text-muted);
+            background: transparent;
+            border: none;
+            color: var(--text-body);
             padding: 10px 18px;
             border-radius: 8px;
             cursor: pointer;
@@ -1163,20 +1157,14 @@ function Export-HtmlAuditReport {
             align-items: center;
             gap: 8px;
         }
-        .tab-btn:hover { background: rgba(0, 242, 254, 0.1); color: #fff; }
+        .tab-btn:hover { color: var(--text-heading); }
         .tab-btn.active {
-            background: linear-gradient(135deg, rgba(0, 242, 254, 0.2), rgba(139, 92, 246, 0.2));
-            border-color: var(--cyan);
-            color: var(--cyan);
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+            background: #ffffff;
+            color: var(--primary);
+            box-shadow: var(--shadow-sm);
         }
         .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .tab-content.active { display: block; }
 
         /* METRIC CARDS */
         .metrics-grid {
@@ -1190,22 +1178,21 @@ function Export-HtmlAuditReport {
             border: 1px solid var(--border-card);
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-            transition: transform 0.2s ease, border-color 0.2s ease;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease;
         }
-        .metric-card:hover { transform: translateY(-3px); border-color: rgba(0,242,254,0.4); }
-        .metric-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
-        .metric-value { font-size: 2.2rem; font-weight: 800; margin: 8px 0; font-family: var(--font-mono); }
-        .metric-desc { font-size: 0.78rem; color: var(--text-muted); }
+        .metric-card:hover { transform: translateY(-2px); }
+        .metric-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; color: var(--text-muted); }
+        .metric-value { font-size: 2.2rem; font-weight: 800; margin: 6px 0; font-family: var(--font-mono); color: var(--text-heading); }
+        .metric-desc { font-size: 0.75rem; color: var(--text-muted); }
 
         .section-box {
             background: var(--bg-card);
             border: 1px solid var(--border-card);
-            border-radius: 14px;
+            border-radius: 12px;
             padding: 24px;
             margin-bottom: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-sm);
         }
         .section-header {
             display: flex;
@@ -1217,34 +1204,29 @@ function Export-HtmlAuditReport {
             flex-wrap: wrap;
             gap: 12px;
         }
-        .section-header h2 { font-size: 1.25rem; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+        .section-header h2 { font-size: 1.25rem; color: var(--text-heading); display: flex; align-items: center; gap: 8px; font-weight: 700; }
         
         .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-        th { background: rgba(0,0,0,0.3); color: var(--text-muted); text-align: left; padding: 12px 10px; font-weight: 600; text-transform: uppercase; font-size: 0.74rem; letter-spacing: 0.5px; }
-        td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
-        tr:hover td { background: var(--bg-card-hover); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; text-align: left; }
+        th { background: #f8fafc; color: #475569; padding: 12px 14px; font-weight: 700; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.05em; border-bottom: 2px solid var(--border-card); }
+        td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        tr:hover td { background: #f8fafc; }
 
-        .ssid-title { font-weight: 600; color: #fff; font-size: 0.92rem; }
-        .auth-pill { background: rgba(255,255,255,0.06); padding: 4px 8px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.78rem; }
-        .badge { padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; }
-        .badge-critical { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.4); }
-        .badge-warning { background: rgba(245,158,11,0.15); color: var(--yellow); border: 1px solid rgba(245,158,11,0.4); }
-        .badge-secure { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.4); }
+        .ssid-title { font-weight: 700; color: var(--text-heading); font-size: 0.92rem; }
+        .auth-pill { background: #eff6ff; color: #1e40af; border: 1px solid #dbeafe; padding: 3px 8px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.78rem; font-weight: 600; }
+        .badge { padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; display: inline-block; }
+        .badge-critical { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .badge-warning  { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+        .badge-secure   { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
 
         .key-cell { font-family: var(--font-mono); white-space: nowrap; }
-        .btn-toggle, .btn-copy { background: rgba(255,255,255,0.08); border: none; color: #fff; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 4px; font-size: 0.75rem; }
-        .btn-toggle:hover, .btn-copy:hover { background: rgba(0,242,254,0.3); }
+        .btn-toggle, .btn-copy { background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--text-body); padding: 3px 8px; border-radius: 4px; cursor: pointer; margin-left: 4px; font-size: 0.75rem; font-weight: 600; }
+        .btn-toggle:hover, .btn-copy:hover { background: #e2e8f0; }
 
-        .signal-bar-bg { width: 90px; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
-        .signal-bar-fill { height: 100%; background: linear-gradient(90deg, var(--yellow), var(--green)); border-radius: 4px; }
+        .signal-bar-bg { width: 90px; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+        .signal-bar-fill { height: 100%; background: #16a34a; border-radius: 4px; }
 
-        .reasons-cell { font-size: 0.8rem; color: #cbd5e1; max-width: 320px; }
-        --heat-critical: #ef4444;
-        --heat-high: #f97316;
-        --heat-medium: #eab308;
-        --heat-low: #10b981;
-        --heat-cold: #06b6d4;
+        .reasons-cell { font-size: 0.8rem; color: #64748b; max-width: 320px; }
 
         /* HEATMAP STYLES */
         .heat-card {
@@ -1378,7 +1360,7 @@ function Export-HtmlAuditReport {
 
     <header class="header">
         <div class="header-title">
-            <h1>WiFiSentry v2.0.0</h1>
+            <h1>WiFiSentry v3.0.0</h1>
             <p>Suite DFIR de Auditoria WLAN, Radar Evil Twin & Mapa de Calor en Vivo</p>
         </div>
         <div>
@@ -1662,7 +1644,7 @@ $tbodyProfiles
         </div>
 
         <div class="footer">
-            <p>Generado de forma automatizada por <strong>WiFiSentry v2.0.0</strong> | Ecosistema DFIR Cru9 | <a href="https://github.com/Cru9" target="_blank">github.com/Cru9</a></p>
+            <p>Generado de forma automatizada por <strong>WiFiSentry v3.0.0</strong> | Ecosistema DFIR Cru9 | <a href="https://github.com/Cru9" target="_blank">github.com/Cru9</a></p>
             <p style="margin-top: 5px; opacity: 0.6;">Fecha de auditoria forense: $fechaStr</p>
         </div>
 

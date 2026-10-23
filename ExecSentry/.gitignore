@@ -1,0 +1,25 @@
+# Reportes generados localmente (manteniendo el dashboard demo)
+Reportes/*.json
+Reportes/*.csv
+Reportes/UsbSentry_Audit_*.*
+Reportes/UsbSentry_Dashboard_20*.*
+!Reportes/UsbSentry_Dashboard_Demo.html
+!Reportes/.gitkeep
+
+# Volcados y logs
+*.dmp
+*.evtx
+*.log
+
+# Archivos de sistema y editores
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/

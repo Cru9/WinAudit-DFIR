@@ -4,8 +4,8 @@
 
 | Versión | Estado de Soporte |
 | :--- | :--- |
-| `v2.0.0` (Actual) | :white_check_mark: Soporte Activo |
-| `< v2.0.0` | :x: No soportado |
+| `v3.0.0` (Actual) | :white_check_mark: Soporte Activo |
+| `< v3.0.0` | :x: No soportado |
 
 ---
 
@@ -16,7 +16,7 @@ La seguridad y la confiabilidad forense son nuestra máxima prioridad. Si descub
 1. **NO abras un Issue público** para reportar vulnerabilidades críticas de ejecución o evasión.
 2. Utiliza la función de [Divulgación de Seguridad Privada de GitHub](https://github.com/Cru9/WinAudit-DFIR/security/advisories/new).
 3. Incluye:
-   * Módulo y script afectado (`IntruderDetector`, `WiFiSentry`, `SocketSentry`, `StartupSentry`, `UsbSentry` o lanzadores `.bat`).
+   * Módulo y script afectado (`IntruderDetector`, `WiFiSentry`, `SocketSentry`, `DnsSentry`, `StartupSentry`, `UsbSentry`, `ExecSentry`, `BrowserSentry`, `MemSentry` u orquestadores `Suite-DFIR.bat` / `Suite-DFIR.py`).
    * Pasos reproducibles y prueba de concepto (PoC).
    * Impacto potencial y recomendaciones de mitigación.
 

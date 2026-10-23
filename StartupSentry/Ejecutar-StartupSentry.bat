@@ -1,7 +1,7 @@
 @echo off
 :: ==============================================================================
 :: StartupSentry - Lanzador Inteligente Multi-Runtime
-:: Autor: Ezequiel Diaz (Cru9) | WinAudit-DFIR Suite v2.0.0
+:: Autor: Ezequiel Diaz (Cru9) | WinAudit-DFIR Suite v3.0.0
 :: ==============================================================================
 
 chcp 65001 >nul

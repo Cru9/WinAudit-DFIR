@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     SocketSentry: Framework de Deteccion y Analisis Forense de Conexiones de Red en Windows.
 

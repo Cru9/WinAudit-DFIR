@@ -1,12 +1,12 @@
 @echo off
 :: ==============================================================================
 :: WinAudit-DFIR - Master Forensic & Incident Response Suite
-:: Autor: Ezequiel Diaz (Cru9) | Version: v2.0.0
+:: Autor: Ezequiel Diaz (Cru9) | Version: v3.0.0
 :: ==============================================================================
 setlocal
 chcp 65001 >nul 2>&1
-mode con: cols=105 lines=38 >nul 2>&1
-title WinAudit-DFIR Suite v2.0.0 [Cru9 DFIR Ecosystem]
+mode con: cols=105 lines=56 >nul 2>&1
+title WinAudit-DFIR Suite v3.0.0 [Cru9 DFIR Ecosystem]
 cd /d "%~dp0"
 
 :: -----------------------------------------------------------------------------
@@ -59,7 +59,7 @@ if %errorLevel% equ 0 (
     set "PRIV_LABEL=%C_BOLD%%C_YELLOW%[ USUARIO ESTANDAR ]%C_RESET%"
 )
 
-:: Deteccion de runtime activo (Python o PowerShell nativo)
+:: Deteccion de runtime activo
 where python >nul 2>&1
 if %errorLevel% equ 0 (
     set "RUNTIME_LABEL=%C_BOLD%%C_CYAN%Python 3 Detectado%C_RESET%"
@@ -73,39 +73,27 @@ echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%\ \        / (_)           /\ \           ^| 
 echo  %C_CYAN%^|  %C_BOLD%%C_WHITE% \ \  /\  / / _ _ __      /  \ \ _   _  __^| ^|_^| ^|_   ^| ^|  ^| ^| ^|__    ^| ^| ^| ^|__) ^|               %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%  \ \/  \/ / ^| ^| '_ \    / /\ \ ^| ^| ^| ^|/ _` ^| ^| __^|  ^| ^|  ^| ^|  __^|   ^| ^| ^|  _  /                %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%   \  /\  /  ^| ^| ^| ^| ^|  / ____ \^| ^|_^| ^| (_^| ^| ^| ^|_   ^| ^|__^| ^| ^|     _^| ^|_^| ^| \ \                %C_CYAN%^|%C_RESET%
-echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%    \/  \/   ^|_^|_^| ^|_^| /_/    \_\\__,_^|\__,_^|_^|\__^|  ^|_____/^|_^|    ^|_____^|_^|  \_^|               %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%    \/  \/   ^|_^|_^| ^|_^| /_/    \_\__,_^|\__,_^|_^|\__^|  ^|_____/^|_^|    ^|_____^|_^|  \_^|               %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%^|                                                                                                  ^|%C_RESET%
-echo  %C_CYAN%^|             %C_BOLD%%C_CYAN%DFIR CYBERSECURITY ECOSYSTEM %C_GRAY%v2.0.0  %C_WHITE%^|  %C_MAGENTA%DEVELOPED BY CRU9                             %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%^|             %C_BOLD%%C_CYAN%DFIR CYBERSECURITY ECOSYSTEM %C_GRAY%v3.0.0  %C_WHITE%^|  %C_MAGENTA%DEVELOPED BY CRU9                             %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
 echo   %C_GRAY%[+] HOST:%C_WHITE% %COMPUTERNAME%  %C_GRAY%^|  USUARIO:%C_WHITE% %USERNAME%  %C_GRAY%^|  ESTADO: %PRIV_LABEL%  %C_GRAY%^|  MOTOR: %RUNTIME_LABEL%
 echo.
 echo  %C_BLUE%.--------------------------------------------------------------------------------------------------.%C_RESET%
-echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[ MODULOS DE AUDITORIA ^& RESPUESTA A INCIDENTES ]                   %C_GRAY%[ WINDFIR ECOSYSTEM v2.0.0 ]%C_BLUE%  ^|%C_RESET%
+echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[ MODULOS FORENSES ESPECIALIZADOS INDIVIDUALES ]                                                %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%+--------------------------------------------------------------------------------------------------+%C_RESET%
 echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
-echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[1]%C_RESET%  %C_BOLD%%C_CYAN%Deteccion de Intrusos %C_GRAY%(IntruderDetector v2.0.0)%C_RESET%                                             %C_BLUE%^|%C_RESET%
-echo  %C_BLUE%^|       %C_GRAY%- Triage forense de host, eventos de seguridad (Security Log) y fuerza bruta.               %C_BLUE%^|%C_RESET%
-echo  %C_BLUE%^|       %C_GRAY%- Analisis de Event IDs (1102, 4625, 4624, 4720), fuerza bruta RDP y LOLBins.              %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[1]%C_RESET%  %C_BOLD%%C_CYAN%Deteccion de Intrusos %C_GRAY%(Security Log, Fuerza Bruta ^& SIEM Live Radar)%C_RESET%                       %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[2]%C_RESET%  %C_BOLD%%C_CYAN%WiFiSentry %C_GRAY%(Wireless Forensic Suite, Rogue AP Hunter ^& Entropia PBKDF2)%C_RESET%                     %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[3]%C_RESET%  %C_BOLD%%C_CYAN%SocketSentry %C_GRAY%(Threat Hunter de Red, Sockets TCP/UDP ^& Feodo C2 Beaconing)%C_RESET%                  %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[4]%C_RESET%  %C_BOLD%%C_CYAN%DnsSentry %C_GRAY%(Cache DNS en Vivo, DGA, Tuneles C2 ^& Manipulacion de Hosts)%C_RESET%                       %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[5]%C_RESET%  %C_BOLD%%C_CYAN%StartupSentry %C_GRAY%(Persistencia en Arranque, Tareas Raiz ^& Firmas Authenticode)%C_RESET%                  %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[6]%C_RESET%  %C_BOLD%%C_CYAN%UsbSentry %C_GRAY%(Forense USBSTOR, MountedDevices ^& Inyectores Hardware BadUSB)%C_RESET%                    %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[7]%C_RESET%  %C_BOLD%%C_CYAN%ExecSentry %C_GRAY%(Evidencia de Ejecucion: Prefetch, UserAssist, BAM ^& Shimcache)%C_RESET%                %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[8]%C_RESET%  %C_BOLD%%C_CYAN%BrowserSentry %C_GRAY%(SQLite Forensics Multi-Navegador, Descargas Web ^& Extensiones)%C_RESET%             %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[9]%C_RESET%  %C_BOLD%%C_CYAN%MemSentry %C_GRAY%(Procesos en RAM, Linaje Padre-Hijo, Masquerading ^& LSASS Guard)%C_RESET%                 %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
-echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[2]%C_RESET%  %C_BOLD%%C_CYAN%WiFiSentry %C_GRAY%(Wireless Forensic Suite ^& RF Sensor v2.0.0)%C_RESET%                                     %C_BLUE%^|%C_RESET%
-echo  %C_BLUE%^|       %C_GRAY%- Rogue AP Hunter: deteccion en tiempo real de ataques Evil Twin y BSSID clonados.         %C_BLUE%^|%C_RESET%
-echo  %C_BLUE%^|       %C_GRAY%- Benchmark de entropia PBKDF2 (GPU Hashcat) y sensor de proximidad RF en vivo.            %C_BLUE%^|%C_RESET%
-echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
-echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[3]%C_RESET%  %C_BOLD%%C_CYAN%SocketSentry %C_GRAY%(Network Sockets ^& Threat Hunter v2.0.0)%C_RESET%                                       %C_BLUE%^|%C_RESET%
-echo  %C_BLUE%^|       %C_GRAY%- Inspeccion forense de sockets TCP/UDP y procesos sospechosos en memoria.                 %C_BLUE%^|%C_RESET%
-echo  %C_BLUE%^|       %C_GRAY%- Deteccion de balizas C2 (Beaconing), servidores Feodo y LOLBins en red.                  %C_BLUE%^|%C_RESET%
-echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
-echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[4]%C_RESET%  %C_BOLD%%C_CYAN%StartupSentry %C_GRAY%(Autostart ^& Task Persistence Hunter v2.0.0)%C_RESET%                                %C_BLUE%^|%C_RESET%
-echo  %C_BLUE%^|       %C_GRAY%- Auditoria de programas de arranque, claves Run/RunOnce y firmas Authenticode.             %C_BLUE%^|%C_RESET%
-echo  %C_BLUE%^|       %C_GRAY%- Deteccion de tareas programadas raiz (\), gatillos recurrentes y masquerading.           %C_BLUE%^|%C_RESET%
-echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
-echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[5]%C_RESET%  %C_BOLD%%C_CYAN%UsbSentry %C_GRAY%(USB Storage Forensics ^& BadUSB Hunter v2.0.0)%C_RESET%                                  %C_BLUE%^|%C_RESET%
-echo  %C_BLUE%^|       %C_GRAY%- Historial USBSTOR, correlacion de letras de unidad (MountedDevices) y seriales.          %C_BLUE%^|%C_RESET%
-echo  %C_BLUE%^|       %C_GRAY%- Deteccion de inyectores de pulsaciones BadUSB (Rubber Ducky, Flipper Zero, emuladores).   %C_BLUE%^|%C_RESET%
-echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
-echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[6]%C_RESET%  %C_BOLD%%C_YELLOW%Explorador de Evidencias %C_GRAY%(Abrir Directorios de Reportes DFIR)%C_RESET%                               %C_BLUE%^|%C_RESET%
-echo  %C_BLUE%^|       %C_GRAY%- Visualizar dashboards HTML interactivos, evidencias en JSON y tablas CSV.                %C_BLUE%^|%C_RESET%
-echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
+echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[P]%C_RESET%  %C_BOLD%%C_GREEN%Consola Python Nativa %C_GRAY%(Lanzar Orquestador Maestro Suite-DFIR.py)%C_RESET%                 %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|  %C_BOLD%%C_RED%[0]%C_RESET%  %C_BOLD%%C_WHITE%Finalizar Sesion Forense %C_GRAY%(Cerrar Suite DFIR)%C_RESET%                                                %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
 echo  %C_BLUE%'--------------------------------------------------------------------------------------------------'%C_RESET%
@@ -117,16 +105,20 @@ set /p "OPCION=  %C_BOLD%%C_CYAN%Cru9@WinAudit-DFIR%C_WHITE% [%C_GREEN%DFIR-CONS
 if not defined OPCION goto MENU
 set "OPCION=%OPCION: =%"
 
+if /i "%OPCION%"=="P" goto RUN_PYTHON_SUITE
 if "%OPCION%"=="1" goto RUN_DETECCION
 if "%OPCION%"=="2" goto RUN_WIFISENTRY
 if "%OPCION%"=="3" goto RUN_SOCKETSENTRY
-if "%OPCION%"=="4" goto RUN_STARTUPSENTRY
-if "%OPCION%"=="5" goto RUN_USBSENTRY
-if "%OPCION%"=="6" goto RUN_REPORTES
+if "%OPCION%"=="4" goto RUN_DNSSENTRY
+if "%OPCION%"=="5" goto RUN_STARTUPSENTRY
+if "%OPCION%"=="6" goto RUN_USBSENTRY
+if "%OPCION%"=="7" goto RUN_EXECSENTRY
+if "%OPCION%"=="8" goto RUN_BROWSERSENTRY
+if "%OPCION%"=="9" goto RUN_MEMSENTRY
 if "%OPCION%"=="0" goto SALIR
 
 echo.
-echo   %C_YELLOW%[!] Opcion invalida '%OPCION%'. Por favor seleccione [1, 2, 3, 4, 5, 6 o 0]...%C_RESET%
+echo   %C_YELLOW%[!] Opcion invalida '%OPCION%'. Por favor seleccione [P, 1 al 9 o 0]...%C_RESET%
 timeout /t 2 >nul 2>&1 || ping 127.0.0.1 -n 3 >nul
 goto MENU
 
@@ -134,7 +126,7 @@ goto MENU
 cls
 echo.
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
-echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%IntruderDetector v2.0.0 (Deteccion de Intrusos)                               %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%IntruderDetector v3.0.0 (Deteccion de Intrusos)                               %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%^|  %C_GRAY%Iniciando triage forense de host, persistencia y eventos de seguridad...                        %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
 echo.
@@ -162,7 +154,7 @@ goto MENU
 cls
 echo.
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
-echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%WiFiSentry v2.0.0 (Auditoria Forense Inalambrica 802.11)                        %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%WiFiSentry v3.0.0 (Auditoria Forense Inalambrica 802.11)                        %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%^|  %C_GRAY%Iniciando Rogue AP Hunter, benchmark PBKDF2 y sensor RF en tiempo real...                      %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
 echo.
@@ -178,7 +170,7 @@ goto MENU
 cls
 echo.
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
-echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%SocketSentry v2.0.0 (Threat Hunting de Red ^& Sockets)                          %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%SocketSentry v3.0.0 (Threat Hunting de Red ^& Sockets)                          %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%^|  %C_GRAY%Iniciando inspeccion de sockets, deteccion de balizas C2 y amenazas en red...                  %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
 echo.
@@ -190,11 +182,27 @@ if exist "%~dp0SocketSentry\Ejecutar-SocketSentry.bat" (
 )
 goto MENU
 
+:RUN_DNSSENTRY
+cls
+echo.
+echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
+echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%DnsSentry v3.0.0 (Forense de Cache DNS, DGA ^& Archivo Hosts)                  %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%^|  %C_GRAY%Iniciando auditoria de cache DNS, deteccion de tuneles C2 y sinkholes en Hosts...               %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
+echo.
+if exist "%~dp0DnsSentry\Ejecutar-DnsSentry.bat" (
+    call "%~dp0DnsSentry\Ejecutar-DnsSentry.bat" -elevated
+) else (
+    echo   %C_RED%[!] Error: No se encontro el archivo Ejecutar-DnsSentry.bat en el repositorio.%C_RESET%
+    pause
+)
+goto MENU
+
 :RUN_STARTUPSENTRY
 cls
 echo.
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
-echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%StartupSentry v2.0.0 (Persistencia, Tareas y Firmas Authenticode)              %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%StartupSentry v3.0.0 (Persistencia, Tareas y Firmas Authenticode)              %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%^|  %C_GRAY%Iniciando triage de programas de arranque, tareas raiz y validacion criptografica...          %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
 echo.
@@ -210,7 +218,7 @@ goto MENU
 cls
 echo.
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
-echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%UsbSentry v2.0.0 (Forense de Almacenamiento USB ^& BadUSB Hunter)               %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%UsbSentry v3.0.0 (Forense de Almacenamiento USB ^& BadUSB Hunter)               %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%^|  %C_GRAY%Iniciando historial USBSTOR, MountedDevices y deteccion de inyectores de hardware...          %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
 echo.
@@ -222,42 +230,68 @@ if exist "%~dp0UsbSentry\Ejecutar-UsbSentry.bat" (
 )
 goto MENU
 
-:RUN_REPORTES
+:RUN_EXECSENTRY
 cls
 echo.
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
-echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%EXPLORADOR DE EVIDENCIAS Y REPORTES FORENSES                                                   %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%ExecSentry v3.0.0 (Prefetch, UserAssist, BAM ^& Shimcache Forensics)            %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%^|  %C_GRAY%Iniciando triage de ejecucion, deteccion de LOLBins y binarios borrados en disco...            %C_CYAN%^|%C_RESET%
 echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
 echo.
-echo   %C_CYAN%[*]%C_WHITE% Accediendo a los directorios de evidencias y reportes forenses...%C_RESET%
-set "OPENED=0"
-for /d %%I in ("%~dp0*Intrusos\Reportes") do (
-    if exist "%%~fI" (
-        start "" explorer "%%~fI"
-        set "OPENED=1"
-    )
+if exist "%~dp0ExecSentry\Ejecutar-ExecSentry.bat" (
+    call "%~dp0ExecSentry\Ejecutar-ExecSentry.bat" -elevated
+) else (
+    echo   %C_RED%[!] Error: No se encontro el archivo Ejecutar-ExecSentry.bat en el repositorio.%C_RESET%
+    pause
 )
-if exist "%~dp0WiFiSentry\Reportes" (
-    start "" explorer "%~dp0WiFiSentry\Reportes"
-    set "OPENED=1"
+goto MENU
+
+:RUN_BROWSERSENTRY
+cls
+echo.
+echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
+echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%BrowserSentry v3.0.0 (Descargas, Historial Web ^& Extensiones)               %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%^|  %C_GRAY%Iniciando auditoria SQLite en vivo, deteccion de payloads (ISO/EXE) y tuneles C2...        %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
+echo.
+if exist "%~dp0BrowserSentry\Ejecutar-BrowserSentry.bat" (
+    call "%~dp0BrowserSentry\Ejecutar-BrowserSentry.bat" -elevated
+) else (
+    echo   %C_RED%[!] Error: No se encontro el archivo Ejecutar-BrowserSentry.bat en el repositorio.%C_RESET%
+    pause
 )
-if exist "%~dp0SocketSentry\Reportes" (
-    start "" explorer "%~dp0SocketSentry\Reportes"
-    set "OPENED=1"
+goto MENU
+
+:RUN_MEMSENTRY
+cls
+echo.
+echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
+echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%MemSentry v3.0.0 (Procesos en RAM, Inyeccion ^& LSASS Guard)                 %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%^|  %C_GRAY%Iniciando auditoria de procesos en vivo, linaje padre-hijo, RunAsPPL y Unquoted Paths... %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
+echo.
+if exist "%~dp0MemSentry\Ejecutar-MemSentry.bat" (
+    call "%~dp0MemSentry\Ejecutar-MemSentry.bat" -elevated
+) else (
+    echo   %C_RED%[!] Error: No se encontro el archivo Ejecutar-MemSentry.bat en el repositorio.%C_RESET%
+    pause
 )
-if exist "%~dp0StartupSentry\Reportes" (
-    start "" explorer "%~dp0StartupSentry\Reportes"
-    set "OPENED=1"
+goto MENU
+
+
+:RUN_PYTHON_SUITE
+cls
+echo.
+echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
+echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%LANZANDO ORQUESTADOR FORENSE MAESTRO EN PYTHON: %C_YELLOW%Suite-DFIR.py%C_RESET%                           %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
+echo.
+if exist "%~dp0Suite-DFIR.py" (
+    python "%~dp0Suite-DFIR.py"
+) else (
+    echo   %C_RED%[!] Error: No se encontro el archivo Suite-DFIR.py en el directorio.%C_RESET%
+    pause
 )
-if exist "%~dp0UsbSentry\Reportes" (
-    start "" explorer "%~dp0UsbSentry\Reportes"
-    set "OPENED=1"
-)
-if "%OPENED%"=="0" (
-    echo   %C_YELLOW%[i] Aun no se han generado reportes forenses. Abriendo carpeta principal del proyecto...%C_RESET%
-    start "" explorer "%~dp0"
-)
-timeout /t 2 >nul 2>&1 || ping 127.0.0.1 -n 3 >nul
 goto MENU
 
 :SALIR

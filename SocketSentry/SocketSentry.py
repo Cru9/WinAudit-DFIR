@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-SocketSentry v2.0.0 | Framework Forense y Hunter de Conexiones de Red, Sockets y C2 en Windows
+SocketSentry v3.0.0 | Framework Forense y Hunter de Conexiones de Red, Sockets y C2 en Windows
 Desarrollado por: Ezequiel Diaz (Cru9) | https://github.com/Cru9
 Parte del Ecosistema WinAudit-DFIR
 """
@@ -80,7 +80,7 @@ def show_banner():
 =============================================================================="""
     print(f"{CYAN}{BOLD}{banner}{MAGENTA}")
     print("  Framework Forense de Sockets, C2 Beacon Hunter & Auditoría de Red")
-    print("  Ecosistema Cru9 | Windows Network Security Intelligence | v2.0.0")
+    print("  Ecosistema Cru9 | Windows Network Security Intelligence | v3.0.0")
     print(f"=============================================================================={RESET}\n")
 
 
@@ -454,7 +454,7 @@ class SocketSentry:
         return filepath
 
     def generate_html_dashboard(self, filepath: Optional[Path] = None) -> Path:
-        """Genera un dashboard interactivo de nivel ejecutivo en HTML/CSS Glassmorphism Cyberpunk."""
+        """Genera un dashboard interactivo ejecutivo con colores claros y diseño profesional."""
         if not filepath:
             ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             filepath = REPORTS_DIR / f"SocketSentry_Dashboard_{ts}.html"
@@ -467,368 +467,138 @@ class SocketSentry:
         ]])
         total_external = len([c for c in self.connections if "Pública" in c.get("ClasificacionIP", "")])
 
-        score_color = "#00ff88" if self.global_risk_score < 25 else ("#ffbb00" if self.global_risk_score < 60 else "#ff0055")
+        if self.global_risk_score >= 60:
+            score_color = "#b91c1c"
+            score_bg = "#fef2f2"
+            score_border = "#fecaca"
+        elif self.global_risk_score >= 25:
+            score_color = "#b45309"
+            score_bg = "#fffbeb"
+            score_border = "#fde68a"
+        else:
+            score_color = "#15803d"
+            score_bg = "#f0fdf4"
+            score_border = "#bbf7d0"
 
-        html_content = f"""<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WinAudit-DFIR | SocketSentry SOC Network Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        :root {{
-            --bg-base: #070914;
-            --bg-card: rgba(13, 20, 36, 0.75);
-            --border-glass: rgba(157, 78, 221, 0.2);
-            --neon-violet: #9d4edd;
-            --neon-cyan: #00f0ff;
-            --neon-green: #00ff88;
-            --neon-red: #ff0055;
-            --neon-yellow: #ffbb00;
-            --text-main: #f0f4fc;
-            --text-muted: #8a99b5;
-        }}
-        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-        body {{
-            background: var(--bg-base);
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(157, 78, 221, 0.1) 0%, transparent 45%),
-                radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.08) 0%, transparent 45%);
-            color: var(--text-main);
-            font-family: 'Outfit', sans-serif;
-            min-height: 100vh;
-            padding: 2rem;
-        }}
-        .container {{ max-width: 1400px; margin: 0 auto; }}
-
-        /* HEADER */
-        header {{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem 2rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border-glass);
-            border-radius: 16px;
-            backdrop-filter: blur(12px);
-            margin-bottom: 2rem;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-        }}
-        .brand {{ display: flex; align-items: center; gap: 1rem; }}
-        .brand-icon {{
-            width: 48px; height: 48px;
-            background: linear-gradient(135deg, var(--neon-violet), var(--neon-cyan));
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.6rem;
-            box-shadow: 0 0 20px rgba(157, 78, 221, 0.4);
-        }}
-        .brand-text h1 {{ font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }}
-        .brand-text h1 span {{ color: var(--neon-violet); }}
-        .brand-text p {{ color: var(--text-muted); font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; }}
-
-        .score-box {{
-            text-align: right;
-            padding: 0.75rem 1.5rem;
-            background: rgba(0,0,0,0.4);
-            border: 1px solid {score_color};
-            border-radius: 12px;
-            box-shadow: 0 0 15px {score_color}33;
-        }}
-        .score-title {{ font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }}
-        .score-val {{ font-size: 1.8rem; font-weight: 800; color: {score_color}; }}
-
-        /* KPI METRICS */
-        .kpi-grid {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }}
-        .kpi-card {{
-            background: var(--bg-card);
-            border: 1px solid var(--border-glass);
-            border-radius: 14px;
-            padding: 1.5rem;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }}
-        .kpi-card:hover {{
-            transform: translateY(-4px);
-            border-color: var(--neon-violet);
-            box-shadow: 0 10px 25px rgba(157, 78, 221, 0.15);
-        }}
-        .kpi-card::before {{
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 4px; height: 100%;
-            background: var(--neon-violet);
-        }}
-        .kpi-card.alert::before {{ background: var(--neon-red); }}
-        .kpi-card.warn::before {{ background: var(--neon-yellow); }}
-        .kpi-card.ok::before {{ background: var(--neon-green); }}
-
-        .kpi-label {{ font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 0.5rem; }}
-        .kpi-number {{ font-size: 2.2rem; font-weight: 800; color: var(--text-main); }}
-        .kpi-desc {{ font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }}
-
-        /* MAIN LAYOUT */
-        .grid-2 {{
-            display: grid;
-            grid-template-columns: 2.5fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }}
-        @media (max-width: 992px) {{ .grid-2 {{ grid-template-columns: 1fr; }} }}
-
-        .panel {{
-            background: var(--bg-card);
-            border: 1px solid var(--border-glass);
-            border-radius: 16px;
-            padding: 1.5rem;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }}
-        .panel-header {{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.25rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }}
-        .panel-header h2 {{ font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }}
-
-        /* TABLES */
-        .search-box {{
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background: rgba(0,0,0,0.5);
-            border: 1px solid var(--border-glass);
-            border-radius: 8px;
-            color: #fff;
-            font-family: 'Outfit', sans-serif;
-            margin-bottom: 1rem;
-        }}
-        .table-responsive {{ overflow-x: auto; max-height: 480px; }}
-        table {{
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-            font-family: 'JetBrains Mono', monospace;
-        }}
-        th {{
-            background: rgba(157, 78, 221, 0.1);
-            color: var(--neon-cyan);
-            text-align: left;
-            padding: 0.75rem;
-            position: sticky; top: 0;
-            backdrop-filter: blur(5px);
-        }}
-        td {{
-            padding: 0.75rem;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            color: #d1d9e6;
-        }}
-        tr:hover td {{ background: rgba(157, 78, 221, 0.04); }}
-
-        .badge {{
-            display: inline-block;
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }}
-        .badge-red {{ background: rgba(255,0,85,0.2); color: #ff3377; border: 1px solid #ff0055; }}
-        .badge-yellow {{ background: rgba(255,187,0,0.2); color: #ffcc00; border: 1px solid #ffbb00; }}
-        .badge-green {{ background: rgba(0,255,136,0.2); color: #00ff88; border: 1px solid #00ff88; }}
-        .badge-violet {{ background: rgba(157,78,221,0.2); color: #c77dff; border: 1px solid #9d4edd; }}
-
-        /* MITRE */
-        .mitre-list {{ display: flex; flex-direction: column; gap: 0.75rem; }}
-        .mitre-item {{
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.05);
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-        }}
-        .mitre-item:hover {{ border-color: var(--neon-violet); }}
-        .mitre-id {{ font-family: 'JetBrains Mono', monospace; color: var(--neon-violet); font-weight: 700; }}
-
-        footer {{
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-top: 2rem;
-            font-family: 'JetBrains Mono', monospace;
-        }}
-        footer a {{ color: var(--neon-cyan); text-decoration: none; }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- HEADER -->
-        <header>
-            <div class="brand">
-                <div class="brand-icon">🌐</div>
-                <div class="brand-text">
-                    <h1>WinAudit-DFIR <span>SocketSentry</span></h1>
-                    <p>Network Socket Forensics, LOLBins & C2 Beacon Threat Hunting | Ecosistema Cru9</p>
-                </div>
-            </div>
-            <div class="score-box">
-                <div class="score-title">NIVEL DE RIESGO DE RED</div>
-                <div class="score-val">{self.global_risk_score}/100</div>
-                <div style="font-size: 0.75rem; color: {score_color}; font-weight: 600;">{self.global_risk_level}</div>
-            </div>
-        </header>
-
-        <!-- KPIS -->
-        <div class="kpi-grid">
-            <div class="kpi-card ok">
-                <div class="kpi-label">Sockets Activos Evaluados</div>
-                <div class="kpi-number">{total_conn}</div>
-                <div class="kpi-desc">Conexiones TCP en memoria</div>
-            </div>
-            <div class="kpi-card {'alert' if total_crit > 0 else 'ok'}">
-                <div class="kpi-label">Conexiones Críticas / C2</div>
-                <div class="kpi-number">{total_crit}</div>
-                <div class="kpi-desc">{'Amenazas activas detectadas' if total_crit > 0 else 'Cero balizas C2 detectadas'}</div>
-            </div>
-            <div class="kpi-card {'warn' if total_susp > 0 else 'ok'}">
-                <div class="kpi-label">Conexiones Sospechosas</div>
-                <div class="kpi-number">{total_susp}</div>
-                <div class="kpi-desc">Puertos inusuales o heurística</div>
-            </div>
-            <div class="kpi-card {'warn' if total_lolbins > 0 else 'ok'}">
-                <div class="kpi-label">LOLBins del Sistema en Red</div>
-                <div class="kpi-number">{total_lolbins}</div>
-                <div class="kpi-desc">PowerShell, Certutil, Rundll32...</div>
-            </div>
-            <div class="kpi-card ok">
-                <div class="kpi-label">Conexiones Externas WAN</div>
-                <div class="kpi-number">{total_external}</div>
-                <div class="kpi-desc">Tráfico hacia Internet pública</div>
-            </div>
-        </div>
-
-        <!-- MAIN GRID -->
-        <div class="grid-2">
-            <!-- TABLA DE SOCKETS -->
-            <div class="panel">
-                <div class="panel-header">
-                    <h2><span>⚡</span> Tabla Forense de Conexiones de Red</h2>
-                    <span class="badge badge-violet">{len(self.connections)} Sockets</span>
-                </div>
-                <input type="text" class="search-box" id="tableFilter" placeholder="🔍 Filtrar por Proceso, PID, IP Remota, Puerto o Severidad...">
-                <div class="table-responsive">
-                    <table id="socketsTable">
-                        <thead>
-                            <tr>
-                                <th>PID</th>
-                                <th>Proceso</th>
-                                <th>IP & Puerto Remoto</th>
-                                <th>Estado</th>
-                                <th>Severidad</th>
-                                <th>Hallazgos / Heurística</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-"""
+        rows_html = []
         for c in self.connections:
             sev = c.get("Severidad", "NORMAL")
-            badge_cls = "badge-red" if sev == "CRÍTICA" else ("badge-yellow" if sev == "SOSPECHOSA" else "badge-green")
-            dest = f"{c.get('IPRemota', '')}:{c.get('PuertoRemoto', '')}"
-            motivos_str = " | ".join(c.get("Motivos", [])) or "Conexión estándar confiable"
+            b_cls = {
+                "CRÍTICA": "badge-crit",
+                "ALTA": "badge-high",
+                "MEDIA": "badge-med"
+            }.get(sev, "badge-clean")
 
-            html_content += f"""
-                            <tr>
-                                <td>{c.get('PID', '')}</td>
-                                <td style="font-weight:700; color:#fff;">{html.escape(c.get('Proceso', ''))}</td>
-                                <td>{html.escape(dest)} <span class="badge badge-violet">{html.escape(c.get('ClasificacionIP', ''))}</span></td>
-                                <td>{html.escape(c.get('Estado', ''))}</td>
-                                <td><span class="badge {badge_cls}">{sev}</span></td>
-                                <td style="font-size:0.75rem; color:#aaa;">{html.escape(motivos_str)}</td>
-                            </tr>
-"""
-        html_content += f"""
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            diag_txt = c.get("Diagnostico", "")
+            if diag_txt and diag_txt != "Tráfico estándar":
+                diag_cell = f'<span class="ioc-alert">⚠️ {html.escape(diag_txt)}</span>'
+            else:
+                diag_cell = '<span class="ioc-ok">✓ Tráfico normal</span>'
 
-            <!-- PANEL MITRE Y REPUTACION -->
-            <div class="panel">
-                <div class="panel-header">
-                    <h2><span>🎯</span> Mapeo MITRE ATT&CK</h2>
-                </div>
-                <div class="mitre-list">
-                    <div class="mitre-item">
-                        <div>
-                            <div class="mitre-id">T1071.001</div>
-                            <div style="font-size:0.8rem; color:#aaa;">Application Layer Protocol (C2)</div>
-                        </div>
-                        <span class="badge {'badge-red' if total_crit > 0 else 'badge-green'}">{'Detectado' if total_crit > 0 else 'Sin Alertas'}</span>
-                    </div>
-                    <div class="mitre-item">
-                        <div>
-                            <div class="mitre-id">T1218</div>
-                            <div style="font-size:0.8rem; color:#aaa;">System Binary Proxy Execution (LOLBins)</div>
-                        </div>
-                        <span class="badge {'badge-yellow' if total_lolbins > 0 else 'badge-green'}">{total_lolbins} Procesos</span>
-                    </div>
-                    <div class="mitre-item">
-                        <div>
-                            <div class="mitre-id">T1571</div>
-                            <div style="font-size:0.8rem; color:#aaa;">Non-Standard Port Communication</div>
-                        </div>
-                        <span class="badge {'badge-yellow' if total_susp > 0 else 'badge-green'}">{total_susp} Sockets</span>
-                    </div>
-                    <div class="mitre-item">
-                        <div>
-                            <div class="mitre-id">T1105</div>
-                            <div style="font-size:0.8rem; color:#aaa;">Ingress Tool Transfer (Cradles)</div>
-                        </div>
-                        <span class="badge {'badge-red' if total_crit > 0 else 'badge-green'}">{'Supervisado' if total_crit > 0 else 'Normal'}</span>
-                    </div>
-                </div>
+            rows_html.append(f"""
+            <tr class="forensic-row" data-sev="{sev}">
+                <td>
+                    <strong style="color:var(--text-main);">{html.escape(c.get('Proceso', ''))}</strong>
+                    <div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">PID: {c.get('PID')}</div>
+                </td>
+                <td><span class="proto-badge">{c.get('Protocolo')}</span></td>
+                <td><code class="mono-code">{html.escape(c.get('DireccionLocal', ''))}</code></td>
+                <td><code class="mono-code">{html.escape(c.get('DireccionRemota', ''))}</code></td>
+                <td>{c.get('Estado')}</td>
+                <td><span class="badge {b_cls}">{sev}</span></td>
+                <td>{diag_cell}</td>
+            </tr>
+            """)
 
-                <div class="panel-header" style="margin-top: 1.5rem;">
-                    <h2><span>🛡️</span> Reglas Activas</h2>
-                </div>
-                <div style="font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; color: var(--text-muted); line-height: 1.6;">
-                    • Base de Datos: v{self.db.get('Version', '1.2')}<br>
-                    • Reglas de Rutas: {len(self.db.get('RutasSospechosas', []))}<br>
-                    • Argumentos Heurísticos: {len(self.db.get('ArgumentosSospechosos', []))}<br>
-                    • Puertos de Malware Catalogados: {len(self.db.get('PuertosMalware', {}))}<br>
-                    • LOLBins Monitorizados: {len(self.db.get('LOLBins', []))}
-                </div>
-            </div>
-        </div>
+        metrics = [
 
-        <footer>
-            Generado por <a href="https://github.com/Cru9/WinAudit-DFIR" target="_blank">WinAudit-DFIR Suite / SocketSentry</a> • Autor: Cru9 • {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-        </footer>
-    </div>
 
-    <script>
-        document.getElementById('tableFilter').addEventListener('keyup', function() {{
-            let filter = this.value.toLowerCase();
-            let rows = document.querySelectorAll('#socketsTable tbody tr');
-            rows.forEach(row => {{
-                let text = row.innerText.toLowerCase();
-                row.style.display = text.includes(filter) ? '' : 'none';
-            }});
-        }});
-    </script>
-</body>
-</html>
-"""
+            {"label": "Sockets Activos", "value": total_conn, "icon": "🔌"},
+
+
+            {"label": "Conexiones Sospechosas", "value": total_susp, "icon": "⚠️"},
+
+
+            {"label": "Severidad Crítica", "value": total_crit, "icon": "🚨"},
+
+
+            {"label": "LOLBins en Red", "value": total_lolbins, "icon": "⚡"},
+
+
+            {"label": "IPs Públicas WAN", "value": total_external, "icon": "🌐"}
+
+
+        ]
+
+
+        headers = [
+
+
+            "Proceso & PID", "Protocolo", "Dirección Local", "Dirección Remota",
+
+
+            "Estado", "Severidad", "Diagnóstico Forense"
+
+
+        ]
+
+
+        try:
+
+
+            import forensic_theme
+
+
+        except ImportError:
+
+
+            base_dir = Path(__file__).resolve().parent.parent
+
+
+            if str(base_dir) not in sys.path:
+
+
+                sys.path.insert(0, str(base_dir))
+
+
+            import forensic_theme
+
+
+
+        html_content = forensic_theme.render_homologated_dashboard(
+
+
+            title="Threat Hunter de Red & Sockets Activos",
+
+
+            sentry_id="3",
+
+
+            sentry_name="SocketSentry",
+
+
+            sentry_icon="🔌",
+
+
+            subtitle="Inspección profunda de sockets TCP/UDP, detección de balizas C2 y LOLBins en red",
+
+
+            metrics=metrics,
+
+
+            table_headers=headers,
+
+
+            table_rows_html="".join(rows_html),
+
+
+            risk_score=self.global_risk_score,
+
+
+            back_url="../../index.html"
+
+
+        )
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(html_content)
         return filepath

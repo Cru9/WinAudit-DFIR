@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    UsbSentry v2.0.0 - Framework Forense de Almacenamiento USB y BadUSB Hunter para Windows.
+    UsbSentry v3.0.0 - Framework Forense de Almacenamiento USB y BadUSB Hunter para Windows.
 .DESCRIPTION
     Inspecciona y correlaciona artefactos de dispositivos USB conectados e históricos:
     - Registro USBSTOR (Fabricante, Modelo, Versión, Serial de Hardware)
@@ -283,7 +283,7 @@ if ($SoloConectados) {
 Clear-Host
 Write-Host ""
 Write-Host " ==============================================================================" -ForegroundColor Cyan
-Write-Host "   UsbSentry v2.0.0 - Forense de Dispositivos USB y BadUSB Hunter" -ForegroundColor White
+Write-Host "   UsbSentry v3.0.0 - Forense de Dispositivos USB y BadUSB Hunter" -ForegroundColor White
 Write-Host "   Cru9 DFIR Suite | Deteccion de Exfiltracion Fisica y Almacenamiento" -ForegroundColor DarkGray
 Write-Host " ==============================================================================" -ForegroundColor Cyan
 Write-Host ""
@@ -336,7 +336,7 @@ if ($ExportarCSV) {
 if ($ExportarJSON) {
     $exportPayload = @{
         Herramienta = "UsbSentry"
-        Version = "2.0.0"
+        Version = "3.0.0"
         Autor = "Cru9"
         Timestamp = (Get-Date).ToString("o")
         HostName = $env:COMPUTERNAME

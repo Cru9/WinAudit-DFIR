@@ -1,0 +1,6 @@
+Reportes/*.json
+Reportes/*.csv
+Reportes/*.html
+!Reportes/DnsSentry_Dashboard_Demo.html
+__pycache__/
+*.pyc

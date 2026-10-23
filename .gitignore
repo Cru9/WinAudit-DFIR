@@ -8,7 +8,7 @@
 **/Reportes/*.xml
 **/Reportes/*.log
 **/Reportes/*.html
-!**/Reportes/*Demo.html
+!**/Reportes/.gitkeep
 **/Perfiles_Exportados/
 **/*_wifi_creds.*
 
@@ -31,4 +31,8 @@ Desktop.ini
 # Borradores internos de marketing y difusión
 COMMUNITY_LAUNCH_KIT.md
 *LAUNCH_KIT*
+
+# Scripts de trabajo temporal y parches internos
+scratch/
+
 

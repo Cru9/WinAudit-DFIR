@@ -13,12 +13,16 @@ body:
       label: Módulo Afectado
       description: ¿En qué módulo de la suite ocurrió el fallo?
       options:
-        - "Suite-DFIR.bat (Menú Central)"
+        - "Suite-DFIR (Consola Python / Batch)"
         - "Detección de Intrusos (Host & Logs)"
         - "WiFiSentry (RF & Evil Twin Hunter)"
         - "SocketSentry (Sockets & C2 Hunter)"
+        - "DnsSentry (DNS Cache & Hosts Poisoning)"
         - "StartupSentry (Persistence & Autorun Hunter)"
         - "UsbSentry (USB Storage & BadUSB Hunter)"
+        - "ExecSentry (Prefetch, UserAssist & Execution)"
+        - "BrowserSentry (Browser Forensics & Downloads)"
+        - "MemSentry (RAM Processes & LSASS Guard)"
     validations:
       required: true
   - type: dropdown
@@ -48,7 +52,7 @@ body:
       placeholder: |
         1. Iniciar Suite-DFIR.bat como Administrador
         2. Seleccionar la opción 3
-        3. Intentar generar el reporte HTML
+        3. Visualizar resumen o ejecutar auditoría
     validations:
       required: true
   - type: textarea

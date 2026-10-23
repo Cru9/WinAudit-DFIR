@@ -29,15 +29,28 @@ Para solucionar esto, **WinAudit-DFIR** se rige por tres pilares arquitectónico
          ┌───────────────────┬───────────────────┼───────────────────┬───────────────────┐
          ▼                   ▼                   ▼                   ▼                   ▼
 ┌───────────────────┐┌───────────────────┐┌───────────────────┐┌───────────────────┐┌───────────────────┐
-│Detección Intrusos ││    WiFiSentry     ││   SocketSentry    ││   StartupSentry   ││     UsbSentry     │
-│  Forense de Host  ││Forense Inalámbrico││ Threat Hunter Red ││Persistencia/Firmas││Almacenamiento/Bad │
+│Detección Intrusos ││    WiFiSentry     ││   SocketSentry    ││     DnsSentry     ││   StartupSentry   │
+│  Forense de Host  ││Forense Inalámbrico││ Threat Hunter Red ││Caché DNS & Hosts  ││Persistencia/Firmas│
 ├───────────────────┤├───────────────────┤├───────────────────┤├───────────────────┤├───────────────────┤
-│• Security Events  ││• Auditoría 802.11 ││• Sockets TCP/UDP  ││• Win32_StartupCmd ││• Historial USBSTOR│
-│• Fuerza Bruta 4625││• Rogue AP / Evil  ││• Balizas C2 Hunter││• Claves Registry  ││• MountedDevices E:│
-│• Evasión Log 1102 ││• PBKDF2 Benchmark ││• Abuse Feodo IOCs ││• Tareas Raíz no-MS││• BadUSB / Ducky  │
-│• Logons RDP / SMB ││• Sensor Proximidad││• Catálogo LOLBins ││• Authenticode Sign││• Seriales Hardware│
-│• Radar SIEM Vivo  ││• Heatmap Señal RF ││• Volcado MiniDump ││• Masquerading Hunt││• Live vs Histórico│
+│• Security Events  ││• Auditoría 802.11 ││• Sockets TCP/UDP  ││• Caché DNS RAM    ││• Win32_StartupCmd │
+│• Fuerza Bruta 4625││• Rogue AP / Evil  ││• Balizas C2 Hunter││• Entropía DGA     ││• Claves Registry  │
+│• Evasión Log 1102 ││• PBKDF2 Benchmark ││• Abuse Feodo IOCs ││• Túneles C2       ││• Tareas Raíz no-MS│
+│• Logons RDP / SMB ││• Sensor Proximidad││• Catálogo LOLBins ││• Hosts Poisoning  ││• Authenticode Sign│
+│• Radar SIEM Vivo  ││• Heatmap Señal RF ││• Volcado MiniDump ││• DNS por Interfaz ││• Masquerading Hunt│
 └───────────────────┘└───────────────────┘└───────────────────┘└───────────────────┘└───────────────────┘
+         │                                                                               │
+         └───────────────────┬───────────────────┬───────────────────┬───────────────────┘
+                             ▼                   ▼                   ▼                   ▼
+                    ┌───────────────────┐┌───────────────────┐┌───────────────────┐┌───────────────────┐
+                    │     UsbSentry     ││    ExecSentry     ││   BrowserSentry   ││     MemSentry     │
+                    │Almacenamiento/Bad ││Evidencia Ejecución││Navegadores/Descarg││Procesos/LSASS PPL │
+                    ├───────────────────┤├───────────────────┤├───────────────────┤├───────────────────┤
+                    │• Historial USBSTOR││• Prefetch (*.pf)  ││• SQLite Triage    ││• Árbol de Procesos│
+                    │• MountedDevices E:││• UserAssist ROT13 ││• Chrome/Edge/Firef││• Linaje Padre-Hijo│
+                    │• BadUSB / Ducky   ││• BAM/DAM por SID  ││• Historial Web C2 ││• RunAsPPL Auditor │
+                    │• Seriales Hardware││• Shimcache/Amcache││• Descargas Riego  ││• Comsvcs/ProcDump │
+                    │• SetupAPI Forensic││• Binarios Borrados││• Extensiones Addon││• Unquoted Paths   │
+                    └───────────────────┘└───────────────────┘└───────────────────┘└───────────────────┘
 ```
 
 ---
@@ -56,6 +69,10 @@ Explora los manuales temáticos haciendo clic en los siguientes enlaces:
 | **06** | [[Metodología Forense & Cadena de Custodia\|06-Metodologia-Forense-y-Cadena-de-Custodia]] | Cumplimiento del estándar NIST SP 800-86, orden de volatilidad (RFC 3227) y generación de hashes SHA-256 de evidencias. |
 | **07** | [[Preguntas Frecuentes & Solución de Problemas\|07-Preguntas-Frecuentes-y-Troubleshooting]] | Guía de resolución de permisos UAC, ExecutionPolicy de PowerShell, consolas cp1252/UTF-8 y falsos positivos. |
 | **08** | [[UsbSentry (Almacenamiento USB & BadUSB)\|08-UsbSentry-Forense-de-Dispositivos-USB]] | Reconstrucción histórica de USBSTOR, MountedDevices, letras de unidad asignadas y detección de hardware BadUSB. |
+| **09** | [[ExecSentry (Evidencia de Ejecución)\|09-ExecSentry-Evidencia-de-Ejecucion]] | Reconstrucción temporal de programas ejecutados, decodificación ROT13 en UserAssist, BAM/DAM y análisis de Prefetch. |
+| **10** | [[BrowserSentry (Forense Web & Descargas)\|10-BrowserSentry-Forense-de-Navegadores-y-Descargas]] | Auditoría SQLite multi-navegador (Chrome, Edge, Brave, Firefox), detección de descargas peligrosas y extensiones. |
+| **11** | [[MemSentry (Procesos en RAM & LSASS Guard)\|11-MemSentry-Forense-de-Procesos-y-LSASS-Guard]] | Auditoría de procesos activos en vivo, árbol de linaje padre-hijo, blindaje RunAsPPL de LSASS y Unquoted Service Paths. |
+| **12** | [[DnsSentry (Caché DNS & Hosts)\|12-DnsSentry-Cache-DNS-y-Hosts-Poisoning]] | Inspección de memoria caché DNS, detección de DGA por entropía, Fast-Flux, túneles C2 y sinkholes en archivo Hosts. |
 
 ---
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-WiFiSentry v2.0.0 | Suite de Auditoria WLAN, Radar Evil Twin & Mapa de Calor en Vivo
+WiFiSentry v3.0.0 | Suite de Auditoria WLAN, Radar Evil Twin & Mapa de Calor en Vivo
 Autor: Ezequiel Diaz (Cru9) | https://github.com/Cru9
 """
 
@@ -54,7 +54,7 @@ def show_banner():
 =============================================================================="""
     print(f"{CYAN}{BOLD}{banner_art}{MAGENTA}")
     print("  Suite DFIR de Auditoria WLAN, Radar Evil Twin & Mapa de Calor en Vivo")
-    print("  Ecosistema Cru9 | Multiplataforma (Windows, Linux, macOS) | v2.0.0")
+    print("  Ecosistema Cru9 | Multiplataforma (Windows, Linux, macOS) | v3.0.0")
     print(f"=============================================================================={RESET}\n")
 
 
@@ -908,737 +908,92 @@ def export_html_report(output_path=None):
 
     fecha_str = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
-    html_content = f"""<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WiFiSentry v2.0.0 | Centro de Operaciones Forenses WLAN</title>
-    <style>
-        :root {{
-            --bg-base: #080c14;
-            --bg-card: rgba(15, 23, 42, 0.78);
-            --bg-card-hover: rgba(30, 41, 59, 0.85);
-            --border-glow: rgba(0, 242, 254, 0.2);
-            --border-card: rgba(255, 255, 255, 0.08);
-            --cyan: #00f2fe;
-            --purple: #8b5cf6;
-            --green: #10b981;
-            --yellow: #f59e0b;
-            --red: #ef4444;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --font-mono: 'Consolas', 'Fira Code', monospace;
-        }}
-
-        * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-        body {{
-            background-color: var(--bg-base);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(0, 242, 254, 0.12) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.12) 0px, transparent 50%);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            min-height: 100vh;
-            line-height: 1.6;
-        }}
-
-        .header {{
-            background: rgba(8, 12, 20, 0.95);
-            border-bottom: 1px solid var(--border-glow);
-            padding: 16px 36px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            backdrop-filter: blur(12px);
-        }}
-        .header-title h1 {{
-            font-size: 1.7rem;
-            font-weight: 900;
-            letter-spacing: 1px;
-            background: linear-gradient(135deg, var(--cyan), var(--purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }}
-        .header-title p {{ color: var(--text-muted); font-size: 0.85rem; margin-top: 2px; }}
-        .author-tag {{
-            background: rgba(0, 242, 254, 0.1);
-            border: 1px solid var(--border-glow);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            color: var(--cyan);
-            font-weight: 600;
-        }}
-
-        .container {{ max-width: 1380px; margin: 0 auto; padding: 25px 20px 60px 20px; }}
-
-        /* NAVEGACION TABULADA */
-        .tabs-nav {{
-            display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            border-bottom: 1px solid var(--border-card);
-            padding-bottom: 12px;
-        }}
-        .tab-btn {{
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-card);
-            color: var(--text-muted);
-            padding: 10px 18px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }}
-        .tab-btn:hover {{ background: rgba(0, 242, 254, 0.1); color: #fff; }}
-        .tab-btn.active {{
-            background: linear-gradient(135deg, rgba(0, 242, 254, 0.2), rgba(139, 92, 246, 0.2));
-            border-color: var(--cyan);
-            color: var(--cyan);
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
-        }}
-        .tab-content {{ display: none; }}
-        .tab-content.active {{ display: block; animation: fadeIn 0.3s ease; }}
-
-        @keyframes fadeIn {{
-            from {{ opacity: 0; transform: translateY(6px); }}
-            to {{ opacity: 1; transform: translateY(0); }}
-        }}
-
-        /* METRIC CARDS */
-        .metrics-grid {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-            gap: 18px;
-            margin-bottom: 25px;
-        }}
-        .metric-card {{
-            background: var(--bg-card);
-            border: 1px solid var(--border-card);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-            transition: transform 0.2s ease, border-color 0.2s ease;
-        }}
-        .metric-card:hover {{ transform: translateY(-3px); border-color: rgba(0,242,254,0.4); }}
-        .metric-title {{ font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }}
-        .metric-value {{ font-size: 2.2rem; font-weight: 800; margin: 8px 0; font-family: var(--font-mono); }}
-        .metric-desc {{ font-size: 0.78rem; color: var(--text-muted); }}
-
-        .section-box {{
-            background: var(--bg-card);
-            border: 1px solid var(--border-card);
-            border-radius: 14px;
-            padding: 24px;
-            margin-bottom: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            backdrop-filter: blur(10px);
-        }}
-        .section-header {{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 18px;
-            border-bottom: 1px solid var(--border-card);
-            padding-bottom: 12px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }}
-        .section-header h2 {{ font-size: 1.25rem; color: var(--text-main); display: flex; align-items: center; gap: 8px; }}
-        
-        .table-responsive {{ overflow-x: auto; }}
-        table {{ width: 100%; border-collapse: collapse; font-size: 0.88rem; }}
-        th {{ background: rgba(0,0,0,0.3); color: var(--text-muted); text-align: left; padding: 12px 10px; font-weight: 600; text-transform: uppercase; font-size: 0.74rem; letter-spacing: 0.5px; }}
-        td {{ padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }}
-        tr:hover td {{ background: var(--bg-card-hover); }}
-
-        .ssid-title {{ font-weight: 600; color: #fff; font-size: 0.92rem; }}
-        .auth-pill {{ background: rgba(255,255,255,0.06); padding: 4px 8px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.78rem; }}
-        .badge {{ padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; }}
-        .badge-critical {{ background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.4); }}
-        .badge-warning {{ background: rgba(245,158,11,0.15); color: var(--yellow); border: 1px solid rgba(245,158,11,0.4); }}
-        .badge-secure {{ background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.4); }}
-
-        .key-cell {{ font-family: var(--font-mono); white-space: nowrap; }}
-        .btn-toggle, .btn-copy {{ background: rgba(255,255,255,0.08); border: none; color: #fff; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 4px; font-size: 0.75rem; }}
-        .btn-toggle:hover, .btn-copy:hover {{ background: rgba(0,242,254,0.3); }}
-
-        .signal-bar-bg {{ width: 90px; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }}
-        .signal-bar-fill {{ height: 100%; background: linear-gradient(90deg, var(--yellow), var(--green)); border-radius: 4px; }}
-
-        .reasons-cell {{ font-size: 0.8rem; color: #cbd5e1; max-width: 320px; }}
-
-        .search-bar {{
-            background: rgba(0,0,0,0.4);
-            border: 1px solid var(--border-glow);
-            padding: 8px 16px;
-            border-radius: 8px;
-            color: #fff;
-            width: 260px;
-            outline: none;
-            font-size: 0.85rem;
-        }}
-        .search-bar:focus {{ border-color: var(--cyan); }}
-
-        /* SIMULADOR DE ENTROPIA WIDGET */
-        .simulator-box {{
-            background: linear-gradient(135deg, rgba(0,242,254,0.06), rgba(139,92,246,0.06));
-            border: 1px solid rgba(0,242,254,0.3);
-            border-radius: 12px;
-            padding: 22px;
-            margin-bottom: 25px;
-        }}
-        .sim-input {{
-            width: 100%;
-            background: rgba(0,0,0,0.5);
-            border: 1px solid var(--border-glow);
-            padding: 12px 18px;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 1.1rem;
-            font-family: var(--font-mono);
-            outline: none;
-            margin: 12px 0 16px 0;
-        }}
-        .sim-input:focus {{ border-color: var(--cyan); box-shadow: 0 0 15px rgba(0,242,254,0.25); }}
-
-        .entropy-meter-wrap {{
-            height: 12px;
-            background: rgba(255,255,255,0.08);
-            border-radius: 6px;
-            overflow: hidden;
-            margin-bottom: 18px;
-        }}
-        .entropy-meter-fill {{
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--red), var(--yellow), var(--green), var(--cyan));
-            transition: width 0.3s ease;
-        }}
-
-        .sim-stats-grid {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
-            margin-bottom: 18px;
-        }}
-        .sim-stat-card {{
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--border-card);
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-        }}
-        .sim-stat-val {{ font-size: 1.3rem; font-weight: 700; font-family: var(--font-mono); color: var(--cyan); }}
-        .sim-stat-lbl {{ font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; }}
-
-        .crack-grid {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-            gap: 12px;
-        }}
-        .crack-card {{
-            background: rgba(0,0,0,0.4);
-            border: 1px solid var(--border-card);
-            border-radius: 8px;
-            padding: 12px 14px;
-        }}
-        .crack-hw {{ font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; }}
-        .crack-rate {{ font-size: 0.75rem; color: var(--cyan); font-family: var(--font-mono); }}
-        .crack-time {{ font-size: 1.15rem; font-weight: 700; color: #fff; margin-top: 6px; font-family: var(--font-mono); }}
+    metrics = [
 
 
-        .educational-box {{
-            background: linear-gradient(135deg, rgba(0,242,254,0.05), rgba(16,185,129,0.03));
-            border: 1px solid rgba(0,242,254,0.25);
-            border-radius: 12px;
-            padding: 22px;
-            margin-top: 15px;
-        }}
-        .educational-box h3 {{ color: var(--cyan); margin-bottom: 10px; font-size: 1.1rem; }}
-        .educational-box ul {{ padding-left: 20px; color: #cbd5e1; font-size: 0.88rem; }}
-        .educational-box li {{ margin-bottom: 8px; }}
+        {"label": "Perfiles WLAN Extraídos", "value": total_profiles, "icon": "📡"},
 
-        .footer {{ text-align: center; color: var(--text-muted); font-size: 0.82rem; margin-top: 45px; }}
-        .footer a {{ color: var(--cyan); text-decoration: none; }}
-    </style>
-</head>
-<body>
 
-    <header class="header">
-        <div class="header-title">
-            <h1>WiFiSentry v2.0.0</h1>
-            <p>Suite DFIR de Auditoria WLAN, Radar Evil Twin & Mapa de Calor en Vivo</p>
-        </div>
-        <div>
-            <span class="author-tag">Ezequiel Diaz (Cru9)</span>
-        </div>
-    </header>
+        {"label": "Claves en Claro Auditadas", "value": len(claves_claras), "icon": "🔑"},
 
-    <div class="container">
 
-        <!-- NAVEGACION POR TABULADORES -->
-        <div class="tabs-nav">
-            <button class="tab-btn active" onclick="openTab('tab-dashboard')">📊 Resumen Ejecutivo</button>
-            <button class="tab-btn" onclick="openTab('tab-heatmap')">🔥 Mapa de Calor Espectral ({len(live_nets)})</button>
-            <button class="tab-btn" onclick="openTab('tab-radar')">📡 Radar Evil Twin (Hunter)</button>
-            <button class="tab-btn" onclick="openTab('tab-entropy')">🔐 Calculadora de Entropia & Crackeo</button>
-            <button class="tab-btn" onclick="openTab('tab-profiles')">📋 Inventario Forense ({total_count})</button>
-            <button class="tab-btn" onclick="openTab('tab-hardening')">🔒 Manual & Cheatsheet</button>
-        </div>
+        {"label": "Rogue AP / Evil Twin", "value": len(rogue_aps), "icon": "🚨"},
 
-        <!-- TAB 1: DASHBOARD EJECUTIVO -->
-        <div id="tab-dashboard" class="tab-content active">
-            <div style="text-align: center; margin-bottom: 25px;">
-                <img src="../assets/banner.jpg" alt="WiFiSentry Banner" style="width: 100%; max-height: 260px; object-fit: cover; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,242,254,0.25);" onerror="this.style.display='none'" />
-            </div>
 
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <div class="metric-title">Indice de Salud Inalambrica</div>
-                    <div class="metric-value" style="color: {score_color};">{score} / 100</div>
-                    <div class="metric-desc">Puntuacion de postura defensiva y riesgo del endpoint</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-title">Perfiles Guardados</div>
-                    <div class="metric-value" style="color: var(--cyan);">{total_count}</div>
-                    <div class="metric-desc">Redes registradas en el servicio WLAN AutoConfig</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-title">Redes en Vivo Detectadas</div>
-                    <div class="metric-value" style="color: var(--purple);">{len(live_nets)}</div>
-                    <div class="metric-desc">BSSIDs activos transmitiendo en el entorno radial</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-title">Perfiles Criticos / Abiertos</div>
-                    <div class="metric-value" style="color: var(--red);">{critical_count}</div>
-                    <div class="metric-desc">Expuestas a clonacion Rogue AP y captura de trafico</div>
-                </div>
-            </div>
+        {"label": "Redes en Vivo", "value": len(live_networks), "icon": "📶"}
 
-            <div class="section-box">
-                <div class="section-header">
-                    <h2>Estado Global de Seguridad Inalambrica</h2>
-                </div>
-                <p style="color: #cbd5e1; font-size: 0.95rem;">
-                    Este informe fue generado de manera forense inspeccionando la configuracion WLAN del sistema.
-                    Se evaluaron perfiles de red persistentes en Windows (protegidos mediante DPAPI), la presencia de puntos de acceso
-                    en vivo transmitiendo en las inmediaciones y el grado de exposicion a ataques de clonacion <em>Evil Twin</em> y crackeo offline de contrasenas WPA2 mediante GPU clusters.
-                </p>
-                <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button class="tab-btn" onclick="openTab('tab-heatmap')" style="background: rgba(239,68,68,0.15); color: #ef4444; border-color: #ef4444;">Explorar Mapa de Calor en Vivo &rarr;</button>
-                    <button class="tab-btn" onclick="openTab('tab-radar')" style="background: rgba(0,242,254,0.15); color: var(--cyan); border-color: var(--cyan);">Examinar Radar Evil Twin &rarr;</button>
-                    <button class="tab-btn" onclick="openTab('tab-entropy')" style="background: rgba(139,92,246,0.15); color: var(--purple); border-color: var(--purple);">Auditar Entropia de Claves &rarr;</button>
-                </div>
-            </div>
-        </div>
 
-        <!-- TAB 2: MAPA DE CALOR ESPECTRAL -->
-        <div id="tab-heatmap" class="tab-content">
-            <div class="section-box">
-                <div class="section-header">
-                    <h2>🔥 Mapa de Calor Wi-Fi en Vivo (Sensor de Proximidad & RSSI Espectral)</h2>
-                    <input type="text" id="filterHeatmapInput" class="search-bar" placeholder="Filtrar por SSID o BSSID..." onkeyup="filterHeatmapCards()">
-                </div>
-                <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 20px;">
-                    Visualizacion termica de potencia de radiofrecuencia (RF) de todos los puntos de acceso detectados en las bandas 2.4 GHz y 5 GHz.
-                    Permite identificar emisores fisicamente cercanos (&lt; 3 metros), posibles atacantes portatiles y saturacion de canales.
-                </p>
+    ]
 
-                <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
-                    <button id="btnPulseSim" class="tab-btn" onclick="toggleHeatmapPulse()" style="background: rgba(239,68,68,0.15); color: #ef4444; border-color: #ef4444;">▶ Iniciar Pulso Termico en Vivo</button>
-                    <span style="font-size: 0.8rem; color: var(--text-muted);">Simula la fluctuacion de radiofrecuencia en tiempo real en el navegador</span>
-                </div>
 
-                <div class="heatmap-container">
-{''.join(heatmap_cards)}
-                </div>
+    headers = [
 
-                <div style="margin-top: 30px;">
-                    <h3 style="color: var(--cyan); margin-bottom: 12px; font-size: 1.1rem;">Saturacion Termica por Canal (Carga Espectral RF)</h3>
-                    <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-card); border-radius: 10px; padding: 18px;">
-{''.join(spectrum_bars)}
-                    </div>
-                </div>
 
-                <div class="educational-box" style="margin-top: 25px;">
-                    <h3>Escala Termica y Diagnostico Forense de Proximidad</h3>
-                    <ul>
-                        <li><strong style="color: var(--heat-critical);">Zona Critica / Fuego (> 80% | > -50 dBm):</strong> Emisor a escasos metros o en el mismo habitaculo (&lt; 3m). Si es una red desconocida o clonada, indica presencia fisica inmediata de un atacante.</li>
-                        <li><strong style="color: var(--heat-high);">Zona de Calor Alto (65% - 79% | -51 a -65 dBm):</strong> Cobertura optima y proximidad cercana (3 a 8 metros).</li>
-                        <li><strong style="color: var(--heat-medium);">Zona Templada (45% - 64% | -66 a -75 dBm):</strong> Alcance normal de router domestico o empresarial a traves de 1 o 2 paredes (8 a 15 metros).</li>
-                        <li><strong style="color: var(--heat-low);">Zona Tibia / Lejana (25% - 44% | -76 a -85 dBm):</strong> Senal atenuada por multiples obstaculos (15 a 25 metros).</li>
-                        <li><strong style="color: var(--heat-cold);">Zona Fria (&lt; 25% | &lt; -85 dBm):</strong> Limite de recepcion radial (&gt; 25 metros).</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+        "SSID / Red", "BSSID / MAC", "Seguridad & Auth", "Clave Recuperada",
 
-        <!-- TAB 3: RADAR EVIL TWIN -->
-        <div id="tab-radar" class="tab-content">
-            <div class="section-box">
-                <div class="section-header">
-                    <h2>📡 Radar de Caza de Ataques Evil Twin & Rogue AP en Vivo</h2>
-                    <input type="text" id="filterRadarInput" class="search-bar" placeholder="Filtrar por SSID o BSSID..." onkeyup="filterRadarTable()">
-                </div>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px;">
-                    Compara en tiempo real las tramas beacon de los puntos de acceso cercanos con los perfiles autorizados y guardados en tu sistema para detectar suplantaciones y degradaciones maliciosas.
-                </p>
-                <div class="table-responsive">
-                    <table id="radarTable">
-                        <thead>
-                            <tr>
-                                <th>Nombre de Red (SSID)</th>
-                                <th>BSSID (Direccion MAC AP)</th>
-                                <th>Autenticacion</th>
-                                <th>Canal</th>
-                                <th>Senal</th>
-                                <th>Estado Radar</th>
-                                <th>Diagnostico Forense</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-{''.join(tbody_radar)}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
 
-            <div class="educational-box">
-                <h3>Como opera un ataque Evil Twin (Gemelo Malvado)?</h3>
-                <ul>
-                    <li><strong>Emision de Probe Requests:</strong> Los dispositivos emiten constantemente peticiones broadcast con el nombre de sus redes conocidas.</li>
-                    <li><strong>Clonacion Inmediata:</strong> Los atacantes con herramientas como <em>Wi-Fi Pineapple</em> capturan el SSID y levantan un AP falso con potencia superior para que tu equipo se asocie de forma preferente.</li>
-                    <li><strong>Degradacion a Red Abierta:</strong> Si tu red original es WPA2, el atacante puede forzar un punto abierto para capturar trafico mediante un portal cautivo falso que simule una actualizacion de router o login corporativo.</li>
-                </ul>
-            </div>
-        </div>
+        "Señal RSSI", "Canal / Frecuencia", "Alerta / Diagnóstico"
 
-        <!-- TAB 3: CALCULADORA DE ENTROPIA & CRACKEO -->
-        <div id="tab-entropy" class="tab-content">
-            <!-- WIDGET INTERACTIVO -->
-            <div class="simulator-box">
-                <h3 style="color: var(--cyan); margin-bottom: 6px;">Simulador Interactivo de Entropia & Estimacion de Crackeo (Hashcat)</h3>
-                <p style="color: var(--text-muted); font-size: 0.85rem;">Prueba cualquier contrasena o frase de paso en tiempo real para evaluar su resistencia ante ataques de fuerza bruta asistidos por hardware GPU:</p>
-                
-                <input type="text" id="liveEntropyInput" class="sim-input" placeholder="Escribe cualquier contrasena o frase de paso de prueba..." oninput="simulateEntropy(this.value)">
 
-                <div class="entropy-meter-wrap">
-                    <div id="liveMeterFill" class="entropy-meter-fill"></div>
-                </div>
+    ]
 
-                <div class="sim-stats-grid">
-                    <div class="sim-stat-card">
-                        <div id="simLen" class="sim-stat-val">0</div>
-                        <div class="sim-stat-lbl">Longitud Caracteres</div>
-                    </div>
-                    <div class="sim-stat-card">
-                        <div id="simPool" class="sim-stat-val">0</div>
-                        <div class="sim-stat-lbl">Variedad (Pool)</div>
-                    </div>
-                    <div class="sim-stat-card">
-                        <div id="simBits" class="sim-stat-val">0.0 b</div>
-                        <div class="sim-stat-lbl">Entropia Estimada</div>
-                    </div>
-                    <div class="sim-stat-card">
-                        <div id="simClass" class="sim-stat-val" style="font-size: 1rem;">Vacio</div>
-                        <div class="sim-stat-lbl">Nivel de Fortaleza</div>
-                    </div>
-                </div>
 
-                <div class="crack-grid">
-                    <div class="crack-card">
-                        <div class="crack-hw">CPU Multi-Core</div>
-                        <div class="crack-rate">30 kH/s</div>
-                        <div id="simCpuTime" class="crack-time">&lt; 1 seg</div>
-                    </div>
-                    <div class="crack-card">
-                        <div class="crack-hw">NVIDIA RTX 3060</div>
-                        <div class="crack-rate">350 kH/s</div>
-                        <div id="sim3060Time" class="crack-time">&lt; 1 seg</div>
-                    </div>
-                    <div class="crack-card">
-                        <div class="crack-hw">NVIDIA RTX 4090</div>
-                        <div class="crack-rate">2.4 MH/s</div>
-                        <div id="sim4090Time" class="crack-time" style="color: var(--cyan);">&lt; 1 seg</div>
-                    </div>
-                    <div class="crack-card">
-                        <div class="crack-hw">Cluster Cloud (8x 4090)</div>
-                        <div class="crack-rate">19.2 MH/s</div>
-                        <div id="simClusterTime" class="crack-time" style="color: var(--green);">&lt; 1 seg</div>
-                    </div>
-                </div>
-            </div>
+    try:
 
-            <!-- TABLA DE CLAVES GUARDADAS -->
-            <div class="section-box">
-                <div class="section-header">
-                    <h2>Auditoria de Entropia de Redes Almacenadas en este Equipo</h2>
-                </div>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>SSID</th>
-                                <th>Longitud</th>
-                                <th>Pool</th>
-                                <th>Entropia</th>
-                                <th>Patron Detectado</th>
-                                <th>CPU (30k)</th>
-                                <th>RTX 3060 (350k)</th>
-                                <th>RTX 4090 (2.4M)</th>
-                                <th>Cluster 8x GPU</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-{''.join(tbody_entropy)}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+
+        import forensic_theme
+
+
+    except ImportError:
+
+
+        base_dir = Path(__file__).resolve().parent.parent
+
+
+        if str(base_dir) not in sys.path:
+
+
+            sys.path.insert(0, str(base_dir))
+
+
+        import forensic_theme
 
 
 
-        <!-- TAB 5: INVENTARIO FORENSE -->
-        <div id="tab-profiles" class="tab-content">
-            <div class="section-box">
-                <div class="section-header">
-                    <h2>Inventario Forense de Perfiles Guardados (Cache DPAPI)</h2>
-                    <input type="text" id="filterProfilesInput" class="search-bar" placeholder="Buscar por SSID, seguridad o riesgo..." onkeyup="filterProfilesTable()">
-                </div>
-                <div class="table-responsive">
-                    <table id="profilesTable">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>SSID</th>
-                                <th>Autenticacion</th>
-                                <th>Cifrado</th>
-                                <th>Conexion</th>
-                                <th>Clave en Claro (DPAPI)</th>
-                                <th>Riesgo</th>
-                                <th>Diagnostico Forense</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-{''.join(tbody_profiles)}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+    html_content = forensic_theme.render_homologated_dashboard(
 
-        <!-- TAB 6: MANUAL & CHEATSHEET -->
-        <div id="tab-hardening" class="tab-content">
-            <div class="section-box">
-                <div class="section-header">
-                    <h2>Manual Didactico de Hardening & Cheatsheet Multiplataforma</h2>
-                </div>
 
-                <div style="text-align: center; margin: 15px 0;">
-                    <img src="../assets/wifi_threat_matrix.jpg" alt="Matriz de Riesgo Inalambrico" style="max-width: 100%; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.7);" onerror="this.style.display='none'" />
-                </div>
+        title="Wireless Forensic Suite & Evil Twin Hunter",
 
-                <div class="educational-box">
-                    <h3>Reglas de Oro de Seguridad Inalambrica</h3>
-                    <ul>
-                        <li><strong>Bloqueo Inmediato de Pantalla (Windows + L):</strong> En 10 segundos, un atacante con acceso fisico a tu ordenador desbloqueado puede ejecutar <code>netsh wlan show profile name="X" key=clear</code> y obtener tus contrasenas Wi-Fi personales y de la empresa.</li>
-                        <li><strong>Eliminacion Periodica de Redes Antiguas:</strong> Borra perfiles de hoteles, aeropuertos y cafeterias ejecutando <code>netsh wlan delete profile name="NombreRed"</code> en consola como Administrador.</li>
-                        <li><strong>Desactivar Conexion Automatica:</strong> En redes no corporativas, establece el modo de conexion en manual con <code>netsh wlan set profileparameter name="Nombre" connectionmode=manual</code> para evitar que tu PC emita Probe Requests en publico.</li>
-                        <li><strong>Uso de Passphrases (>16 caracteres):</strong> La complejidad en WPA2 debe ser de longitud. Una frase de 4 palabras aleatorias ofrece mas de 75 bits de entropia y resiste ataques de supercomputadoras por siglos.</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
 
-        <div class="footer">
-            <p>Generado de forma automatizada por <strong>WiFiSentry v2.0.0</strong> | Ecosistema DFIR Cru9 | <a href="https://github.com/Cru9" target="_blank">github.com/Cru9</a></p>
-            <p style="margin-top: 5px; opacity: 0.6;">Fecha de auditoria forense: {fecha_str}</p>
-        </div>
+        sentry_id="2",
 
-    </div>
 
-    <script>
-        function openTab(tabId) {{
-            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(tb => tb.classList.remove('active'));
-            const target = document.getElementById(tabId);
-            if (target) target.classList.add('active');
-            event.currentTarget.classList.add('active');
-        }}
+        sentry_name="WiFiSentry",
 
-        function toggleKey(btn) {{
-            const cell = btn.parentElement;
-            const masked = cell.querySelector('.masked-key');
-            const revealed = cell.querySelector('.revealed-key');
-            if (masked.style.display === 'none') {{
-                masked.style.display = 'inline';
-                revealed.style.display = 'none';
-                btn.textContent = '[Ver]';
-            }} else {{
-                masked.style.display = 'none';
-                revealed.style.display = 'inline';
-                btn.textContent = '[Ocultar]';
-            }}
-        }}
 
-        function copyKey(btn) {{
-            const text = btn.getAttribute('data-key');
-            if (!text) return;
-            navigator.clipboard.writeText(text).then(() => {{
-                const orig = btn.textContent;
-                btn.textContent = 'Copiado!';
-                setTimeout(() => {{ btn.textContent = orig; }}, 1500);
-            }});
-        }}
+        sentry_icon="📡",
 
-        function filterProfilesTable() {{
-            const input = document.getElementById('filterProfilesInput').value.toLowerCase();
-            const rows = document.querySelectorAll('#profilesTable tbody tr');
-            rows.forEach(row => {{
-                row.style.display = row.innerText.toLowerCase().includes(input) ? '' : 'none';
-            }});
-        }}
 
-        let pulseInterval = null;
-        function toggleHeatmapPulse() {{
-            const btn = document.getElementById('btnPulseSim');
-            if (pulseInterval) {{
-                clearInterval(pulseInterval);
-                pulseInterval = null;
-                btn.textContent = '▶ Iniciar Pulso Termico en Vivo';
-                btn.style.background = 'rgba(239,68,68,0.15)';
-                btn.style.color = '#ef4444';
-            }} else {{
-                btn.textContent = '⏸ Detener Pulso en Vivo';
-                btn.style.background = 'rgba(16,185,129,0.2)';
-                btn.style.color = '#10b981';
-                
-                pulseInterval = setInterval(() => {{
-                    document.querySelectorAll('.heat-card').forEach(card => {{
-                        const baseSig = parseInt(card.getAttribute('data-signal')) || 50;
-                        const delta = Math.floor(Math.random() * 9) - 4;
-                        let curSig = Math.max(5, Math.min(100, baseSig + delta));
-                        const rssi = Math.round((curSig / 2) - 100);
-                        
-                        const sigDisplay = card.querySelector('.heat-sig-display');
-                        const rssiDisplay = card.querySelector('.heat-rssi-display');
-                        const barFill = card.querySelector('.heat-bar-fill');
-                        
-                        if (sigDisplay) sigDisplay.textContent = curSig + '%';
-                        if (rssiDisplay) rssiDisplay.textContent = rssi + ' dBm';
-                        if (barFill) barFill.style.width = curSig + '%';
-                    }});
-                }}, 1600);
-            }}
-        }}
+        subtitle="Auditoría de perfiles WLAN, claves en claro, telemetría de señal RF y detección de APs gemelos",
 
-        function filterHeatmapCards() {{
-            const q = document.getElementById('filterHeatmapInput').value.toLowerCase();
-            document.querySelectorAll('.heat-card').forEach(card => {{
-                const text = card.innerText.toLowerCase();
-                card.style.display = text.includes(q) ? '' : 'none';
-            }});
-        }}
 
-        function filterRadarTable() {{
-            const input = document.getElementById('filterRadarInput').value.toLowerCase();
-            const rows = document.querySelectorAll('#radarTable tbody tr');
-            rows.forEach(row => {{
-                row.style.display = row.innerText.toLowerCase().includes(input) ? '' : 'none';
-            }});
-        }}
+        metrics=metrics,
 
-        function formatCrackTime(seconds) {{
-            if (seconds < 1) return '< 1 seg';
-            if (seconds < 60) return Math.round(seconds) + ' seg';
-            if (seconds < 3600) return (seconds / 60).toFixed(1) + ' min';
-            if (seconds < 86400) return (seconds / 3600).toFixed(1) + ' horas';
-            if (seconds < 31536000) return (seconds / 86400).toFixed(1) + ' dias';
-            const years = seconds / 31536000;
-            if (years < 100) return years.toFixed(1) + ' anos';
-            if (years < 1000) return Math.round(years) + ' anos';
-            if (years < 1000000) return (years / 1000).toFixed(1) + 'k anos';
-            return '+1 Millon de anos';
-        }}
 
-        function simulateEntropy(val) {{
-            if (!val) {{
-                document.getElementById('simLen').textContent = '0';
-                document.getElementById('simPool').textContent = '0';
-                document.getElementById('simBits').textContent = '0.0 b';
-                document.getElementById('simClass').textContent = 'Vacio';
-                document.getElementById('simClass').style.color = '#94a3b8';
-                document.getElementById('liveMeterFill').style.width = '0%';
-                document.getElementById('simCpuTime').textContent = '< 1 seg';
-                document.getElementById('sim3060Time').textContent = '< 1 seg';
-                document.getElementById('sim4090Time').textContent = '< 1 seg';
-                document.getElementById('simClusterTime').textContent = '< 1 seg';
-                return;
-            }}
+        table_headers=headers,
 
-            const len = val.length;
-            let pool = 0;
-            if (/[a-z]/.test(val)) pool += 26;
-            if (/[A-Z]/.test(val)) pool += 26;
-            if (/[0-9]/.test(val)) pool += 10;
-            if (/[^a-zA-Z0-9]/.test(val)) pool += 33;
-            if (pool === 0) pool = 10;
 
-            const bits = (len * (Math.log(pool) / Math.log(2))).toFixed(1);
-            document.getElementById('simLen').textContent = len;
-            document.getElementById('simPool').textContent = pool + ' chars';
-            document.getElementById('simBits').textContent = bits + ' bits';
+        table_rows_html="".join(tbody_live),
 
-            const fill = document.getElementById('liveMeterFill');
-            const classEl = document.getElementById('simClass');
-            const pct = Math.min(Math.round((bits / 85) * 100), 100);
-            fill.style.width = pct + '%';
 
-            if (bits < 40) {{
-                classEl.textContent = 'Critica / Muy Debil';
-                classEl.style.color = 'var(--red)';
-            }} else if (bits < 60) {{
-                classEl.textContent = 'Moderada';
-                classEl.style.color = 'var(--yellow)';
-            }} else if (bits < 80) {{
-                classEl.textContent = 'Robusta';
-                classEl.style.color = 'var(--green)';
-            }} else {{
-                classEl.textContent = 'Nivel Militar / Solida';
-                classEl.style.color = 'var(--cyan)';
-            }}
+        risk_score=0 if len(rogue_aps) == 0 else 75,
 
-            const safeExp = Math.min(len, 16);
-            let combinations = Math.pow(pool, safeExp);
-            if (len > 16) {{
-                combinations = Math.pow(pool, 16) * Math.pow(10, Math.min(len - 16, 10));
-            }}
 
-            const secCpu = (combinations / 2) / 30000;
-            const sec3060 = (combinations / 2) / 350000;
-            const sec4090 = (combinations / 2) / 2400000;
-            const secCluster = (combinations / 2) / 19200000;
+        back_url="../../index.html"
 
-            document.getElementById('simCpuTime').textContent = formatCrackTime(secCpu);
-            document.getElementById('sim3060Time').textContent = formatCrackTime(sec3060);
-            document.getElementById('sim4090Time').textContent = formatCrackTime(sec4090);
-            document.getElementById('simClusterTime').textContent = formatCrackTime(secCluster);
-        }}
-    </script>
-</body>
-</html>
-"""
+
+    )
 
     with open(target_file, "w", encoding="utf-8") as f:
         f.write(html_content)
@@ -1683,7 +1038,7 @@ def show_cheatsheet():
 
 def main():
     import argparse
-    parser = argparse.ArgumentParser(description="WiFiSentry v2.0.0 | Suite de Auditoria WLAN DFIR")
+    parser = argparse.ArgumentParser(description="WiFiSentry v3.0.0 | Suite de Auditoria WLAN DFIR")
     parser.add_argument("--audit", action="store_true", help="Auditoria rapida en consola")
     parser.add_argument("--radar", action="store_true", help="Radar Evil Twin en vivo")
     parser.add_argument("--heatmap", action="store_true", help="Mapa de calor Wi-Fi en tiempo real")

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 ==============================================================================
-UsbSentry v2.0.0 - Framework Forense de Dispositivos USB y BadUSB Hunter
+UsbSentry v3.0.0 - Framework Forense de Dispositivos USB y BadUSB Hunter
 Ecosistema Cru9 | WinAudit-DFIR Suite
 ==============================================================================
 Inspecciona y correlaciona artefactos forenses de almacenamiento USB en Windows:
@@ -23,7 +23,7 @@ import subprocess
 import datetime
 import re
 import platform
-import webbrowser
+import html
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
@@ -38,7 +38,7 @@ try:
 except ImportError:
     winreg = None
 
-VERSION = "2.0.0"
+VERSION = "3.0.0"
 AUTHOR = "Cru9"
 TOOL_NAME = "UsbSentry"
 
@@ -330,7 +330,7 @@ class UsbForensicCollector:
         return output_path
 
     def generate_html_dashboard(self, output_path: Optional[str] = None) -> str:
-        """Genera un dashboard interactivo Cyberpunk Glassmorphism autónomo (0 CDNs)."""
+        """Genera un dashboard interactivo ejecutivo con colores claros y diseño profesional (0 CDNs)."""
         if not output_path:
             ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             output_path = str(self.report_dir / f"UsbSentry_Dashboard_{ts}.html")
@@ -341,326 +341,140 @@ class UsbForensicCollector:
         criticos = len([d for d in self.devices if d["nivel_riesgo"] == "CRITICO"])
         avg_score = round(sum(d["threat_score"] for d in self.devices) / total, 1) if total > 0 else 0
 
-        # Dial color
         if avg_score >= 60:
-            score_color = "#ff3366"
+            score_color = "#b91c1c"
+            score_bg = "#fef2f2"
+            score_border = "#fecaca"
         elif avg_score >= 35:
-            score_color = "#ffbb00"
+            score_color = "#b45309"
+            score_bg = "#fffbeb"
+            score_border = "#fde68a"
         else:
-            score_color = "#00ff9d"
+            score_color = "#15803d"
+            score_bg = "#f0fdf4"
+            score_border = "#bbf7d0"
 
         rows_html = []
         for d in self.devices:
             riesgo = d["nivel_riesgo"]
             if riesgo == "CRITICO":
-                badge_class = "badge-danger"
+                badge_class = "badge-crit"
             elif riesgo == "SOSPECHOSO":
-                badge_class = "badge-warning"
+                badge_class = "badge-high"
             else:
-                badge_class = "badge-success"
+                badge_class = "badge-clean"
 
             estado_class = "badge-live" if "CONECTADO" in d["estado"] else "badge-hist"
 
+            alertas_txt = d.get('alertas', '')
+            if alertas_txt and "Ninguna" not in alertas_txt:
+                alertas_cell = f'<span class="ioc-alert">⚠️ {html.escape(alertas_txt)}</span>'
+            else:
+                alertas_cell = '<span class="ioc-ok">✓ Dispositivo estándar</span>'
+
             row = f"""
-            <tr>
-                <td style="font-weight: 600; color: #fff;">
-                    {d['friendly_name']}
-                    <div style="font-size: 0.75rem; color: #64748b; font-family: monospace;">{d['tipo']}</div>
+            <tr class="usb-row" data-risk="{riesgo}">
+                <td>
+                    <strong style="color:#0f172a;">{html.escape(d['friendly_name'])}</strong>
+                    <div style="font-size:0.75rem; color:#64748b; font-family:ui-monospace, monospace;">{html.escape(d['tipo'])}</div>
                 </td>
-                <td style="color: #94a3b8;">{d['vendor']}</td>
-                <td style="font-family: monospace; color: #00f0ff;">{d['serial_number']}</td>
-                <td style="font-weight: bold; color: #ffbb00;">{d['assigned_drive']}</td>
+                <td style="color:#475569;">{html.escape(d['vendor'])}</td>
+                <td><code class="mono-code">{html.escape(d['serial_number'])}</code></td>
+                <td><strong style="color:#2563eb;">{html.escape(d['assigned_drive'])}</strong></td>
                 <td><span class="badge {estado_class}">{d['estado']}</span></td>
                 <td><span class="badge {badge_class}">{riesgo} ({d['threat_score']})</span></td>
-                <td style="font-size: 0.8rem; color: #94a3b8;">{d['ultima_conexion']}</td>
-                <td style="font-size: 0.8rem; color: #cbd5e1;">{d['alertas']}</td>
+                <td><span class="ts-badge">{d['ultima_conexion']}</span></td>
+                <td>{alertas_cell}</td>
             </tr>
             """
             rows_html.append(row)
 
-        html_content = f"""<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UsbSentry - Cyberpunk Forensic Dashboard</title>
-    <style>
-        :root {{
-            --bg-base: #060814;
-            --bg-card: rgba(15, 23, 42, 0.75);
-            --border-glow: rgba(0, 240, 255, 0.2);
-            --cyan: #00f0ff;
-            --emerald: #00ff9d;
-            --amber: #ffbb00;
-            --rose: #ff3366;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-        }}
-        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-        body {{
-            background: var(--bg-base);
-            background-image: 
-                radial-gradient(circle at 15% 15%, rgba(0, 240, 255, 0.08) 0%, transparent 40%),
-                radial-gradient(circle at 85% 85%, rgba(255, 51, 102, 0.08) 0%, transparent 40%);
-            color: var(--text-main);
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            padding: 30px 20px;
-            min-height: 100vh;
-        }}
-        .container {{ max-width: 1400px; margin: 0 auto; }}
-        
-        .header {{
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border-glow);
-            border-radius: 12px;
-            padding: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-        }}
-        .header-title {{
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }}
-        .header-title h1 {{
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--cyan), var(--emerald));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 1px;
-        }}
-        .header-meta {{
-            text-align: right;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }}
-        
-        /* Grid de KPIs */
-        .kpi-grid {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 20px;
-            margin-bottom: 24px;
-        }}
-        .kpi-card {{
-            background: var(--bg-card);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.2s, border-color 0.2s;
-        }}
-        .kpi-card:hover {{
-            transform: translateY(-3px);
-            border-color: var(--cyan);
-        }}
-        .kpi-title {{ font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); }}
-        .kpi-value {{ font-size: 2.2rem; font-weight: 800; margin-top: 8px; color: #fff; }}
-        .kpi-indicator {{ position: absolute; top: 0; left: 0; width: 4px; height: 100%; }}
-        
-        /* Matriz MITRE ATT&CK */
-        .mitre-panel {{
-            background: var(--bg-card);
-            border: 1px solid var(--border-glow);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 24px;
-        }}
-        .mitre-title {{ font-size: 1rem; font-weight: 700; color: var(--cyan); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }}
-        .mitre-tags {{ display: flex; flex-wrap: wrap; gap: 10px; }}
-        .mitre-tag {{
-            background: rgba(0, 240, 255, 0.08);
-            border: 1px solid rgba(0, 240, 255, 0.2);
-            border-radius: 6px;
-            padding: 6px 12px;
-            font-size: 0.8rem;
-            color: #e2e8f0;
-        }}
-        
-        /* Tabla de Dispositivos */
-        .table-panel {{
-            background: var(--bg-card);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-        }}
-        .table-header {{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            gap: 16px;
-            flex-wrap: wrap;
-        }}
-        .search-box {{
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 8px;
-            padding: 10px 16px;
-            color: #fff;
-            width: 320px;
-            font-size: 0.9rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }}
-        .search-box:focus {{ border-color: var(--cyan); box-shadow: 0 0 10px rgba(0, 240, 255, 0.3); }}
-        
-        table {{
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }}
-        th {{
-            padding: 12px 14px;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            color: var(--text-muted);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }}
-        td {{
-            padding: 14px;
-            font-size: 0.85rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-            vertical-align: middle;
-        }}
-        tr:hover td {{ background: rgba(255, 255, 255, 0.02); }}
-        
-        /* Badges */
-        .badge {{
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }}
-        .badge-success {{ background: rgba(0, 255, 157, 0.15); color: var(--emerald); border: 1px solid var(--emerald); }}
-        .badge-warning {{ background: rgba(255, 187, 0, 0.15); color: var(--amber); border: 1px solid var(--amber); }}
-        .badge-danger {{ background: rgba(255, 51, 102, 0.15); color: var(--rose); border: 1px solid var(--rose); }}
-        .badge-live {{ background: rgba(0, 240, 255, 0.2); color: var(--cyan); border: 1px solid var(--cyan); }}
-        .badge-hist {{ background: rgba(148, 163, 184, 0.15); color: #cbd5e1; }}
-        
-        .footer {{
-            margin-top: 30px;
-            text-align: center;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="header-title">
-                <div style="font-size: 2.2rem;">💾</div>
-                <div>
-                    <h1>UsbSentry :: Forensic Dashboard</h1>
-                    <div style="font-size: 0.85rem; color: var(--text-muted);">
-                        Auditoría Forense de Almacenamiento USB y Detección de BadUSB | WinAudit-DFIR
-                    </div>
-                </div>
-            </div>
-            <div class="header-meta">
-                <div><strong>Host Auditado:</strong> {platform.node()}</div>
-                <div><strong>Fecha:</strong> {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</div>
-                <div><strong>Autor:</strong> Cru9 / DFIR Suite</div>
-            </div>
-        </div>
+        metrics = [
 
-        <div class="kpi-grid">
-            <div class="kpi-card">
-                <div class="kpi-indicator" style="background: var(--cyan);"></div>
-                <div class="kpi-title">Dispositivos Auditados</div>
-                <div class="kpi-value">{total}</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-indicator" style="background: var(--emerald);"></div>
-                <div class="kpi-title">Conectados en Vivo (Live)</div>
-                <div class="kpi-value" style="color: var(--emerald);">{conectados}</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-indicator" style="background: var(--amber);"></div>
-                <div class="kpi-title">Alertas / Sospechosos</div>
-                <div class="kpi-value" style="color: var(--amber);">{alertas}</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-indicator" style="background: {score_color};"></div>
-                <div class="kpi-title">Threat Score Global</div>
-                <div class="kpi-value" style="color: {score_color};">{avg_score} <span style="font-size: 1rem; color: var(--text-muted);">/ 100</span></div>
-            </div>
-        </div>
 
-        <div class="mitre-panel">
-            <div class="mitre-title">🎯 Cobertura MITRE ATT&CK® Mapeada</div>
-            <div class="mitre-tags">
-                <div class="mitre-tag"><strong>T1091</strong> :: Replication Through Removable Media</div>
-                <div class="mitre-tag"><strong>T1052.001</strong> :: Exfiltration Over Physical Medium</div>
-                <div class="mitre-tag"><strong>T1200</strong> :: Hardware Additions (BadUSB / Rubber Ducky)</div>
-                <div class="mitre-tag"><strong>T1025</strong> :: Data from Removable Media</div>
-            </div>
-        </div>
+            {"label": "Historial USBSTOR", "value": len(devices), "icon": "💾"},
 
-        <div class="table-panel">
-            <div class="table-header">
-                <h2 style="font-size: 1.2rem; font-weight: 700; color: #fff;">Historial y Registro Forense de Dispositivos</h2>
-                <input type="text" id="searchInput" class="search-box" placeholder="Buscar por modelo, serial, fabricante o letra..." onkeyup="filterTable()">
-            </div>
-            <div style="overflow-x: auto;">
-                <table id="deviceTable">
-                    <thead>
-                        <tr>
-                            <th>Dispositivo / Modelo</th>
-                            <th>Fabricante</th>
-                            <th>Serial de Hardware</th>
-                            <th>Unidad</th>
-                            <th>Estado</th>
-                            <th>Nivel de Riesgo</th>
-                            <th>Última Conexión</th>
-                            <th>Hallazgos Forenses</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {''.join(rows_html)}
-                    </tbody>
-                </table>
-            </div>
-        </div>
 
-        <div class="footer">
-            UsbSentry v{VERSION} &bull; Desarrollado por <strong>Cru9</strong> &bull; WinAudit-DFIR Suite &bull; Distribuido bajo Licencia MIT
-        </div>
-    </div>
+            {"label": "Dispositivos en Vivo", "value": len([d for d in devices if "CONECTADO" in d.get("estado", "")]), "icon": "🟢"},
 
-    <script>
-        function filterTable() {{
-            const input = document.getElementById("searchInput");
-            const filter = input.value.toUpperCase();
-            const table = document.getElementById("deviceTable");
-            const tr = table.getElementsByTagName("tr");
 
-            for (let i = 1; i < tr.length; i++) {{
-                const tdText = tr[i].textContent || tr[i].innerText;
-                if (tdText.toUpperCase().indexOf(filter) > -1) {{
-                    tr[i].style.display = "";
-                }} else {{
-                    tr[i].style.display = "none";
-                }}
-            }}
-        }}
-    </script>
-</body>
-</html>
-        """
+            {"label": "Alertas BadUSB", "value": len([d for d in devices if d.get("nivel_riesgo") == "CRITICO"]), "icon": "⚠️"},
+
+
+            {"label": "Almacenamiento Confiable", "value": len([d for d in devices if d.get("nivel_riesgo") == "LIMPIO"]), "icon": "✓"}
+
+
+        ]
+
+
+        headers = [
+
+
+            "Dispositivo & Tipo", "Fabricante", "Número de Serie", "Letra / Punto",
+
+
+            "Estado", "Riesgo & Score", "Última Conexión", "Alertas Forenses"
+
+
+        ]
+
+
+        try:
+
+
+            import forensic_theme
+
+
+        except ImportError:
+
+
+            base_dir = Path(__file__).resolve().parent.parent
+
+
+            if str(base_dir) not in sys.path:
+
+
+                sys.path.insert(0, str(base_dir))
+
+
+            import forensic_theme
+
+
+
+        html_content = forensic_theme.render_homologated_dashboard(
+
+
+            title="Forense de Almacenamiento USB & BadUSB Hunter",
+
+
+            sentry_id="6",
+
+
+            sentry_name="UsbSentry",
+
+
+            sentry_icon="💾",
+
+
+            subtitle="Reconstrucción histórica USBSTOR, números de serie, MountedDevices y detección de Rubber Ducky",
+
+
+            metrics=metrics,
+
+
+            table_headers=headers,
+
+
+            table_rows_html="".join(rows_html),
+
+
+            risk_score=self.threat_score if hasattr(self, 'threat_score') else 0,
+
+
+            back_url="../../index.html"
+
+
+        )
         with open(output_path, "w", encoding="utf-8") as f:
             f.write(html_content)
         return output_path
@@ -739,8 +553,8 @@ def interactive_menu():
 
         elif opcion == "4":
             html_path = collector.generate_html_dashboard()
-            print(f"\n [+] Dashboard interactivo generado en: {html_path}")
-            webbrowser.open(f"file://{html_path}")
+            print(f"\n [+] Reporte de evidencias generado en: {html_path}")
+            print(" [i] Archivo guardado en disco sin abrir navegador web.")
             input(" Presiona Enter para volver al menu...")
 
         elif opcion == "5":
@@ -765,11 +579,12 @@ def main():
     if len(sys.argv) > 1:
         collector = UsbForensicCollector()
         collector.run_audit()
-        if "--json" in sys.argv:
+        export_all = "--all" in sys.argv
+        if export_all or "--json" in sys.argv:
             collector.export_json()
-        if "--csv" in sys.argv:
+        if export_all or "--csv" in sys.argv:
             collector.export_csv()
-        if "--html" in sys.argv:
+        if export_all or "--html" in sys.argv:
             p = collector.generate_html_dashboard()
             print(f"Dashboard generado: {p}")
         print(f"[+] Auditoria completada: {len(collector.devices)} dispositivos analizados.")

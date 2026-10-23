@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    StartupSentry.ps1 v2.0.0 - Framework Forense de Persistencia en Inicio, Tareas Programadas y Firmas Authenticode.
+    StartupSentry.ps1 v3.0.0 - Framework Forense de Persistencia en Inicio, Tareas Programadas y Firmas Authenticode.
 .DESCRIPTION
     Herramienta avanzada de Threat Hunting y DFIR (Digital Forensics & Incident Response) para Windows.
     Inspecciona vectores de persistencia críticos:
@@ -10,7 +10,7 @@
     4. Validación criptográfica de firmas digitales Authenticode (Get-AuthenticodeSignature).
     5. Heurísticas de evasión: ejecución desde AppData/Temp/Public, masquerading de binarios del sistema y LOLBins.
 .NOTES
-    Autor: Ezequiel Diaz (Cru9) | Ecosistema WinAudit-DFIR v2.0.0
+    Autor: Ezequiel Diaz (Cru9) | Ecosistema WinAudit-DFIR v3.0.0
 #>
 
 [CmdletBinding()]
@@ -469,7 +469,7 @@ if ($ExportarJSON) {
 # -----------------------------------------------------------------------------
 Clear-Host
 Write-Host "=========================================================================================" -ForegroundColor Cyan
-Write-Host "   STARTUPSENTRY v2.0.0 - FORENSIC AUTOSTART & TASK PERSISTENCE HUNTER" -ForegroundColor White -BackgroundColor DarkBlue
+Write-Host "   STARTUPSENTRY v3.0.0 - FORENSIC AUTOSTART & TASK PERSISTENCE HUNTER" -ForegroundColor White -BackgroundColor DarkBlue
 Write-Host "   Ecosistema WinAudit-DFIR | Autor: Ezequiel Diaz (Cru9)" -ForegroundColor Gray
 Write-Host "   Triage de Win32_StartupCommand, Registry Run Keys, Tareas Raíz y Firmas Authenticode" -ForegroundColor Gray
 Write-Host "=========================================================================================" -ForegroundColor Cyan

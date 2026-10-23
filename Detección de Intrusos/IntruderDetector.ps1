@@ -1,6 +1,6 @@
-<#
+﻿<#
 .SYNOPSIS
-    IntruderDetector v2.0.0 - Suite de Auditoría Forense y Detección de Intrusos en Windows.
+    IntruderDetector v3.0.0 - Suite de Auditoría Forense y Detección de Intrusos en Windows.
 .DESCRIPTION
     Inspecciona y correlaciona eventos clave del Visor de Seguridad y Sistema:
     - Borrado de registros de auditoría (Evasión / Evento 1102 / 104)
@@ -60,7 +60,7 @@ function Parse-EventData {
 
 Clear-Host
 Write-Host "======================================================================" -ForegroundColor Cyan
-Write-Host "      INTRUDER DETECTOR v2.0.0 - TRIAGE FORENSE DE HOST EN WINDOWS      " -ForegroundColor Yellow -BackgroundColor Black
+Write-Host "      INTRUDER DETECTOR v3.0.0 - TRIAGE FORENSE DE HOST EN WINDOWS      " -ForegroundColor Yellow -BackgroundColor Black
 Write-Host "      Autor: Cru9 | Periodo de análisis: Últimos $DiasAtras días           " -ForegroundColor Gray
 Write-Host "======================================================================" -ForegroundColor Cyan
 

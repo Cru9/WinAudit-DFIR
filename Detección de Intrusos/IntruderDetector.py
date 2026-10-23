@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-IntruderDetector v2.0.0 | Suite Forense de Host, Detección de Intrusos y Triage de Seguridad en Windows
+IntruderDetector v3.0.0 | Suite Forense de Host, Detección de Intrusos y Triage de Seguridad en Windows
 Desarrollado por: Ezequiel Diaz (Cru9) | https://github.com/Cru9
 Parte del Ecosistema WinAudit-DFIR
 """
@@ -79,7 +79,7 @@ def show_banner():
 =============================================================================="""
     print(f"{CYAN}{BOLD}{banner}{MAGENTA}")
     print("  Suite DFIR de Detección de Intrusos, Triage de Host & Forense de Eventos")
-    print("  Ecosistema Cru9 | Windows Host Security Intelligence | v2.0.0")
+    print("  Ecosistema Cru9 | Windows Host Security Intelligence | v3.0.0")
     print(f"=============================================================================={RESET}\n")
 
 
@@ -699,403 +699,154 @@ class IntruderDetector:
         return filepath
 
     def generate_html_dashboard(self, filepath: Optional[Path] = None) -> Path:
-        """Genera un dashboard interactivo de nivel ejecutivo en HTML/CSS Glassmorphism Cyberpunk."""
+        """Genera un dashboard interactivo de nivel ejecutivo con colores claros y diseño profesional."""
         if not filepath:
             ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             filepath = REPORTS_DIR / f"IntruderDetector_Dashboard_{ts}.html"
 
-        # Métricas calculadas
         total_failed = len(self.failed_logons)
         total_rdp = len([x for x in self.successful_logons if x.get("LogonType") == "10"])
         total_cleared = len(self.cleared_logs)
         total_accounts = len(self.account_changes)
         total_threats = len(self.suspicious_processes)
 
-        # Gráfico donut SVG para distribución de eventos
-        tot_all = max(total_failed + total_rdp + total_cleared + total_accounts + total_threats, 1)
-        pct_failed = int((total_failed / tot_all) * 100)
-        pct_rdp = int((total_rdp / tot_all) * 100)
-        pct_cleared = int((total_cleared / tot_all) * 100)
-        pct_threats = int((total_threats / tot_all) * 100)
+        if self.threat_score >= 60:
+            score_color = "#b91c1c"
+            score_bg = "#fef2f2"
+            score_border = "#fecaca"
+        elif self.threat_score >= 25:
+            score_color = "#b45309"
+            score_bg = "#fffbeb"
+            score_border = "#fde68a"
+        else:
+            score_color = "#15803d"
+            score_bg = "#f0fdf4"
+            score_border = "#bbf7d0"
 
-        # Color del badge de amenaza
-        score_color = "#00ff88" if self.threat_score < 25 else ("#ffbb00" if self.threat_score < 60 else "#ff0055")
+        # Filas de eventos forenses
+        events_rows = []
+        for fl in self.failed_logons[:200]:
+            events_rows.append(f"""
+            <tr class="ev-row">
+                <td><span class="badge badge-crit">FALLIDO (4625)</span></td>
+                <td><span class="ts-badge">{fl.get('TimeGenerated', '')}</span></td>
+                <td><strong style="color:#0f172a;">{html.escape(fl.get('TargetUserName', ''))}</strong></td>
+                <td><code class="mono-code">{html.escape(fl.get('IpAddress', ''))}</code></td>
+                <td><span class="ioc-alert">Fallo de autenticación (Tipo: {fl.get('LogonType')})</span></td>
+            </tr>
+            """)
 
-        html_content = f"""<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WinAudit-DFIR | Detección de Intrusos SOC Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        :root {{
-            --bg-base: #060913;
-            --bg-card: rgba(14, 21, 38, 0.75);
-            --border-glass: rgba(0, 240, 255, 0.15);
-            --neon-cyan: #00f0ff;
-            --neon-green: #00ff88;
-            --neon-red: #ff0055;
-            --neon-yellow: #ffbb00;
-            --neon-purple: #9d4edd;
-            --text-main: #f0f4fc;
-            --text-muted: #8a99b5;
-        }}
-        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-        body {{
-            background: var(--bg-base);
-            background-image: 
-                radial-gradient(circle at 15% 15%, rgba(0, 240, 255, 0.08) 0%, transparent 45%),
-                radial-gradient(circle at 85% 85%, rgba(255, 0, 85, 0.06) 0%, transparent 45%);
-            color: var(--text-main);
-            font-family: 'Outfit', sans-serif;
-            min-height: 100vh;
-            padding: 2rem;
-        }}
-        .container {{ max-width: 1400px; margin: 0 auto; }}
-        
-        /* HEADER */
-        header {{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem 2rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border-glass);
-            border-radius: 16px;
-            backdrop-filter: blur(12px);
-            margin-bottom: 2rem;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-        }}
-        .brand {{ display: flex; align-items: center; gap: 1rem; }}
-        .brand-icon {{
-            width: 48px; height: 48px;
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.6rem;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
-        }}
-        .brand-text h1 {{ font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }}
-        .brand-text h1 span {{ color: var(--neon-cyan); }}
-        .brand-text p {{ color: var(--text-muted); font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; }}
-        
-        .score-box {{
-            text-align: right;
-            padding: 0.75rem 1.5rem;
-            background: rgba(0,0,0,0.4);
-            border: 1px solid {score_color};
-            border-radius: 12px;
-            box-shadow: 0 0 15px {score_color}33;
-        }}
-        .score-title {{ font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }}
-        .score-val {{ font-size: 1.8rem; font-weight: 800; color: {score_color}; }}
+        for sl in self.successful_logons[:100]:
+            is_rdp = sl.get("LogonType") == "10"
+            b_cls = "badge-high" if is_rdp else "badge-clean"
+            lbl = "RDP (TIPO 10)" if is_rdp else "LOGON EXITOSO"
+            events_rows.append(f"""
+            <tr class="ev-row">
+                <td><span class="badge {b_cls}">{lbl}</span></td>
+                <td><span class="ts-badge">{sl.get('TimeGenerated', '')}</span></td>
+                <td><strong style="color:#0f172a;">{html.escape(sl.get('TargetUserName', ''))}</strong></td>
+                <td><code class="mono-code">{html.escape(sl.get('IpAddress', ''))}</code></td>
+                <td><span class="{'ioc-alert' if is_rdp else 'ioc-ok'}">Sesión interactiva remota</span></td>
+            </tr>
+            """)
 
-        /* KPI METRICS GRID */
-        .kpi-grid {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }}
-        .kpi-card {{
-            background: var(--bg-card);
-            border: 1px solid var(--border-glass);
-            border-radius: 14px;
-            padding: 1.5rem;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }}
-        .kpi-card:hover {{
-            transform: translateY(-4px);
-            border-color: var(--neon-cyan);
-            box-shadow: 0 10px 25px rgba(0, 240, 255, 0.15);
-        }}
-        .kpi-card::before {{
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 4px; height: 100%;
-            background: var(--neon-cyan);
-        }}
-        .kpi-card.alert::before {{ background: var(--neon-red); }}
-        .kpi-card.warn::before {{ background: var(--neon-yellow); }}
-        .kpi-card.ok::before {{ background: var(--neon-green); }}
+        for cl in self.cleared_logs:
+            events_rows.append(f"""
+            <tr class="ev-row">
+                <td><span class="badge badge-crit">LOG BORRADO (1102)</span></td>
+                <td><span class="ts-badge">{cl.get('TimeGenerated', '')}</span></td>
+                <td><strong style="color:#b91c1c;">{html.escape(cl.get('SubjectUserName', ''))}</strong></td>
+                <td><code class="mono-code">LOCAL</code></td>
+                <td><span class="ioc-alert">⚠️ Anti-Forense: Se limpió el log de seguridad</span></td>
+            </tr>
+            """)
 
-        .kpi-label {{ font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 0.5rem; }}
-        .kpi-number {{ font-size: 2.2rem; font-weight: 800; color: var(--text-main); }}
-        .kpi-desc {{ font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }}
+        metrics = [
 
-        /* MAIN CONTENT LAYOUT */
-        .grid-2 {{
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }}
-        @media (max-width: 992px) {{ .grid-2 {{ grid-template-columns: 1fr; }} }}
 
-        .panel {{
-            background: var(--bg-card);
-            border: 1px solid var(--border-glass);
-            border-radius: 16px;
-            padding: 1.5rem;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }}
-        .panel-header {{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.25rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }}
-        .panel-header h2 {{ font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }}
+            {"label": "Eventos de Seguridad", "value": total_evs, "icon": "🌐"},
 
-        /* DATA TABLES */
-        .search-box {{
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background: rgba(0,0,0,0.5);
-            border: 1px solid var(--border-glass);
-            border-radius: 8px;
-            color: #fff;
-            font-family: 'Outfit', sans-serif;
-            margin-bottom: 1rem;
-        }}
-        .table-responsive {{ overflow-x: auto; max-height: 420px; }}
-        table {{
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-            font-family: 'JetBrains Mono', monospace;
-        }}
-        th {{
-            background: rgba(0, 240, 255, 0.05);
-            color: var(--neon-cyan);
-            text-align: left;
-            padding: 0.75rem;
-            position: sticky; top: 0;
-            backdrop-filter: blur(5px);
-        }}
-        td {{
-            padding: 0.75rem;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            color: #d1d9e6;
-        }}
-        tr:hover td {{ background: rgba(0, 240, 255, 0.03); }}
-        
-        .badge {{
-            display: inline-block;
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }}
-        .badge-red {{ background: rgba(255,0,85,0.2); color: #ff3377; border: 1px solid #ff0055; }}
-        .badge-yellow {{ background: rgba(255,187,0,0.2); color: #ffcc00; border: 1px solid #ffbb00; }}
-        .badge-green {{ background: rgba(0,255,136,0.2); color: #00ff88; border: 1px solid #00ff88; }}
-        .badge-cyan {{ background: rgba(0,240,255,0.2); color: #00f0ff; border: 1px solid #00f0ff; }}
 
-        /* MITRE MATRIX */
-        .mitre-list {{ display: flex; flex-direction: column; gap: 0.75rem; }}
-        .mitre-item {{
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.05);
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-        }}
-        .mitre-item:hover {{ border-color: var(--neon-cyan); }}
-        .mitre-id {{ font-family: 'JetBrains Mono', monospace; color: var(--neon-cyan); font-weight: 700; }}
+            {"label": "Fuerza Bruta (4625)", "value": total_fuerza_bruta, "icon": "🚫"},
 
-        /* FOOTER */
-        footer {{
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-top: 2rem;
-            font-family: 'JetBrains Mono', monospace;
-        }}
-        footer a {{ color: var(--neon-cyan); text-decoration: none; }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- HEADER -->
-        <header>
-            <div class="brand">
-                <div class="brand-icon">🛡️</div>
-                <div class="brand-text">
-                    <h1>WinAudit-DFIR <span>IntruderDetector</span></h1>
-                    <p>Host Forensics, Anti-Forensics Defense & Intrusion Triage | Ecosistema Cru9</p>
-                </div>
-            </div>
-            <div class="score-box">
-                <div class="score-title">NIVEL DE AMENAZA GLOBAL</div>
-                <div class="score-val">{self.threat_score}/100</div>
-                <div style="font-size: 0.75rem; color: {score_color}; font-weight: 600;">{self.threat_level}</div>
-            </div>
-        </header>
 
-        <!-- KPIS -->
-        <div class="kpi-grid">
-            <div class="kpi-card {'alert' if total_cleared > 0 else 'ok'}">
-                <div class="kpi-label">Integridad de Logs (1102/104)</div>
-                <div class="kpi-number">{total_cleared}</div>
-                <div class="kpi-desc">{'Borrado de evidencias detectado' if total_cleared > 0 else 'Registros 100% íntegros'}</div>
-            </div>
-            <div class="kpi-card {'alert' if total_failed > 20 else ('warn' if total_failed > 0 else 'ok')}">
-                <div class="kpi-label">Fuerza Bruta (4625)</div>
-                <div class="kpi-number">{total_failed}</div>
-                <div class="kpi-desc">Intentos fallidos de autenticación</div>
-            </div>
-            <div class="kpi-card {'warn' if total_rdp > 0 else 'ok'}">
-                <div class="kpi-label">Sesiones RDP (4624 Tipo 10)</div>
-                <div class="kpi-number">{total_rdp}</div>
-                <div class="kpi-desc">Conexiones de escritorio remoto</div>
-            </div>
-            <div class="kpi-card {'alert' if total_threats > 0 else 'ok'}">
-                <div class="kpi-label">Comandos LOLBAS (4688)</div>
-                <div class="kpi-number">{total_threats}</div>
-                <div class="kpi-desc">Comandos de evasión o persistencia</div>
-            </div>
-            <div class="kpi-card {'warn' if total_accounts > 0 else 'ok'}">
-                <div class="kpi-label">Cuentas Creadas/Modificadas</div>
-                <div class="kpi-number">{total_accounts}</div>
-                <div class="kpi-desc">Alteraciones en usuarios/grupos</div>
-            </div>
-        </div>
+            {"label": "Sesiones RDP (10)", "value": len(self.successful_logons), "icon": "🖥️"},
 
-        <!-- MAIN GRID -->
-        <div class="grid-2">
-            <!-- PANEL TABLA EVENTOS DE AUTENTICACION -->
-            <div class="panel">
-                <div class="panel-header">
-                    <h2><span>⚡</span> Registro de Eventos de Autenticación y Amenazas</h2>
-                    <span class="badge badge-cyan">{len(self.failed_logons) + len(self.successful_logons)} Registros</span>
-                </div>
-                <input type="text" class="search-box" id="tableFilter" placeholder="🔍 Filtrar por IP, Usuario, Tipo de Acceso o Motivo...">
-                <div class="table-responsive">
-                    <table id="eventsTable">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Evento</th>
-                                <th>Usuario</th>
-                                <th>IP Origen</th>
-                                <th>Tipo Acceso</th>
-                                <th>Detalle Forense</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-"""
-        # Añadir eventos fallidos
-        for f in self.failed_logons[:100]:
-            ip_badge = "badge-red" if "Pública" in f.get("ClasificacionIP", "") else "badge-yellow"
-            html_content += f"""
-                            <tr>
-                                <td>{html.escape(f.get('Fecha', ''))}</td>
-                                <td><span class="badge badge-red">4625 Fallo</span></td>
-                                <td style="font-weight:700; color:#fff;">{html.escape(f.get('Usuario', ''))}</td>
-                                <td>{html.escape(f.get('IPOrigen', ''))} <span class="badge {ip_badge}">{html.escape(f.get('ClasificacionIP', ''))}</span></td>
-                                <td>{html.escape(f.get('TipoAcceso', ''))}</td>
-                                <td>{html.escape(f.get('Motivo', ''))}</td>
-                            </tr>
-"""
-        # Añadir eventos exitosos RDP/Red
-        for s in self.successful_logons[:50]:
-            html_content += f"""
-                            <tr>
-                                <td>{html.escape(s.get('Fecha', ''))}</td>
-                                <td><span class="badge badge-green">4624 Éxito</span></td>
-                                <td style="font-weight:700; color:#00ff88;">{html.escape(s.get('Usuario', ''))}</td>
-                                <td>{html.escape(s.get('IPOrigen', ''))}</td>
-                                <td>{html.escape(s.get('TipoAcceso', ''))}</td>
-                                <td>Equipo: {html.escape(s.get('EquipoRemoto', '-'))}</td>
-                            </tr>
-"""
-        html_content += f"""
-                        </tbody>
-                    </table>
-                </div>
-            </div>
 
-            <!-- PANEL LATERAL: MITRE & ADMINISTRADORES -->
-            <div class="panel">
-                <div class="panel-header">
-                    <h2><span>🎯</span> Mapeo MITRE ATT&CK</h2>
-                </div>
-                <div class="mitre-list">
-                    <div class="mitre-item">
-                        <div>
-                            <div class="mitre-id">T1070.001</div>
-                            <div style="font-size:0.8rem; color:#aaa;">Clear Windows Event Logs</div>
-                        </div>
-                        <span class="badge {'badge-red' if total_cleared > 0 else 'badge-green'}">{'Detectado' if total_cleared > 0 else 'Sin Alertas'}</span>
-                    </div>
-                    <div class="mitre-item">
-                        <div>
-                            <div class="mitre-id">T1110.001</div>
-                            <div style="font-size:0.8rem; color:#aaa;">Password Guessing / Brute Force</div>
-                        </div>
-                        <span class="badge {'badge-red' if total_failed > 20 else ('badge-yellow' if total_failed > 0 else 'badge-green')}">{total_failed} Intentos</span>
-                    </div>
-                    <div class="mitre-item">
-                        <div>
-                            <div class="mitre-id">T1021.001</div>
-                            <div style="font-size:0.8rem; color:#aaa;">Remote Desktop Protocol (RDP)</div>
-                        </div>
-                        <span class="badge {'badge-yellow' if total_rdp > 0 else 'badge-green'}">{total_rdp} Conexiones</span>
-                    </div>
-                    <div class="mitre-item">
-                        <div>
-                            <div class="mitre-id">T1136.001</div>
-                            <div style="font-size:0.8rem; color:#aaa;">Create Local Account Persistence</div>
-                        </div>
-                        <span class="badge {'badge-yellow' if total_accounts > 0 else 'badge-green'}">{total_accounts} Cambios</span>
-                    </div>
-                </div>
+            {"label": "Anti-Forensics (1102)", "value": len(self.cleared_logs), "icon": "🧹"}
 
-                <div class="panel-header" style="margin-top: 1.5rem;">
-                    <h2><span>👥</span> Administradores Locales</h2>
-                </div>
-                <div style="font-size: 0.85rem; font-family: 'JetBrains Mono', monospace;">
-"""
-        for m in self.admin_members:
-            origen_str = "Local" if str(m.get("Origen", "Local")) in ["1", "Local"] else str(m.get("Origen", "Local"))
-            html_content += f"""
-                    <div style="display:flex; justify-content:space-between; padding:0.4rem 0; border-bottom:1px solid rgba(255,255,255,0.04);">
-                        <span style="color:#fff;">{html.escape(str(m['Cuenta']))}</span>
-                        <span class="badge badge-cyan">{html.escape(origen_str)}</span>
-                    </div>
-"""
-        html_content += f"""
-                </div>
-            </div>
-        </div>
 
-        <footer>
-            Generado por <a href="https://github.com/Cru9/WinAudit-DFIR" target="_blank">WinAudit-DFIR Suite / IntruderDetector</a> • Autor: Cru9 • {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-        </footer>
-    </div>
+        ]
 
-    <script>
-        document.getElementById('tableFilter').addEventListener('keyup', function() {{
-            let filter = this.value.toLowerCase();
-            let rows = document.querySelectorAll('#eventsTable tbody tr');
-            rows.forEach(row => {{
-                let text = row.innerText.toLowerCase();
-                row.style.display = text.includes(filter) ? '' : 'none';
-            }});
-        }});
-    </script>
-</body>
-</html>
-"""
+
+        headers = [
+
+
+            "Severidad", "Timestamp UTC", "Usuario / Cuenta", "Dirección IP Origen",
+
+
+            "Diagnóstico Forense"
+
+
+        ]
+
+
+        try:
+
+
+            import forensic_theme
+
+
+        except ImportError:
+
+
+            base_dir = Path(__file__).resolve().parent.parent
+
+
+            if str(base_dir) not in sys.path:
+
+
+                sys.path.insert(0, str(base_dir))
+
+
+            import forensic_theme
+
+
+
+        html_content = forensic_theme.render_homologated_dashboard(
+
+
+            title="Detección de Intrusos & Live Host Radar",
+
+
+            sentry_id="1",
+
+
+            sentry_name="IntruderDetector",
+
+
+            sentry_icon="🌐",
+
+
+            subtitle="Auditoría de Security Log, Fuerza Bruta (4625), Sesiones RDP (10) y Anti-Forensics (1102)",
+
+
+            metrics=metrics,
+
+
+            table_headers=headers,
+
+
+            table_rows_html="".join(events_rows),
+
+
+            risk_score=self.threat_score if hasattr(self, 'threat_score') else 0,
+
+
+            back_url="../../index.html"
+
+
+        )
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(html_content)
         return filepath

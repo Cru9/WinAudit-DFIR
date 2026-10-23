@@ -9,6 +9,10 @@
 * [[⚖️ 6. Metodología & Cadena de Custodia|06-Metodologia-Forense-y-Cadena-de-Custodia]]
 * [[❓ 7. FAQ & Troubleshooting|07-Preguntas-Frecuentes-y-Troubleshooting]]
 * [[💾 8. UsbSentry (Almacenamiento & BadUSB)|08-UsbSentry-Forense-de-Dispositivos-USB]]
+* [[⚡ 9. ExecSentry (Evidencia de Ejecución)|09-ExecSentry-Evidencia-de-Ejecucion]]
+* [[🌐 10. BrowserSentry (Web & Descargas)|10-BrowserSentry-Forense-de-Navegadores-y-Descargas]]
+* [[🛡️ 11. MemSentry (RAM & LSASS Guard)|11-MemSentry-Forense-de-Procesos-y-LSASS-Guard]]
+* [[🌐 12. DnsSentry (Caché DNS & Hosts)|12-DnsSentry-Cache-DNS-y-Hosts-Poisoning]]
 
 ---
 
@@ -20,5 +24,5 @@
 
 ---
 <div align="center">
-  <small>WinAudit-DFIR v2.0.0<br>Desarrollado por <b>Cru9</b></small>
+  <small>WinAudit-DFIR v3.0.0<br>Desarrollado por <b>Cru9</b></small>
 </div>

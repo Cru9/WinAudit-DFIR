@@ -9,7 +9,7 @@
 Para que cualquier contribución sea admitida dentro del repositorio, debe respetar estos **3 pilares innegociables**:
 
 1. **Cero Dependencias Externas Obligatorias (`0 pip`):**
-   * Todo script en Python debe funcionar exclusivamente con la **Biblioteca Estándar de Python 3.8+** (`subprocess`, `json`, `ctypes`, `urllib`, `re`, `socket`, `math`, etc.).
+   * Todo script en Python debe funcionar exclusivamente con la **Biblioteca Estándar de Python 3.8+** (`subprocess`, `json`, `ctypes`, `urllib`, `re`, `socket`, `math`, `winreg`, etc.).
    * Esto garantiza que un analista pueda ejecutar las herramientas en entornos aislados o comprometidos sin conexión a internet y sin necesidad de compilar paquetes C++.
 2. **Dual-Runtime y Resiliencia en Windows:**
    * Cada capacidad clave debe tener su implementación en **Python 3** y su contraparte nativa en **PowerShell 5.1+ / 7+**.
@@ -33,15 +33,17 @@ Para que cualquier contribución sea admitida dentro del repositorio, debe respe
    ```
 3. **Valida la Sintaxis Localmente:**
    ```powershell
-   # Validar sintaxis en Python
+   # Validar sintaxis de la suite completa en Python
+   python -m py_compile Suite-DFIR.py
+   python -m py_compile "Detección de Intrusos/IntruderDetector.py"
    python -m py_compile WiFiSentry/WiFiSentry.py
    python -m py_compile SocketSentry/SocketSentry.py
-   python -m py_compile "Detección de Intrusos/IntruderDetector.py"
+   python -m py_compile DnsSentry/DnsSentry.py
    python -m py_compile StartupSentry/StartupSentry.py
    python -m py_compile UsbSentry/UsbSentry.py
-
-   # Validar JSON
-   Get-Content SocketSentry/db_conexiones.json -Raw | ConvertFrom-Json | Out-Null
+   python -m py_compile ExecSentry/ExecSentry.py
+   python -m py_compile BrowserSentry/BrowserSentry.py
+   python -m py_compile MemSentry/MemSentry.py
    ```
 4. **Haz Commit con Mensajes Claros (Convención Semántica):**
    * `feat(SocketSentry): agregar soporte para detección de proxies inversos`
