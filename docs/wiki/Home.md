@@ -26,18 +26,18 @@ Para solucionar esto, **WinAudit-DFIR** se rige por tres pilares arquitectónico
                                     │              (Cru9 / DFIR)              │
                                     └────────────────────┬────────────────────┘
                                                          │
-         ┌───────────────────────────────────────────────┼───────────────────────────────────────────────┐
-         ▼                                               ▼                                               ▼
-┌────────────────────────┐  ┌────────────────────────┐  ┌────────────────────────┐  ┌────────────────────────┐
-│  Detección de Intrusos │  │       WiFiSentry       │  │      SocketSentry      │  │     StartupSentry      │
-│    Forense de Host     │  │  Forense Inalámbrico   │  │   Threat Hunter Red    │  │ Persistencia & Firmas  │
-├────────────────────────┤  ├────────────────────────┤  ├────────────────────────┤  ├────────────────────────┤
-│ • Security Event Logs  │  │ • Auditoría 802.11 RF  │  │ • Sockets TCP/UDP Vivo │  │ • Win32_StartupCommand │
-│ • Fuerza Bruta (4625)  │  │ • Rogue AP / Evil Twin │  │ • Balizas C2 Beaconing │  │ • Claves Registry Run  │
-│ • Anti-Forensics (1102)│  │ • PBKDF2 GPU Benchmark │  │ • Feodo Tracker IOCs   │  │ • Carpetas Startup LNK │
-│ • Inicios RDP / Red    │  │ • Proximidad RF en Vivo│  │ • Catálogo de LOLBins  │  │ • Tareas Raíz no-MS    │
-│ • Radar SIEM en Vivo   │  │ • Heatmap de Señal RSSI│  │ • Preservación MiniDump│  │ • Firmas Authenticode  │
-└────────────────────────┘  └────────────────────────┘  └────────────────────────┘  └────────────────────────┘
+         ┌───────────────────┬───────────────────┼───────────────────┬───────────────────┐
+         ▼                   ▼                   ▼                   ▼                   ▼
+┌───────────────────┐┌───────────────────┐┌───────────────────┐┌───────────────────┐┌───────────────────┐
+│Detección Intrusos ││    WiFiSentry     ││   SocketSentry    ││   StartupSentry   ││     UsbSentry     │
+│  Forense de Host  ││Forense Inalámbrico││ Threat Hunter Red ││Persistencia/Firmas││Almacenamiento/Bad │
+├───────────────────┤├───────────────────┤├───────────────────┤├───────────────────┤├───────────────────┤
+│• Security Events  ││• Auditoría 802.11 ││• Sockets TCP/UDP  ││• Win32_StartupCmd ││• Historial USBSTOR│
+│• Fuerza Bruta 4625││• Rogue AP / Evil  ││• Balizas C2 Hunter││• Claves Registry  ││• MountedDevices E:│
+│• Evasión Log 1102 ││• PBKDF2 Benchmark ││• Abuse Feodo IOCs ││• Tareas Raíz no-MS││• BadUSB / Ducky  │
+│• Logons RDP / SMB ││• Sensor Proximidad││• Catálogo LOLBins ││• Authenticode Sign││• Seriales Hardware│
+│• Radar SIEM Vivo  ││• Heatmap Señal RF ││• Volcado MiniDump ││• Masquerading Hunt││• Live vs Histórico│
+└───────────────────┘└───────────────────┘└───────────────────┘└───────────────────┘└───────────────────┘
 ```
 
 ---
@@ -55,6 +55,7 @@ Explora los manuales temáticos haciendo clic en los siguientes enlaces:
 | **05** | [[StartupSentry (Persistencia en Inicio)\|05-StartupSentry-Triage-de-Persistencia]] | Auditoría de auto-arranque, tareas programadas en raíz, suplantación de procesos (*masquerading*) y firmas Authenticode. |
 | **06** | [[Metodología Forense & Cadena de Custodia\|06-Metodologia-Forense-y-Cadena-de-Custodia]] | Cumplimiento del estándar NIST SP 800-86, orden de volatilidad (RFC 3227) y generación de hashes SHA-256 de evidencias. |
 | **07** | [[Preguntas Frecuentes & Solución de Problemas\|07-Preguntas-Frecuentes-y-Troubleshooting]] | Guía de resolución de permisos UAC, ExecutionPolicy de PowerShell, consolas cp1252/UTF-8 y falsos positivos. |
+| **08** | [[UsbSentry (Almacenamiento USB & BadUSB)\|08-UsbSentry-Forense-de-Dispositivos-USB]] | Reconstrucción histórica de USBSTOR, MountedDevices, letras de unidad asignadas y detección de hardware BadUSB. |
 
 ---
 

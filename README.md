@@ -28,24 +28,23 @@
 El objetivo de este ecosistema es centralizar herramientas ligeras, de alta fidelidad y sin dependencias invasivas para diagnosticar, auditar y defender entornos Windows contra intrusiones tanto a nivel de sistema operativo como en el espectro de radiofrecuencia (Wi-Fi).
 
 ```
-                                 ┌─────────────────────────────────────────┐
-                                 │       WinAudit-DFIR Master Suite        │
-                                 │              (Cru9 / DFIR)              │
-                                 └────────────────────┬────────────────────┘
-                                                      │
-            ┌───────────────────────────┬─────────────┴─────────────┬───────────────────────────┐
-            │                           │                           │                           │
-            ▼                           ▼                           ▼                           ▼
-┌────────────────────────┐  ┌────────────────────────┐  ┌────────────────────────┐  ┌────────────────────────┐
-│  Detección de Intrusos │  │       WiFiSentry       │  │      SocketSentry      │  │     StartupSentry      │
-│    Forense de Host     │  │  Forense Inalámbrico   │  │   Threat Hunter Red    │  │ Persistencia & Firmas  │
-├────────────────────────┤  ├────────────────────────┤  ├────────────────────────┤  ├────────────────────────┤
-│ • Security Event Logs  │  │ • Auditoría 802.11 RF  │  │ • Sockets TCP/UDP Vivo │  │ • Win32_StartupCommand │
-│ • Fuerza Bruta (4625)  │  │ • Rogue AP / Evil Twin │  │ • Balizas C2 Beaconing │  │ • Claves Registry Run  │
-│ • Anti-Forensics (1102)│  │ • PBKDF2 GPU Benchmark │  │ • Feodo Tracker IOCs   │  │ • Carpetas Startup LNK │
-│ • Inicios RDP / Red    │  │ • Proximidad RF en Vivo│  │ • Catálogo de LOLBins  │  │ • Tareas Raíz no-MS    │
-│ • Radar SIEM en Vivo   │  │ • Heatmap de Señal RSSI│  │ • Preservación MiniDump│  │ • Firmas Authenticode  │
-└────────────────────────┘  └────────────────────────┘  └────────────────────────┘  └────────────────────────┘
+                                    ┌─────────────────────────────────────────┐
+                                    │        WinAudit-DFIR Master Suite       │
+                                    │              (Cru9 / DFIR)              │
+                                    └────────────────────┬────────────────────┘
+                                                         │
+         ┌───────────────────┬───────────────────┼───────────────────┬───────────────────┐
+         ▼                   ▼                   ▼                   ▼                   ▼
+┌───────────────────┐┌───────────────────┐┌───────────────────┐┌───────────────────┐┌───────────────────┐
+│Detección Intrusos ││    WiFiSentry     ││   SocketSentry    ││   StartupSentry   ││     UsbSentry     │
+│  Forense de Host  ││Forense Inalámbrico││ Threat Hunter Red ││Persistencia/Firmas││Almacenamiento/Bad │
+├───────────────────┤├───────────────────┤├───────────────────┤├───────────────────┤├───────────────────┤
+│• Security Events  ││• Auditoría 802.11 ││• Sockets TCP/UDP  ││• Win32_StartupCmd ││• Historial USBSTOR│
+│• Fuerza Bruta 4625││• Rogue AP / Evil  ││• Balizas C2 Hunter││• Claves Registry  ││• MountedDevices E:│
+│• Evasión Log 1102 ││• PBKDF2 Benchmark ││• Abuse Feodo IOCs ││• Tareas Raíz no-MS││• BadUSB / Ducky  │
+│• Logons RDP / SMB ││• Sensor Proximidad││• Catálogo LOLBins ││• Authenticode Sign││• Seriales Hardware│
+│• Radar SIEM Vivo  ││• Heatmap Señal RF ││• Volcado MiniDump ││• Masquerading Hunt││• Live vs Histórico│
+└───────────────────┘└───────────────────┘└───────────────────┘└───────────────────┘└───────────────────┘
 ```
 
 ---
@@ -96,6 +95,17 @@ Framework forense especializado en el triage de mecanismos de persistencia en el
 
 ---
 
+### 5. 💾 [UsbSentry](UsbSentry/) — Forense de Dispositivos USB, Exfiltración Física y BadUSB Hunter
+Framework forense especializado en la reconstrucción histórica de almacenamiento extraíble y detección de hardware malicioso. Disponible en Python 3 (`UsbSentry.py`) y PowerShell nativo (`UsbSentry.ps1`).
+* **Historial USBSTOR & Seriales de Hardware:** Extracción de fabricante, modelo, revisión y número de serie único de cada dispositivo conectado históricamente.
+* **Correlación de Letras de Unidad (MountedDevices):** Mapeo forense de particiones y letras (`E:`, `F:`) asignadas en el sistema.
+* **Caza de Dispositivos BadUSB:** Detección de inyectores de teclado maliciosos emulados (Hak5 Rubber Ducky, Bash Bunny, Flipper Zero, emuladores Arduino/Pico HID).
+* **Marcas Temporales Forenses:** Recuperación del último evento de conexión/desconexión mediante `LastWriteTime` de registro y SetupAPI.
+* **Dashboard y Evidencias:** Generación de dashboards ejecutivos interactivos HTML Cyberpunk y exportación estructurada JSON/CSV.
+* 🔗 *[Ver documentación detallada de UsbSentry →](UsbSentry/README.md)*
+
+---
+
 ## 🎯 Cobertura con la Matriz MITRE ATT&CK®
 
 | Módulo | Táctica MITRE | ID Técnica | Descripción / Detección |
@@ -117,6 +127,10 @@ Framework forense especializado en el triage de mecanismos de persistencia en el
 | **StartupSentry** | Persistence / Execution | `T1053.005` | Scheduled Tasks (Tareas raíz no-MS e intervalos recurrentes <= 30 min) |
 | **StartupSentry** | Defense Evasion | `T1553.002` | Subvert Trust Controls: Code Signing (Binarios NotSigned / HashMismatch) |
 | **StartupSentry** | Defense Evasion | `T1036.005` | Masquerading: Match Legitimate Name (Binarios de sistema fuera de System32) |
+| **UsbSentry** | Exfiltration | `T1052.001` | Exfiltration Over Physical Medium (Fuga de datos y exfiltración por USB) |
+| **UsbSentry** | Initial Access / Execution | `T1200` | Hardware Additions (BadUSB / Rubber Ducky / Inyección de pulsaciones) |
+| **UsbSentry** | Lateral Movement | `T1091` | Replication Through Removable Media (Propagación por memorias USB) |
+| **UsbSentry** | Collection | `T1025` | Data from Removable Media (Acceso a particiones y archivos extraíbles) |
 
 ---
 
@@ -159,6 +173,13 @@ cd StartupSentry
 ```
 *(O directamente mediante Python: `python StartupSentry\StartupSentry.py`)*
 
+#### Para almacenamiento extraíble y BadUSB hunter:
+```cmd
+cd UsbSentry
+.\Ejecutar-UsbSentry.bat
+```
+*(O directamente mediante Python: `python UsbSentry\UsbSentry.py`)*
+
 ---
 
 ## 📂 Estructura del Repositorio
@@ -170,7 +191,9 @@ WinAudit-DFIR/
 │   ├── workflows/ci.yml              # Pipeline de integración continua (Python & PowerShell)
 │   ├── workflows/release-asset.yml   # Empaquetado automatizado de ZIPs para Releases
 │   └── ISSUE_TEMPLATE/               # Plantillas para bugs, features y aportes de IOCs
-├── Suite-DFIR.bat                    # Lanzador interactivo centralizado (Menú 1, 2, 3, 4, 5)
+├── docs/                             # Documentación y manuales completos
+│   └── wiki/                         # Suite sincronizada con GitHub Wiki
+├── Suite-DFIR.bat                    # Lanzador interactivo centralizado (Menú 1, 2, 3, 4, 5, 6)
 ├── README.md                         # Documentación principal del ecosistema
 ├── CONTRIBUTING.md                   # Normas de contribución y arquitectura
 ├── SECURITY.md                       # Política de divulgación responsable de vulnerabilidades
@@ -218,17 +241,29 @@ WinAudit-DFIR/
 │   ├── CONTRIBUTING.md               # Guía para desarrolladores y colaboradores
 │   └── README.md                     # Documentación completa de SocketSentry
 │
-└── 📁 StartupSentry/                 # MÓDULO 4: PERSISTENCIA EN ARRANQUE & TAREAS
-    ├── StartupSentry.py              # Core analítico en Python 3 (CLI + Dashboard HTML Cyberpunk)
-    ├── StartupSentry.ps1             # Motor forense nativo en PowerShell 5.1+/7+ (Authenticode)
-    ├── Ejecutar-StartupSentry.bat    # Lanzador inteligente multi-runtime con UAC
-    ├── Cerrar-Ventanas-StartupSentry.bat # Script de limpieza y detención de procesos
-    ├── assets/                       # Banners e infografías HUD de ciberseguridad
+├── 📁 StartupSentry/                 # MÓDULO 4: PERSISTENCIA EN ARRANQUE & TAREAS
+│   ├── StartupSentry.py              # Core analítico en Python 3 (CLI + Dashboard HTML Cyberpunk)
+│   ├── StartupSentry.ps1             # Motor forense nativo en PowerShell 5.1+/7+ (Authenticode)
+│   ├── Ejecutar-StartupSentry.bat    # Lanzador inteligente multi-runtime con UAC
+│   ├── Cerrar-Ventanas-StartupSentry.bat # Script de limpieza y detención de procesos
+│   ├── assets/                       # Banners e infografías HUD de ciberseguridad
+│   ├── Reportes/                     # Dashboard HTML y reportes de muestra
+│   ├── LICENSE                       # Licencia MIT (Cru9)
+│   ├── SECURITY.md                   # Política de seguridad y divulgación
+│   ├── CONTRIBUTING.md               # Guía para desarrolladores y colaboradores
+│   └── README.md                     # Documentación completa de StartupSentry
+│
+└── 📁 UsbSentry/                     # MÓDULO 5: FORENSE DE ALMACENAMIENTO USB & BADUSB
+    ├── UsbSentry.py                  # Core analítico en Python 3 (CLI + Dashboard HTML Cyberpunk)
+    ├── UsbSentry.ps1                 # Motor forense nativo en PowerShell 5.1+/7+
+    ├── Ejecutar-UsbSentry.bat        # Lanzador inteligente multi-runtime con UAC
+    ├── Cerrar-Ventanas-UsbSentry.bat # Script de limpieza y detención de procesos
+    ├── assets/                       # Banners e infografías HUD de almacenamiento
     ├── Reportes/                     # Dashboard HTML y reportes de muestra
     ├── LICENSE                       # Licencia MIT (Cru9)
     ├── SECURITY.md                   # Política de seguridad y divulgación
     ├── CONTRIBUTING.md               # Guía para desarrolladores y colaboradores
-    └── README.md                     # Documentación completa de StartupSentry
+    └── README.md                     # Documentación completa de UsbSentry
 ```
 
 ---

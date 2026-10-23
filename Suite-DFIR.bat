@@ -99,7 +99,11 @@ echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[4]%C_RESET%  %C_BOLD%%C_CYAN%StartupSentry %
 echo  %C_BLUE%^|       %C_GRAY%- Auditoria de programas de arranque, claves Run/RunOnce y firmas Authenticode.             %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|       %C_GRAY%- Deteccion de tareas programadas raiz (\), gatillos recurrentes y masquerading.           %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
-echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[5]%C_RESET%  %C_BOLD%%C_YELLOW%Explorador de Evidencias %C_GRAY%(Abrir Directorios de Reportes DFIR)%C_RESET%                               %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[5]%C_RESET%  %C_BOLD%%C_CYAN%UsbSentry %C_GRAY%(USB Storage Forensics ^& BadUSB Hunter v1.2.1)%C_RESET%                                  %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|       %C_GRAY%- Historial USBSTOR, correlacion de letras de unidad (MountedDevices) y seriales.          %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|       %C_GRAY%- Deteccion de inyectores de pulsaciones BadUSB (Rubber Ducky, Flipper Zero, emuladores).   %C_BLUE%^|%C_RESET%
+echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
+echo  %C_BLUE%^|  %C_BOLD%%C_WHITE%[6]%C_RESET%  %C_BOLD%%C_YELLOW%Explorador de Evidencias %C_GRAY%(Abrir Directorios de Reportes DFIR)%C_RESET%                               %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|       %C_GRAY%- Visualizar dashboards HTML interactivos, evidencias en JSON y tablas CSV.                %C_BLUE%^|%C_RESET%
 echo  %C_BLUE%^|                                                                                                  ^|%C_RESET%
 echo  %C_BLUE%^|  %C_BOLD%%C_RED%[0]%C_RESET%  %C_BOLD%%C_WHITE%Finalizar Sesion Forense %C_GRAY%(Cerrar Suite DFIR)%C_RESET%                                                %C_BLUE%^|%C_RESET%
@@ -117,11 +121,12 @@ if "%OPCION%"=="1" goto RUN_DETECCION
 if "%OPCION%"=="2" goto RUN_WIFISENTRY
 if "%OPCION%"=="3" goto RUN_SOCKETSENTRY
 if "%OPCION%"=="4" goto RUN_STARTUPSENTRY
-if "%OPCION%"=="5" goto RUN_REPORTES
+if "%OPCION%"=="5" goto RUN_USBSENTRY
+if "%OPCION%"=="6" goto RUN_REPORTES
 if "%OPCION%"=="0" goto SALIR
 
 echo.
-echo   %C_YELLOW%[!] Opcion invalida '%OPCION%'. Por favor seleccione [1, 2, 3, 4, 5 o 0]...%C_RESET%
+echo   %C_YELLOW%[!] Opcion invalida '%OPCION%'. Por favor seleccione [1, 2, 3, 4, 5, 6 o 0]...%C_RESET%
 timeout /t 2 >nul 2>&1 || ping 127.0.0.1 -n 3 >nul
 goto MENU
 
@@ -201,6 +206,22 @@ if exist "%~dp0StartupSentry\Ejecutar-StartupSentry.bat" (
 )
 goto MENU
 
+:RUN_USBSENTRY
+cls
+echo.
+echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
+echo  %C_CYAN%^|  %C_BOLD%%C_WHITE%CARGANDO ENTORNO: %C_CYAN%UsbSentry v1.2.1 (Forense de Almacenamiento USB ^& BadUSB Hunter)               %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%^|  %C_GRAY%Iniciando historial USBSTOR, MountedDevices y deteccion de inyectores de hardware...          %C_CYAN%^|%C_RESET%
+echo  %C_CYAN%+--------------------------------------------------------------------------------------------------+%C_RESET%
+echo.
+if exist "%~dp0UsbSentry\Ejecutar-UsbSentry.bat" (
+    call "%~dp0UsbSentry\Ejecutar-UsbSentry.bat" -elevated
+) else (
+    echo   %C_RED%[!] Error: No se encontro el archivo Ejecutar-UsbSentry.bat en el repositorio.%C_RESET%
+    pause
+)
+goto MENU
+
 :RUN_REPORTES
 cls
 echo.
@@ -226,6 +247,10 @@ if exist "%~dp0SocketSentry\Reportes" (
 )
 if exist "%~dp0StartupSentry\Reportes" (
     start "" explorer "%~dp0StartupSentry\Reportes"
+    set "OPENED=1"
+)
+if exist "%~dp0UsbSentry\Reportes" (
+    start "" explorer "%~dp0UsbSentry\Reportes"
     set "OPENED=1"
 )
 if "%OPENED%"=="0" (

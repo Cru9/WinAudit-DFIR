@@ -8,6 +8,7 @@
 * [[🚀 5. StartupSentry (Persistencia)|05-StartupSentry-Triage-de-Persistencia]]
 * [[⚖️ 6. Metodología & Cadena de Custodia|06-Metodologia-Forense-y-Cadena-de-Custodia]]
 * [[❓ 7. FAQ & Troubleshooting|07-Preguntas-Frecuentes-y-Troubleshooting]]
+* [[💾 8. UsbSentry (Almacenamiento & BadUSB)|08-UsbSentry-Forense-de-Dispositivos-USB]]
 
 ---
 
