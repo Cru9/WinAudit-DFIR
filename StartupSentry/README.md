@@ -69,6 +69,9 @@ StartupSentry/
 ├── Ejecutar-StartupSentry.bat  # Lanzador inteligente multi-runtime con auto-elevación UAC
 ├── Cerrar-Ventanas-StartupSentry.bat # Detención limpia de ventanas y procesos en background
 ├── .gitignore                  # Exclusión de evidencias y reportes del control de versiones
+├── LICENSE                     # Licencia MIT (Cru9)
+├── SECURITY.md                 # Política de divulgación responsable
+├── CONTRIBUTING.md             # Guía de contribución técnica
 ├── README.md                   # Documentación técnica y operacional
 │
 ├── Reportes/                   # Directorio local de evidencias

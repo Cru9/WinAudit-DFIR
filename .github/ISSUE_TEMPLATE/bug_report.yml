@@ -17,6 +17,7 @@ body:
         - "Detección de Intrusos (Host & Logs)"
         - "WiFiSentry (RF & Evil Twin Hunter)"
         - "SocketSentry (Sockets & C2 Hunter)"
+        - "StartupSentry (Persistence & Autorun Hunter)"
     validations:
       required: true
   - type: dropdown

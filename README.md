@@ -225,6 +225,9 @@ WinAudit-DFIR/
     ├── Cerrar-Ventanas-StartupSentry.bat # Script de limpieza y detención de procesos
     ├── assets/                       # Banners e infografías HUD de ciberseguridad
     ├── Reportes/                     # Dashboard HTML y reportes de muestra
+    ├── LICENSE                       # Licencia MIT (Cru9)
+    ├── SECURITY.md                   # Política de seguridad y divulgación
+    ├── CONTRIBUTING.md               # Guía para desarrolladores y colaboradores
     └── README.md                     # Documentación completa de StartupSentry
 ```
 

@@ -37,6 +37,7 @@ Para que cualquier contribución sea admitida dentro del repositorio, debe respe
    python -m py_compile WiFiSentry/WiFiSentry.py
    python -m py_compile SocketSentry/SocketSentry.py
    python -m py_compile "Detección de Intrusos/IntruderDetector.py"
+   python -m py_compile StartupSentry/StartupSentry.py
 
    # Validar JSON
    Get-Content SocketSentry/db_conexiones.json -Raw | ConvertFrom-Json | Out-Null

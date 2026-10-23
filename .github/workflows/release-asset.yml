@@ -33,8 +33,9 @@ jobs:
               "__pycache__",
               "*/Reportes/*.json",
               "*/Reportes/*.csv",
-              "*/Reportes/SocketSentry_Audit_*.*",
-              "*/Reportes/SocketSentry_Dashboard_20*.*",
+              "*/Reportes/*.xml",
+              "*/Reportes/*_Audit_*.*",
+              "*/Reportes/*_Dashboard_20*.*",
               "*/Perfiles_Exportados"
           )
 

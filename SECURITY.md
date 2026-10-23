@@ -16,7 +16,7 @@ La seguridad y la confiabilidad forense son nuestra máxima prioridad. Si descub
 1. **NO abras un Issue público** para reportar vulnerabilidades críticas de ejecución o evasión.
 2. Utiliza la función de [Divulgación de Seguridad Privada de GitHub](https://github.com/Cru9/WinAudit-DFIR/security/advisories/new).
 3. Incluye:
-   * Módulo y script afectado (`IntruderDetector`, `WiFiSentry`, `SocketSentry` o lanzadores `.bat`).
+   * Módulo y script afectado (`IntruderDetector`, `WiFiSentry`, `SocketSentry`, `StartupSentry` o lanzadores `.bat`).
    * Pasos reproducibles y prueba de concepto (PoC).
    * Impacto potencial y recomendaciones de mitigación.
 

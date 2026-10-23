@@ -120,7 +120,7 @@ Detección de Intrusos/
 ## 🤝 Operación Individual y Grupal (WinAudit-DFIR Suite)
 
 - **Modo Individual:** Funciona de manera 100% aislada en cualquier equipo Windows cliente o servidor sin requerir conexión a internet ni herramientas adicionales.
-- **Modo Grupal (Suite Maestra):** Se coordina con [`WiFiSentry`](../WiFiSentry/) y [`Suite-DFIR.bat`](../Suite-DFIR.bat) en la raíz del repositorio, compartiendo un estándar unificado de nomenclatura, reportes ejecutivos y cadena de custodia.
+- **Modo Grupal (Suite Maestra):** Se coordina con [`WiFiSentry`](../WiFiSentry/), [`SocketSentry`](../SocketSentry/), [`StartupSentry`](../StartupSentry/) y [`Suite-DFIR.bat`](../Suite-DFIR.bat) en la raíz del repositorio, compartiendo un estándar unificado de nomenclatura, reportes ejecutivos y cadena de custodia.
 
 ---
 
